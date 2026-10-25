@@ -108,7 +108,6 @@ const Hero = () => {
                         id="hero-title"
                         className="
                             whitespace-nowrap
-                            font-body
                             text-2xl
                             font-extrabold
                             leading-[1.4]
@@ -160,7 +159,6 @@ const Hero = () => {
                                 md:px-10
                                 md:py-20
 
-                                font-body
                                 text-sm
                                 font-bold
                                 text-background
@@ -210,7 +208,6 @@ const Hero = () => {
                                 md:px-10
                                 md:py-20
 
-                                font-body
                                 text-sm
                                 font-bold
                                 text-background
@@ -314,7 +311,6 @@ const Hero = () => {
                                         {/* Feature Label */}
                                         <span
                                             className="
-                                                font-body
                                                 text-[11px]
                                                 font-semibold
                                                 leading-relaxed

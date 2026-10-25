@@ -30,7 +30,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                         <Link
                             key={index}
                             href={link.href}
-                            className="flex items-center justify-center gap-4 font-body text-base font-medium leading-none text-foreground transition-colors hover:text-primary [&>svg]:size-15 [&>svg]:shrink-0"
+                            className="flex items-center justify-center gap-4 text-base font-medium leading-none text-foreground transition-colors hover:text-primary [&>svg]:size-15 [&>svg]:shrink-0"
                         >
                             {link.icon}
                             <span className="text-center leading-none">{link.label}</span>
@@ -40,7 +40,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
 
                 <Link
                     href="/menu"
-                    className="hidden md:flex rounded-4xl bg-primary px-15 py-5 font-body text-lg font-bold text-background transition-opacity hover:opacity-90">
+                    className="hidden md:flex rounded-4xl bg-primary px-15 py-5 text-lg font-bold text-background transition-opacity hover:opacity-90">
                     اطلب الآن
                 </Link>
 
@@ -93,7 +93,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                                         <Link
                                             key={index}
                                             href={link.href}
-                                            className="flex items-center justify-center gap-8 font-body text-base font-bold leading-none text-foreground transition-colors hover:text-primary [&>svg]:size-20 [&>svg]:shrink-0"
+                                            className="flex items-center justify-center gap-8 text-base font-bold leading-none text-foreground transition-colors hover:text-primary [&>svg]:size-20 [&>svg]:shrink-0"
                                         >
                                             {link.icon}
                                             <span className="text-center leading-none">{link.label}</span>
@@ -103,7 +103,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
 
                                 <Link
                                     href="/menu"
-                                    className="rounded-4xl mb-20 bg-primary px-15 py-5 font-body text-lg font-bold text-background transition-opacity hover:opacity-90">
+                                    className="rounded-4xl mb-20 bg-primary px-15 py-5 text-lg font-bold text-background transition-opacity hover:opacity-90">
                                     اطلب الآن
                                 </Link>
                             </div>
