@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Restaurant Template
 
-## Getting Started
+A reusable restaurant website and digital menu built with Next.js (App Router), React, TypeScript, and Tailwind CSS. The interface is Arabic (RTL) and mobile-first. The first brand is **Ahl Al Karam (أهل الكرم)**, a shawarma restaurant.
 
-First, run the development server:
+> **Status:** early development. The home page hero and navigation exist. The menu, cart and WhatsApp checkout, the remaining home sections, and a dashboard prototype are planned. There is no backend: the project is frontend-first with typed mock data.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Script | Purpose |
+|---|---|
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript type-check (`tsc --noEmit`) |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Development-only experiments: `/lab/rotation` (hero spit-rotation approaches) and `/lab/scroll` (scroll storytelling). Both return 404 in production.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project structure
 
-## Learn More
+```text
+src/
+├── app/            # Routes (App Router), root layout, global styles & theme tokens
+├── components/     # layout/, home/, lab/ (dev-only)
+└── config/         # restaurant.ts: brand identity, SEO, contact, theme, hero content
+public/assets/      # Logo, backgrounds, hero frame sequence
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Customizing for another restaurant
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Brand values live in `src/config/restaurant.ts`, and colors come from a `[data-theme="…"]` block in `src/app/globals.css`. Note that Tailwind's spacing scale is set to **1px per unit** (`p-16` = 16px).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Stack
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 · React 19 · TypeScript (strict) · Tailwind CSS 4 · react-icons · three.js (lab only)

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
   description: restaurantConfig.seo.description,
 
-  keywords: restaurantConfig.seo.keywords,
+  keywords: [...restaurantConfig.seo.keywords],
 
   robots: {
     index: true,
