@@ -41,18 +41,20 @@ const Hero = () => {
                 HERO CONTENT
             ========================== */}
 
-            <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-1280 px-page-gutter">
+            {/* Mobile: spit is an absolute layer at the end side (left in RTL).
+                md+: 12-column grid, content 7 cols (start) + spit 5 cols (end). */}
+            <div className="relative grid min-h-dvh w-full grid-cols-1 px-page-gutter md:grid-cols-12 md:gap-x-40">
             <div
                 className="
+                    relative
+                    z-10
                     flex
-                    min-h-dvh
-                    w-[80%]
                     flex-col
                     items-start
                     justify-center
-                    text-right
+                    py-80
 
-                    md:w-[62%]
+                    md:col-span-7
                 "
             >
                 {/* Content Wrapper */}
@@ -74,10 +76,9 @@ const Hero = () => {
                         RESTAURANT NAME
                     ========================== */}
 
-                    <div className="w-fit">
+                    <div className="w-fit max-w-[65%] md:max-w-none">
                         <h1
                             className="
-                                whitespace-nowrap
                                 font-display
                                 text-5xl
                                 font-extrabold
@@ -112,10 +113,12 @@ const Hero = () => {
                     <h2
                         id="hero-title"
                         className="
-                            whitespace-nowrap
+                            max-w-[65%]
                             text-2xl
                             font-extrabold
                             leading-[1.4]
+
+                            md:max-w-none
 
                             sm:text-3xl
                             md:text-4xl
@@ -332,7 +335,6 @@ const Hero = () => {
                     </div>
                 </div>
             </div>
-            </div>
 
             {/* =========================
                 SHAWARMA
@@ -342,14 +344,21 @@ const Hero = () => {
                 className="
                     absolute
                     inset-y-0
-                    left-40
-                    top-0
-                    w-[45%]
+                    inset-e-[-15%]
+                    flex
+                    w-[75%]
+                    justify-center
 
-                    md:left-0
+                    sm:w-[60%]
+
+                    md:relative
+                    md:inset-e-auto
+                    md:col-span-5
+                    md:w-auto
                 "
             >
                 <ShawarmaRotator />
+            </div>
             </div>
         </section>
     );

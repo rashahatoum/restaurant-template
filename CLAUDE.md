@@ -50,7 +50,7 @@ After each feature, report:
 - **Preserve working functionality.** Use incremental, reviewable changes. Don't do large rewrites or refactors without approval. Don't modify unrelated files.
 - **No new, upgraded, or removed dependencies** without explaining the need and getting approval. Don't add R3F, Drei, or GSAP until a specific motion justifies it.
 - No premature abstractions, types, or utilities. Wait for a second real use.
-- Mobile-first, Arabic RTL (use logical utilities like `ps-`, `pe-`, `start-`, `end-`), accessible, and SEO on every public route.
+- Mobile-first, Arabic RTL (use logical utilities like `ps-`, `pe-`, `border-e`, and `inset-s-`/`inset-e-`, which Tailwind 4.3 prefers over `start-`/`end-`), accessible, and SEO on every public route.
 - Use design tokens in reusable components. Keep brand-specific values in `src/config/restaurant.ts` and the `[data-theme]` block, so another restaurant can reuse everything.
 - **Motion** must be isolated, prop-driven, lazy-loaded, respect `prefers-reduced-motion`, and render over a static image fallback.
 
