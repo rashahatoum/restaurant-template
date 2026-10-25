@@ -59,8 +59,8 @@ export const restaurantConfig = {
         },
 
         secondaryAction: {
-            label: "استكشف القائمة",
-            href: "/menu",
+            label: "من نحن",
+            href: "/#about",
         },
 
         media: {

@@ -3,8 +3,7 @@ import type { FeatureIconKey } from "@/types/config";
 import Link from "next/link";
 
 import type { IconType } from "react-icons";
-import { FiArrowLeft, FiAward } from "react-icons/fi";
-import { FaWhatsapp } from "react-icons/fa";
+import { FiArrowLeft, FiAward, FiUser } from "react-icons/fi";
 import { LuFlame } from "react-icons/lu";
 import { TiFeather } from "react-icons/ti";
 
@@ -19,6 +18,34 @@ const featureIcons: Record<FeatureIconKey, IconType> = {
     fire: LuFlame,
     quality: FiAward,
 };
+
+// Shared by both hero CTAs; each adds its own colors (incl. border color,
+// so both buttons are the same height).
+const actionClasses = `
+    flex
+    w-full
+    items-center
+    justify-center
+    gap-8
+    rounded-full
+    border-2
+    px-20
+    py-10
+    text-sm
+    font-bold
+    transition-all
+    duration-300
+    hover:-translate-y-2
+
+    sm:w-fit
+    md:min-w-250
+    md:px-10
+    md:py-20
+    lg:text-base
+    xl:text-lg
+`;
+
+const actionIconClasses = "shrink-0 text-lg lg:text-xl xl:text-2xl";
 
 const Hero = () => {
     return (
@@ -132,118 +159,45 @@ const Hero = () => {
                         ACTION BUTTONS
                     ========================== */}
 
+                    {/* Mobile: stacked, same width as the text block. sm+: side by side. */}
                     <div
                         className="
                             flex
-                            w-fit
-                            min-w-200
+                            w-full
+                            max-w-[65%]
                             flex-col
                             gap-10
 
-                            sm:max-w-xl
+                            sm:w-fit
+                            sm:max-w-none
                             sm:flex-row
                             sm:gap-12
 
-                            lg:max-w-none
                             lg:gap-20
                         "
                     >
                         {/* Primary Action */}
                         <Link
                             href={restaurantConfig.hero.primaryAction.href}
-                            className="
-                            flex
-                            w-fit
-                            min-w-168
-                            md:min-w-250
-                                items-center
-                                justify-center
-                                gap-8
-                                rounded-full
-                                bg-primary
-                                px-20
-                                py-10
-
-                                md:px-10
-                                md:py-20
-
-                                text-sm
-                                font-bold
-                                text-background
-
-                                transition-all
-                                duration-300
-
-                                hover:-translate-y-2
-                                hover:brightness-110
-
-                                lg:text-base
-
-                                xl:text-lg
-                            "
+                            className={`${actionClasses} border-primary bg-primary text-background hover:brightness-110`}
                         >
                             <span>
                                 {restaurantConfig.hero.primaryAction.label}
                             </span>
 
-                            <FaWhatsapp
-                                className="
-                                    shrink-0
-                                    text-lg
-
-                                    lg:text-xl
-                                    xl:text-2xl
-                                "
-                            />
+                            <FiArrowLeft className={actionIconClasses} />
                         </Link>
 
                         {/* Secondary Action */}
                         <Link
                             href={restaurantConfig.hero.secondaryAction.href}
-                            className="
-                            flex
-                            w-fit
-                            min-w-100
-                            md:min-w-250
-                                items-center
-                                justify-center
-                                gap-8
-                                rounded-full
-                                bg-primary
-                                px-20
-                                py-10
-
-                                md:px-10
-                                md:py-20
-
-                                text-sm
-                                font-bold
-                                text-background
-
-                                transition-all
-                                duration-300
-
-                                hover:-translate-y-2
-                                hover:brightness-110
-
-                                lg:text-base
-
-                                xl:text-lg
-                            "
+                            className={`${actionClasses} border-2 border-foreground text-foreground hover:bg-foreground/10`}
                         >
                             <span>
                                 {restaurantConfig.hero.secondaryAction.label}
                             </span>
 
-                            <FiArrowLeft
-                                className="
-                                    shrink-0
-                                    text-lg
-
-                                    lg:text-xl
-                                    xl:text-2xl
-                                "
-                            />
+                            <FiUser className={actionIconClasses} />
                         </Link>
                     </div>
 
