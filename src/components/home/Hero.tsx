@@ -24,29 +24,32 @@ const Hero = () => {
     return (
         <section
             aria-labelledby="hero-title"
+            style={{
+                backgroundImage: `url(${restaurantConfig.hero.background})`,
+            }}
             className="
                 relative
-                flex
                 min-h-dvh
                 w-full
                 overflow-hidden
+                bg-cover
+                bg-center
+                bg-no-repeat
             "
         >
             {/* =========================
                 HERO CONTENT
             ========================== */}
 
+            <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-1280 px-page-gutter">
             <div
                 className="
-                    relative
-                    z-10
                     flex
                     min-h-dvh
                     w-[80%]
                     flex-col
                     items-start
                     justify-center
-                    ps-[8vw]
                     text-right
 
                     md:w-[62%]
@@ -328,6 +331,7 @@ const Hero = () => {
                         )}
                     </div>
                 </div>
+            </div>
             </div>
 
             {/* =========================

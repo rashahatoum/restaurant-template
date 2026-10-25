@@ -35,8 +35,8 @@ const NavBar = () => {
     const closeMenu = () => setIsOpen(false);
 
     return (
-        <header className="absolute inset-x-0 top-0 z-50 w-full">
-            <nav className="mx-auto flex h-80 w-full items-center justify-between px-[8vw] bg-background/60">
+        <header className="absolute inset-x-0 top-0 z-50 bg-background/60">
+            <nav className="mx-auto flex h-80 w-full max-w-1280 items-center justify-between px-page-gutter">
 
                 <Link href="/">
                     <Image
