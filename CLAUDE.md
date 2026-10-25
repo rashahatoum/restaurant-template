@@ -56,7 +56,7 @@ After each feature, report:
 
 ## Project gotchas
 
-- **Tailwind spacing is 1px per unit** (`--spacing: 1px` in `globals.css`): `p-16` is 16px and `size-5` is 5px.
+- **Tailwind spacing is 1px per unit** (`--spacing: 1px` in `globals.css`): `p-16` is 16px and `size-5` is 5px. Never append `px` (`max-w-760px` generates no CSS, silently); use `max-w-760` or `max-w-[760px]`.
 - `/lab/*` routes are dev-only experiments (`notFound()` in production). Don't link to them, and don't import lab code into production components. Promote code out of the lab deliberately instead.
 - `three` is imported dynamically (`import("three")`) and only in the lab.
 
@@ -66,7 +66,7 @@ Run these before calling anything done:
 
 ```bash
 npm run lint
-npx tsc --noEmit
+npm run typecheck
 npm run build
 ```
 

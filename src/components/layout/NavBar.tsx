@@ -16,7 +16,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
         <header className="absolute inset-x-0 top-0 z-50 w-full">
             <nav className="mx-auto flex h-80 w-full items-center justify-between px-[8vw] bg-black/60">
 
-                <Link href="/" className="font-display text-2xl font-bold">
+                <Link href="/">
                     <Image
                         src={restaurantConfig.logo}
                         alt={restaurantConfig.name}
@@ -47,7 +47,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                 <button
                     type="button"
                     aria-label="فتح القائمة"
-                    className="flex flex-col gap-1.5 md:hidden"
+                    className="flex md:hidden"
                     onClick={() => setIsOpen((prev) => !prev)}                >
                     <FiMenu className="text-2xl text-foreground" />
                 </button>
@@ -69,7 +69,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                         />
 
                         <div className="relative z-10 flex h-full flex-col">
-                            <div className="flex shrink-0 items-center justify-between px-6 py-5">
+                            <div className="flex shrink-0 items-center justify-between px-24 py-20">
                                 <button
                                     type="button"
                                     onClick={() => setIsOpen(false)}
@@ -80,7 +80,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                                 </button>
                             </div>
 
-                            <div className="flex min-h-0 flex-1 flex-col items-center justify-between px-6 pb-10 pt-4">
+                            <div className="flex min-h-0 flex-1 flex-col items-center justify-between px-24 pb-40 pt-16">
                                 <Image
                                     src={restaurantConfig.logo}
                                     alt={restaurantConfig.name}
@@ -93,7 +93,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                                         <Link
                                             key={index}
                                             href={link.href}
-                                            className="flex items-center justify-center gap-2 font-body text-base font-bold leading-none text-foreground transition-colors hover:text-primary [&>svg]:size-5 [&>svg]:shrink-0"
+                                            className="flex items-center justify-center gap-8 font-body text-base font-bold leading-none text-foreground transition-colors hover:text-primary [&>svg]:size-20 [&>svg]:shrink-0"
                                         >
                                             {link.icon}
                                             <span className="text-center leading-none">{link.label}</span>

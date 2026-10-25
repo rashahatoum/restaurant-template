@@ -17,7 +17,7 @@ npm run dev        # http://localhost:3000
 | `npm run build` | Production build |
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
-| `npx tsc --noEmit` | Type-check |
+| `npm run typecheck` | TypeScript type-check (`tsc --noEmit`) |
 
 Development-only experiments: `/lab/rotation` (hero spit-rotation approaches) and `/lab/scroll` (scroll storytelling). Both return 404 in production.
 

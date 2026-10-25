@@ -59,10 +59,10 @@ const Hero = () => {
                         flex-col
                         gap-10
 
-                        lg:max-w-760px
+                        lg:max-w-760
                         md:gap-20
 
-                        xl:max-w-820px
+                        xl:max-w-820
                     "
                 >
                     {/* =========================
@@ -91,14 +91,11 @@ const Hero = () => {
                         <div
                             className="
                                 mt-2
-                                h-2
+                                h-4
                                 w-full
                                 -rotate-3
                                 rounded-full
                                 bg-primary
-
-                                sm:h-3
-                                lg:h-4
                             "
                         />
                     </div>
@@ -134,11 +131,11 @@ const Hero = () => {
                             w-fit
                             min-w-200
                             flex-col
-                            gap-2.5
+                            gap-10
 
                             sm:max-w-xl
                             sm:flex-row
-                            sm:gap-3
+                            sm:gap-12
 
                             lg:max-w-none
                             lg:gap-20
@@ -154,7 +151,7 @@ const Hero = () => {
                             md:min-w-250
                                 items-center
                                 justify-center
-                                gap-2
+                                gap-8
                                 rounded-full
                                 bg-primary
                                 px-20
@@ -171,13 +168,11 @@ const Hero = () => {
                                 transition-all
                                 duration-300
 
-                                hover:-translate-y-0.5
+                                hover:-translate-y-2
                                 hover:brightness-110
 
-                                lg:h-14
                                 lg:text-base
 
-                                xl:h-16
                                 xl:text-lg
                             "
                         >
@@ -206,7 +201,7 @@ const Hero = () => {
                             md:min-w-250
                                 items-center
                                 justify-center
-                                gap-2
+                                gap-8
                                 rounded-full
                                 bg-primary
                                 px-20
@@ -223,13 +218,11 @@ const Hero = () => {
                                 transition-all
                                 duration-300
 
-                                hover:-translate-y-0.5
+                                hover:-translate-y-2
                                 hover:brightness-110
 
-                                lg:h-14
                                 lg:text-base
 
-                                xl:h-16
                                 xl:text-lg
                             "
                         >
@@ -255,7 +248,7 @@ const Hero = () => {
 
                     <div
                         className="
-                            mt-2
+                            mt-8
                             grid
                             w-full
                             grid-cols-3
@@ -263,9 +256,9 @@ const Hero = () => {
 
                             sm:max-w-xl
 
-                            md:mt-4
+                            md:mt-16
 
-                            lg:mt-6
+                            lg:mt-24
                             lg:max-w-none
                         "
                     >
@@ -287,15 +280,15 @@ const Hero = () => {
                                             flex-col
                                             items-center
                                             justify-start
-                                            gap-2
-                                            px-2
+                                            gap-8
+                                            px-8
                                             text-center
 
-                                            lg:min-h-130px
-                                            lg:gap-3
-                                            lg:px-5
+                                            lg:min-h-130
+                                            lg:gap-12
+                                            lg:px-20
 
-                                            xl:px-7
+                                            xl:px-28
 
                                             ${index !==
                                                 restaurantConfig.hero.features
