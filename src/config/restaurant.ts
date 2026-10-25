@@ -4,6 +4,20 @@ export const restaurantConfig = {
 
     navbar: {
         mobileBackground: "/assets/imgs/nav-mobile-bg.webp",
+
+        // icon: key mapped to a component in NavBar (navIcons)
+        links: [
+            { label: "الرئيسية", href: "/", icon: "home" },
+            { label: "القائمة", href: "/menu", icon: "menu" },
+            { label: "من نحن", href: "/#about", icon: "about" },
+            { label: "موقعنا", href: "/#location", icon: "location" },
+            { label: "تواصل معنا", href: "/#contact", icon: "contact" },
+        ],
+
+        orderAction: {
+            label: "اطلب الآن",
+            href: "/menu",
+        },
     },
 
     seo: {
