@@ -14,7 +14,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <header className="absolute inset-x-0 top-0 z-50 w-full">
-            <nav className="mx-auto flex h-80 w-full items-center justify-between px-[8vw] bg-black/60">
+            <nav className="mx-auto flex h-80 w-full items-center justify-between px-[8vw] bg-background/60">
 
                 <Link href="/">
                     <Image

@@ -294,7 +294,7 @@ const Hero = () => {
                                                 restaurantConfig.hero.features
                                                     .length -
                                                 1
-                                                ? "border-l border-white/30"
+                                                ? "border-e border-foreground/30"
                                                 : ""
                                             }
                                         `}
@@ -318,7 +318,7 @@ const Hero = () => {
                                                 text-[11px]
                                                 font-semibold
                                                 leading-relaxed
-                                                text-white
+                                                text-foreground
 
                                                 sm:text-xs
                                                 md:text-base
