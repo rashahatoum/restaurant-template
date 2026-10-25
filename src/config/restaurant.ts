@@ -1,3 +1,5 @@
+import type { RestaurantConfig } from "@/types/config";
+
 export const restaurantConfig = {
     name: "أهل الكرم",
     logo: "/assets/imgs/ahl-alkaram-logo.webp",
@@ -107,4 +109,4 @@ export const restaurantConfig = {
             },
         ],
     },
-} as const;
+} as const satisfies RestaurantConfig;

@@ -1,13 +1,15 @@
 "use client"
 
 import { restaurantConfig } from "@/config/restaurant";
+import type { NavIconKey } from "@/types/config";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { FiHome, FiMapPin, FiMenu, FiPhone, FiUser, FiX } from "react-icons/fi";
 import { MdOutlineRestaurant } from "react-icons/md";
+import type { IconType } from "react-icons";
 
-const navIcons = {
+const navIcons: Record<NavIconKey, IconType> = {
     home: FiHome,
     menu: MdOutlineRestaurant,
     about: FiUser,

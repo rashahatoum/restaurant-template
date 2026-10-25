@@ -1,6 +1,8 @@
 import { restaurantConfig } from "@/config/restaurant";
+import type { FeatureIconKey } from "@/types/config";
 import Link from "next/link";
 
+import type { IconType } from "react-icons";
 import { FiArrowLeft, FiAward } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { LuFlame } from "react-icons/lu";
@@ -12,7 +14,7 @@ import ShawarmaRotator from "./HeroImageSequence";
    FEATURE ICONS
 ========================= */
 
-const featureIcons = {
+const featureIcons: Record<FeatureIconKey, IconType> = {
     fresh: TiFeather,
     fire: LuFlame,
     quality: FiAward,
@@ -261,10 +263,7 @@ const Hero = () => {
                     >
                         {restaurantConfig.hero.features.map(
                             (feature, index) => {
-                                const Icon =
-                                    featureIcons[
-                                    feature.icon as keyof typeof featureIcons
-                                    ];
+                                const Icon = featureIcons[feature.icon];
 
                                 return (
                                     <div
