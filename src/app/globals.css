@@ -32,3 +32,8 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-body);
 }
+
+/* Lock page scroll while a modal dialog (e.g. the mobile menu) is open */
+body:has(dialog[open]) {
+  overflow: hidden;
+}

@@ -3,7 +3,7 @@
 import { restaurantConfig } from "@/config/restaurant";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 
 interface NavBarProps {
@@ -12,6 +12,19 @@ interface NavBarProps {
 
 const NavBar = ({ navbarItems }: NavBarProps) => {
     const [isOpen, setIsOpen] = useState(false);
+    const dialogRef = useRef<HTMLDialogElement>(null);
+
+    // showModal() has no React prop equivalent; it gives us Escape-to-close,
+    // a focus trap, and focus return to the toggle for free.
+    useEffect(() => {
+        const dialog = dialogRef.current;
+        if (!dialog) return;
+        if (isOpen && !dialog.open) dialog.showModal();
+        if (!isOpen && dialog.open) dialog.close();
+    }, [isOpen]);
+
+    const closeMenu = () => setIsOpen(false);
+
     return (
         <header className="absolute inset-x-0 top-0 z-50 w-full">
             <nav className="mx-auto flex h-80 w-full items-center justify-between px-[8vw] bg-background/60">
@@ -26,9 +39,9 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                 </Link>
 
                 <div className="hidden items-center gap-20 md:flex">
-                    {navbarItems.map((link, index) => (
+                    {navbarItems.map((link) => (
                         <Link
-                            key={index}
+                            key={link.href}
                             href={link.href}
                             className="flex items-center justify-center gap-4 text-base font-medium leading-none text-foreground transition-colors hover:text-primary [&>svg]:size-15 [&>svg]:shrink-0"
                         >
@@ -47,18 +60,28 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                 <button
                     type="button"
                     aria-label="فتح القائمة"
+                    aria-expanded={isOpen}
+                    aria-controls="mobile-menu"
                     className="flex md:hidden"
-                    onClick={() => setIsOpen((prev) => !prev)}                >
+                    onClick={() => setIsOpen(true)}
+                >
                     <FiMenu className="text-2xl text-foreground" />
                 </button>
-                {isOpen && (
-                    <div className="
-                            fixed inset-0 z-50
+                <dialog
+                    ref={dialogRef}
+                    id="mobile-menu"
+                    aria-label="القائمة"
+                    onClose={closeMenu}
+                    className="
+                            fixed inset-0
                             h-dvh w-screen
+                            max-h-none max-w-none
                             overflow-hidden
                             bg-background
+                            text-foreground
                             md:hidden
-                        ">
+                        "
+                >
                         <Image
                             src={restaurantConfig.navbar.mobileBackground}
                             alt=""
@@ -72,7 +95,7 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                             <div className="flex shrink-0 items-center justify-between px-24 py-20">
                                 <button
                                     type="button"
-                                    onClick={() => setIsOpen(false)}
+                                    onClick={closeMenu}
                                     aria-label="إغلاق القائمة"
                                     className="inline-flex items-center justify-center"
                                 >
@@ -89,10 +112,11 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
                                 />
 
                                 <div className="flex flex-col items-center gap-15">
-                                    {navbarItems.map((link, index) => (
+                                    {navbarItems.map((link) => (
                                         <Link
-                                            key={index}
+                                            key={link.href}
                                             href={link.href}
+                                            onClick={closeMenu}
                                             className="flex items-center justify-center gap-8 text-base font-bold leading-none text-foreground transition-colors hover:text-primary [&>svg]:size-20 [&>svg]:shrink-0"
                                         >
                                             {link.icon}
@@ -103,13 +127,13 @@ const NavBar = ({ navbarItems }: NavBarProps) => {
 
                                 <Link
                                     href="/menu"
+                                    onClick={closeMenu}
                                     className="rounded-4xl mb-20 bg-primary px-15 py-5 text-lg font-bold text-background transition-opacity hover:opacity-90">
                                     اطلب الآن
                                 </Link>
                             </div>
                         </div>
-                    </div>
-                )}
+                </dialog>
             </nav>
         </header>
     )
