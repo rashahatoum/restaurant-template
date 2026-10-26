@@ -13,7 +13,7 @@
   --font-body: var(--font-tajawal);
   --font-display: var(--font-playpen);
 
-  --spacing-page-gutter: clamp(1.25rem, 5.5vw, 5rem);
+  --spacing-page-gutter: clamp(1.25rem, 6vw, 10rem);
 }
 
 [data-theme="fire"] {
@@ -30,4 +30,10 @@ body {
   margin: 0;
   background: var(--color-background);
   color: var(--color-foreground);
+  font-family: var(--font-body);
+}
+
+/* Lock page scroll while a modal dialog (e.g. the mobile menu) is open */
+body:has(dialog[open]) {
+  overflow: hidden;
 }

@@ -1,9 +1,25 @@
+import type { RestaurantConfig } from "@/types/config";
+
 export const restaurantConfig = {
     name: "أهل الكرم",
     logo: "/assets/imgs/ahl-alkaram-logo.webp",
 
     navbar: {
         mobileBackground: "/assets/imgs/nav-mobile-bg.webp",
+
+        // icon: key mapped to a component in NavBar (navIcons)
+        links: [
+            { label: "الرئيسية", href: "/", icon: "home" },
+            { label: "القائمة", href: "/menu", icon: "menu" },
+            { label: "من نحن", href: "/#about", icon: "about" },
+            { label: "موقعنا", href: "/#location", icon: "location" },
+            { label: "تواصل معنا", href: "/#contact", icon: "contact" },
+        ],
+
+        orderAction: {
+            label: "اطلب الآن",
+            href: "/menu",
+        },
     },
 
     seo: {
@@ -43,8 +59,8 @@ export const restaurantConfig = {
         },
 
         secondaryAction: {
-            label: "استكشف القائمة",
-            href: "/menu",
+            label: "من نحن",
+            href: "/#about",
         },
 
         media: {
@@ -93,4 +109,4 @@ export const restaurantConfig = {
             },
         ],
     },
-} as const;
+} as const satisfies RestaurantConfig;

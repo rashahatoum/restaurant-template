@@ -5,13 +5,13 @@ import { Tajawal, Playpen_Sans_Arabic} from "next/font/google";
 
 const bodyFont = Tajawal({
   subsets: ["arabic"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "700", "800"],
   variable: "--font-tajawal",
 });
 
 const displayFont = Playpen_Sans_Arabic({
   subsets: ["arabic"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "700", "800"],
   variable: "--font-playpen",
 });
 

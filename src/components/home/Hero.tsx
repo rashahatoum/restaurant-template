@@ -1,8 +1,9 @@
 import { restaurantConfig } from "@/config/restaurant";
+import type { FeatureIconKey } from "@/types/config";
 import Link from "next/link";
 
-import { FiArrowLeft, FiAward } from "react-icons/fi";
-import { FaWhatsapp } from "react-icons/fa";
+import type { IconType } from "react-icons";
+import { FiArrowLeft, FiAward, FiUser } from "react-icons/fi";
 import { LuFlame } from "react-icons/lu";
 import { TiFeather } from "react-icons/ti";
 
@@ -12,42 +13,75 @@ import ShawarmaRotator from "./HeroImageSequence";
    FEATURE ICONS
 ========================= */
 
-const featureIcons = {
+const featureIcons: Record<FeatureIconKey, IconType> = {
     fresh: TiFeather,
     fire: LuFlame,
     quality: FiAward,
 };
 
+// Shared by both hero CTAs; each adds its own colors (incl. border color,
+// so both buttons are the same height).
+const actionClasses = `
+    flex
+    w-full
+    items-center
+    justify-center
+    gap-8
+    rounded-full
+    border-2
+    px-20
+    py-10
+    text-sm
+    font-bold
+    transition-all
+    duration-300
+    hover:-translate-y-2
+
+    sm:w-fit
+    md:min-w-250
+    md:px-10
+    md:py-20
+    lg:text-base
+    xl:text-lg
+`;
+
+const actionIconClasses = "shrink-0 text-lg lg:text-xl xl:text-2xl";
+
 const Hero = () => {
     return (
         <section
             aria-labelledby="hero-title"
+            style={{
+                backgroundImage: `url(${restaurantConfig.hero.background})`,
+            }}
             className="
                 relative
-                flex
                 min-h-dvh
                 w-full
                 overflow-hidden
+                bg-cover
+                bg-center
+                bg-no-repeat
             "
         >
             {/* =========================
                 HERO CONTENT
             ========================== */}
 
+            {/* Mobile: spit is an absolute layer at the end side (left in RTL).
+                md+: 12-column grid, content 7 cols (start) + spit 5 cols (end). */}
+            <div className="relative grid min-h-dvh w-full grid-cols-1 px-page-gutter md:grid-cols-12 md:gap-x-40">
             <div
                 className="
                     relative
                     z-10
                     flex
-                    min-h-dvh
-                    w-[80%]
                     flex-col
                     items-start
                     justify-center
-                    ps-[8vw]
-                    text-right
+                    py-80
 
-                    md:w-[62%]
+                    md:col-span-7
                 "
             >
                 {/* Content Wrapper */}
@@ -69,10 +103,9 @@ const Hero = () => {
                         RESTAURANT NAME
                     ========================== */}
 
-                    <div className="w-fit">
+                    <div className="w-fit max-w-[65%] md:max-w-none">
                         <h1
                             className="
-                                whitespace-nowrap
                                 font-display
                                 text-5xl
                                 font-extrabold
@@ -107,11 +140,12 @@ const Hero = () => {
                     <h2
                         id="hero-title"
                         className="
-                            whitespace-nowrap
-                            font-body
+                            max-w-[65%]
                             text-2xl
                             font-extrabold
                             leading-[1.4]
+
+                            md:max-w-none
 
                             sm:text-3xl
                             md:text-4xl
@@ -125,120 +159,45 @@ const Hero = () => {
                         ACTION BUTTONS
                     ========================== */}
 
+                    {/* Mobile: stacked, same width as the text block. sm+: side by side. */}
                     <div
                         className="
                             flex
-                            w-fit
-                            min-w-200
+                            w-full
+                            max-w-[65%]
                             flex-col
                             gap-10
 
-                            sm:max-w-xl
+                            sm:w-fit
+                            sm:max-w-none
                             sm:flex-row
                             sm:gap-12
 
-                            lg:max-w-none
                             lg:gap-20
                         "
                     >
                         {/* Primary Action */}
                         <Link
                             href={restaurantConfig.hero.primaryAction.href}
-                            className="
-                            flex
-                            w-fit
-                            min-w-168
-                            md:min-w-250
-                                items-center
-                                justify-center
-                                gap-8
-                                rounded-full
-                                bg-primary
-                                px-20
-                                py-10
-
-                                md:px-10
-                                md:py-20
-
-                                font-body
-                                text-sm
-                                font-bold
-                                text-background
-
-                                transition-all
-                                duration-300
-
-                                hover:-translate-y-2
-                                hover:brightness-110
-
-                                lg:text-base
-
-                                xl:text-lg
-                            "
+                            className={`${actionClasses} border-primary bg-primary text-background hover:brightness-110`}
                         >
                             <span>
                                 {restaurantConfig.hero.primaryAction.label}
                             </span>
 
-                            <FaWhatsapp
-                                className="
-                                    shrink-0
-                                    text-lg
-
-                                    lg:text-xl
-                                    xl:text-2xl
-                                "
-                            />
+                            <FiArrowLeft className={actionIconClasses} />
                         </Link>
 
                         {/* Secondary Action */}
                         <Link
                             href={restaurantConfig.hero.secondaryAction.href}
-                            className="
-                            flex
-                            w-fit
-                            min-w-100
-                            md:min-w-250
-                                items-center
-                                justify-center
-                                gap-8
-                                rounded-full
-                                bg-primary
-                                px-20
-                                py-10
-
-                                md:px-10
-                                md:py-20
-
-                                font-body
-                                text-sm
-                                font-bold
-                                text-background
-
-                                transition-all
-                                duration-300
-
-                                hover:-translate-y-2
-                                hover:brightness-110
-
-                                lg:text-base
-
-                                xl:text-lg
-                            "
+                            className={`${actionClasses} border-2 border-foreground text-foreground hover:bg-foreground/10`}
                         >
                             <span>
                                 {restaurantConfig.hero.secondaryAction.label}
                             </span>
 
-                            <FiArrowLeft
-                                className="
-                                    shrink-0
-                                    text-lg
-
-                                    lg:text-xl
-                                    xl:text-2xl
-                                "
-                            />
+                            <FiUser className={actionIconClasses} />
                         </Link>
                     </div>
 
@@ -264,10 +223,7 @@ const Hero = () => {
                     >
                         {restaurantConfig.hero.features.map(
                             (feature, index) => {
-                                const Icon =
-                                    featureIcons[
-                                    feature.icon as keyof typeof featureIcons
-                                    ];
+                                const Icon = featureIcons[feature.icon];
 
                                 return (
                                     <div
@@ -294,7 +250,7 @@ const Hero = () => {
                                                 restaurantConfig.hero.features
                                                     .length -
                                                 1
-                                                ? "border-l border-white/30"
+                                                ? "border-e border-foreground/30"
                                                 : ""
                                             }
                                         `}
@@ -314,11 +270,10 @@ const Hero = () => {
                                         {/* Feature Label */}
                                         <span
                                             className="
-                                                font-body
                                                 text-[11px]
                                                 font-semibold
                                                 leading-relaxed
-                                                text-white
+                                                text-foreground
 
                                                 sm:text-xs
                                                 md:text-base
@@ -343,14 +298,21 @@ const Hero = () => {
                 className="
                     absolute
                     inset-y-0
-                    left-40
-                    top-0
-                    w-[45%]
+                    inset-e-[-15%]
+                    flex
+                    w-[75%]
+                    justify-center
 
-                    md:left-0
+                    sm:w-[60%]
+
+                    md:relative
+                    md:inset-e-auto
+                    md:col-span-5
+                    md:w-auto
                 "
             >
                 <ShawarmaRotator />
+            </div>
             </div>
         </section>
     );
