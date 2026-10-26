@@ -14,6 +14,15 @@
   --font-display: var(--font-playpen);
 
   --spacing-page-gutter: clamp(1.25rem, 6vw, 10rem);
+
+  /* Slider: a card that wraps around (last ↔ first) fades in instead of sliding across */
+  --animate-slider-fade: slider-fade 500ms ease-out;
+
+  @keyframes slider-fade {
+    from {
+      opacity: 0;
+    }
+  }
 }
 
 [data-theme="fire"] {

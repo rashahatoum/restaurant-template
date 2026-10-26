@@ -46,6 +46,11 @@ export const restaurantConfig = {
         address: "",
     },
 
+    currency: {
+        code: "SYP",
+        label: "ل.س",
+    },
+
     theme: "fire",
 
     hero: {

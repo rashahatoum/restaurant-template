@@ -314,6 +314,12 @@ const Hero = () => {
                 <ShawarmaRotator />
             </div>
             </div>
+
+            {/* Fade the background into the next section (no hard edge). Above the spit, below the content. */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 bottom-0 z-5 h-160 bg-linear-to-b from-transparent to-background"
+            />
         </section>
     );
 };

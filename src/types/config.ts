@@ -40,6 +40,12 @@ export interface RestaurantConfig {
         address: string;
     };
 
+    /** Currency of every price in the menu data. */
+    currency: {
+        code: string;
+        label: string;
+    };
+
     theme: ThemeName;
 
     hero: {
