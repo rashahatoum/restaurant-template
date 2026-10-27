@@ -42,6 +42,7 @@ export default function RootLayout({
     lang="ar" 
     dir="rtl"
     data-theme={restaurantConfig.theme}
+    data-scroll-behavior="smooth"
     className={`${bodyFont.variable} ${displayFont.variable}`}>
       <body>{children}</body>
     </html>

@@ -1,4 +1,5 @@
 import ProductCard from "@/components/menu/ProductCard";
+import SectionTitle from "@/components/ui/SectionTitle";
 import Slider from "@/components/ui/Slider";
 import { getBestSellers } from "@/services/menu";
 import { LuFlame } from "react-icons/lu";
@@ -18,26 +19,13 @@ const BestSellers = async () => {
                 TITLE
             ========================== */}
 
-            <div className="mb-40 flex flex-col items-center gap-12 text-center md:mb-64">
-                <p className="flex items-center gap-8 text-sm font-bold text-primary md:text-base">
-                    <LuFlame aria-hidden="true" className="text-lg" />
-                    أطباقنا المفضّلة
-                </p>
-
-                <h2
+            <div className="mb-40 md:mb-64">
+                <SectionTitle
                     id="best-sellers-title"
-                    className="font-display text-4xl font-extrabold lg:text-5xl"
-                >
-                    الأكثر{" "}
-                    <span className="inline-block">
-                        مبيعاً
-                        {/* Same orange underline as the hero name */}
-                        <span
-                            aria-hidden="true"
-                            className="mt-2 block h-4 w-full -rotate-3 rounded-full bg-primary"
-                        />
-                    </span>
-                </h2>
+                    eyebrow="أطباقنا المفضّلة"
+                    eyebrowIcon={LuFlame}
+                    title="الأكثر **مبيعاً**"
+                />
             </div>
 
             {/* =========================
