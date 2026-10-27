@@ -35,6 +35,63 @@
 }
 
 
+/* Smooth scroll for in-page links (#about…). data-scroll-behavior="smooth" on
+   <html> lets Next.js turn it off during route changes. */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* =========================
+   SCROLL REVEALS (CSS scroll-driven, no JS)
+   Play while the element scrolls into view. Browsers without
+   animation-timeline, and reduced motion, just show the element.
+========================= */
+
+@keyframes reveal-zoom {
+  from {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+
+
+@utility reveal-zoom {
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: reveal-zoom linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+  }
+}
+
+/* Word-by-word reveal driven by RevealText (time-based, plays once).
+   Hidden only when JS runs and motion is allowed; otherwise always visible. */
+@utility reveal-word {
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    opacity: 0;
+    filter: blur(6px);
+    translate: 0 12px;
+    transition:
+      opacity 600ms ease-out,
+      filter 600ms ease-out,
+      translate 600ms ease-out;
+    transition-delay: var(--reveal-delay, 0ms);
+
+    [data-revealed="true"] & {
+      opacity: 1;
+      filter: none;
+      translate: 0 0;
+    }
+  }
+}
+
 body {
   margin: 0;
   background: var(--color-background);

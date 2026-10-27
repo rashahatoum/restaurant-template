@@ -7,6 +7,8 @@ import { FiArrowLeft, FiAward, FiUser } from "react-icons/fi";
 import { LuFlame } from "react-icons/lu";
 import { TiFeather } from "react-icons/ti";
 
+import Underline from "@/components/ui/Underline";
+
 import ShawarmaRotator from "./HeroImageSequence";
 
 /* =========================
@@ -120,17 +122,7 @@ const Hero = () => {
                             {restaurantConfig.name}
                         </h1>
 
-                        {/* Orange underline */}
-                        <div
-                            className="
-                                mt-2
-                                h-4
-                                w-full
-                                -rotate-3
-                                rounded-full
-                                bg-primary
-                            "
-                        />
+                        <Underline />
                     </div>
 
                     {/* =========================
