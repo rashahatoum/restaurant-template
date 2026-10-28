@@ -3,7 +3,12 @@
 
 import { about } from "@/data/mock/about";
 import { offers } from "@/data/mock/offers";
-import type { AboutContent, OffersContent } from "@/types/content";
+import { reviews } from "@/data/mock/reviews";
+import type {
+    AboutContent,
+    OffersContent,
+    ReviewsContent,
+} from "@/types/content";
 
 export async function getAboutContent(): Promise<AboutContent> {
     return about;
@@ -17,5 +22,18 @@ export async function getOffersContent(): Promise<OffersContent | null> {
 
     return activeOffers.length > 0
         ? { ...offers, offers: activeOffers }
+        : null;
+}
+
+/** Visible reviews only; null when the section is off or has nothing to show. */
+export async function getReviewsContent(): Promise<ReviewsContent | null> {
+    if (!reviews.isEnabled) return null;
+
+    const visibleReviews = reviews.reviews.filter(
+        (review) => review.isVisible
+    );
+
+    return visibleReviews.length > 0
+        ? { ...reviews, reviews: visibleReviews }
         : null;
 }
