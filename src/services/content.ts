@@ -4,11 +4,17 @@
 import { about } from "@/data/mock/about";
 import { offers } from "@/data/mock/offers";
 import { reviews } from "@/data/mock/reviews";
+import { siteInfo } from "@/data/mock/site-info";
 import type {
     AboutContent,
     OffersContent,
     ReviewsContent,
+    SiteInfo,
 } from "@/types/content";
+
+export async function getSiteInfo(): Promise<SiteInfo> {
+    return siteInfo;
+}
 
 export async function getAboutContent(): Promise<AboutContent> {
     return about;

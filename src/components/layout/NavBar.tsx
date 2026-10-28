@@ -42,8 +42,10 @@ const NavBar = () => {
                     <Image
                         src={restaurantConfig.logo}
                         alt={restaurantConfig.name}
-                        width={120}
-                        height={120}
+                        width={2172}
+                        height={724}
+                        sizes="120px"
+                        className="h-auto w-120"
                     />
                 </Link>
 
@@ -119,8 +121,10 @@ const NavBar = () => {
                                 <Image
                                     src={restaurantConfig.logo}
                                     alt={restaurantConfig.name}
-                                    width={200}
-                                    height={200}
+                                    width={2172}
+                                    height={724}
+                                    sizes="200px"
+                                    className="h-auto w-200"
                                 />
 
                                 <div className="flex flex-col items-center gap-15">

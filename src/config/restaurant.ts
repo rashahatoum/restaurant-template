@@ -40,12 +40,6 @@ export const restaurantConfig = {
         ],
     },
 
-    contact: {
-        phone: "",
-        whatsapp: "",
-        address: "",
-    },
-
     currency: {
         code: "SYP",
         label: "ل.س",

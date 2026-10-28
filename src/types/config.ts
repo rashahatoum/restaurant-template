@@ -34,12 +34,6 @@ export interface RestaurantConfig {
         keywords: readonly string[];
     };
 
-    contact: {
-        phone: string;
-        whatsapp: string;
-        address: string;
-    };
-
     /** Currency of every price in the menu data. */
     currency: {
         code: string;
