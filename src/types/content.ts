@@ -33,6 +33,30 @@ export interface OffersContent {
     offers: readonly Offer[];
 }
 
+/** A customer review received on WhatsApp, re-typed as a two-message chat. */
+export interface Review {
+    id: string;
+    /** First name only (privacy). */
+    customerName: string;
+    /** Restaurant's question; falls back to ReviewsContent.defaultQuestion. */
+    question?: string;
+    /** Customer's reply; **marked** words render in the primary color. */
+    answer: string;
+    /** Display-only time of the reply, e.g. "9:41 م". */
+    time?: string;
+    isVisible: boolean;
+}
+
+export interface ReviewsContent {
+    /** Turns the whole home section on or off. */
+    isEnabled: boolean;
+    eyebrow: string;
+    /** The **marked** part gets the brand underline. */
+    title: string;
+    defaultQuestion: string;
+    reviews: readonly Review[];
+}
+
 export interface AboutContent {
     eyebrow: string;
     /** The **marked** part gets the brand underline. */
