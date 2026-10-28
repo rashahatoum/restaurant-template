@@ -57,7 +57,14 @@ const Slider = ({ label, children }: SliderProps) => {
             active: (current.active + step + count) % count,
         }));
 
-    if (count <= 1) return <>{slides}</>;
+    // One slide: no arrows, same width as a center slide.
+    if (count <= 1) {
+        return (
+            <div className="mx-auto w-[75%] max-w-360 md:w-[28%] md:max-w-none">
+                {slides}
+            </div>
+        );
+    }
 
     return (
         <div
