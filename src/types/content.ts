@@ -7,6 +7,31 @@ export interface ContentImage {
     alt: string;
 }
 
+export interface ContactPhone {
+    /** International format, no spaces: "+963930539614". */
+    number: string;
+    hasWhatsApp: boolean;
+}
+
+export interface Branch {
+    id: string;
+    name: string;
+    address: string;
+    /** Google Maps (or similar) link, once the branch is listed. */
+    mapUrl?: string;
+}
+
+export type SocialPlatform = "facebook" | "instagram" | "tiktok";
+
+/** Restaurant contact & location info, shown in the footer (and used for orders later). */
+export interface SiteInfo {
+    tagline: string;
+    phones: readonly ContactPhone[];
+    branches: readonly Branch[];
+    openingHours?: string;
+    socialLinks?: readonly { platform: SocialPlatform; url: string }[];
+}
+
 /** "Buy X, get Y free" offer. Shown only while isActive. */
 export interface Offer {
     id: string;
