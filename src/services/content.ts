@@ -2,11 +2,13 @@
 // mock data, later the dashboard/API behind the same signatures.
 
 import { about } from "@/data/mock/about";
+import { menuBanners } from "@/data/mock/menu-banners";
 import { offers } from "@/data/mock/offers";
 import { reviews } from "@/data/mock/reviews";
 import { siteInfo } from "@/data/mock/site-info";
 import type {
     AboutContent,
+    MenuBanner,
     OffersContent,
     ReviewsContent,
     SiteInfo,
@@ -18,6 +20,11 @@ export async function getSiteInfo(): Promise<SiteInfo> {
 
 export async function getAboutContent(): Promise<AboutContent> {
     return about;
+}
+
+/** Active menu banner slides, in order (may be empty: the page then hides the banner). */
+export async function getMenuBanners(): Promise<readonly MenuBanner[]> {
+    return menuBanners.filter((banner) => banner.isActive);
 }
 
 /** Active offers only; null when the section is off or has nothing to show. */

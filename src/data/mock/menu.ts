@@ -1,40 +1,37 @@
 // Mock menu for Ahl Al Karam. Only src/services/ may import this file.
 // Prices are in SYP. Chicken/meat shawarma and grilled chicken prices come
-// from the owner; the rest are realistic placeholders until the real menu.
+// from the owner; the rest (meals, size deltas) are placeholders until the
+// owner sets them from the dashboard.
 
 import type { Category, Product, ProductOptionGroup } from "@/types/menu";
 
 const IMAGES_PATH = "/assets/imgs/menu";
 
 export const categories: readonly Category[] = [
-    { id: "shawarma", name: "شاورما", order: 1 },
-    { id: "chicken", name: "فروج", order: 2 },
-    { id: "crispy", name: "مقرمشات", order: 3 },
+    { id: "sandwiches", name: "سندويشات", icon: "🌯", order: 1 },
+    { id: "meals", name: "وجبات", icon: "🍱", order: 2 },
+    { id: "chicken", name: "فروج", icon: "🍗", order: 3 },
 ];
 
 /* =========================
    SHARED OPTION GROUPS
 ========================= */
 
-const sizeOptions: ProductOptionGroup = {
+/** Shawarma sandwiches only. */
+const shawarmaSizes: ProductOptionGroup = {
     id: "size",
     name: "الحجم",
     required: true,
     maxSelect: 1,
     options: [
-        { id: "sandwich", name: "صندويشة", priceDelta: 0 },
-        { id: "meal", name: "وجبة (مع بطاطا وكولا)", priceDelta: 150 },
-    ],
-};
-
-const extrasOptions: ProductOptionGroup = {
-    id: "extras",
-    name: "إضافات",
-    required: false,
-    maxSelect: 2,
-    options: [
-        { id: "extra-garlic", name: "ثوم إضافي", priceDelta: 25 },
-        { id: "cheese", name: "جبنة", priceDelta: 50 },
+        { id: "regular", name: "عادي", priceDelta: 0 },
+        { id: "double", name: "دبل", priceDelta: 100 },
+        {
+            id: "double-samoon",
+            name: "دبل بخبز السمون",
+            shortName: "دبل سمون",
+            priceDelta: 150,
+        },
     ],
 };
 
@@ -43,30 +40,112 @@ const extrasOptions: ProductOptionGroup = {
 ========================= */
 
 export const products: readonly Product[] = [
+    // Sandwiches
     {
         id: "chicken-shawarma",
-        categoryId: "shawarma",
+        categoryId: "sandwiches",
         name: "شاورما جاج",
         description: "شاورما دجاج متبّل على السيخ، ملفوفة بخبز الصاج.",
         ingredients: ["دجاج متبّل", "ثوم", "مخلل", "بطاطا", "خبز صاج"],
         price: 250,
         image: `${IMAGES_PATH}/chicken-shawarma.webp`,
-        isBestSeller: true,
+        isBestSeller: false,
         isAvailable: true,
-        optionGroups: [sizeOptions, extrasOptions],
+        optionGroups: [shawarmaSizes],
     },
     {
         id: "meat-shawarma",
-        categoryId: "shawarma",
+        categoryId: "sandwiches",
         name: "شاورما لحم",
         description: "لحم متبّل بخلطة أهل الكرم الخاصة مع الطحينة.",
         ingredients: ["لحم متبّل", "طحينة", "بندورة", "بقدونس", "بصل", "خبز صاج"],
         price: 300,
         image: `${IMAGES_PATH}/meat-shawarma.webp`,
+        isBestSeller: false,
+        isAvailable: true,
+        optionGroups: [shawarmaSizes],
+    },
+    {
+        id: "crispy",
+        categoryId: "sandwiches",
+        name: "كرسبي",
+        description: "قطع صدر دجاج مقرمشة بخلطة البهارات الخاصة.",
+        ingredients: ["قطع صدر مقرمشة", "ثوم", "مخلل", "خبز سمون"],
+        price: 350,
+        image: `${IMAGES_PATH}/crispy.webp`,
+        isBestSeller: false,
+        isAvailable: true,
+    },
+    {
+        id: "zinger",
+        categoryId: "sandwiches",
+        name: "زنجر",
+        description: "قطع زنجر حارة مع جبنة سايحة.",
+        ingredients: ["قطع زنجر حارة", "جبنة سايحة", "شرائح جامبون", "كول سلو", "خبز سمون"],
+        price: 400,
+        image: `${IMAGES_PATH}/zinger.webp`,
+        isBestSeller: false,
+        isAvailable: true,
+    },
+    {
+        id: "fries",
+        categoryId: "sandwiches",
+        name: "سندويشة بطاطا",
+        description: "بطاطا مقلية مقرمشة مع الكاتشب والكول سلو بخبز السمون.",
+        ingredients: ["بطاطا مقلية", "كاتشب", "كول سلو", "مايونيز", "مخلل", "خبز سمون"],
+        price: 250,
+        image: `${IMAGES_PATH}/fries.webp`,
+        isBestSeller: false,
+        isAvailable: true,
+    },
+
+    // Meals
+    {
+        id: "chicken-shawarma-meal",
+        categoryId: "meals",
+        name: "وجبة شاورما جاج",
+        description: "شاورما دجاج مقطّعة مع البطاطا والثوم والمخلل.",
+        ingredients: ["شاورما جاج مقطّعة", "بطاطا", "ثوم", "مخلل"],
+        price: 450,
+        image: `${IMAGES_PATH}/chicken-shawarma-meal.webp`,
         isBestSeller: true,
         isAvailable: true,
-        optionGroups: [sizeOptions, extrasOptions],
     },
+    {
+        id: "meat-shawarma-meal",
+        categoryId: "meals",
+        name: "وجبة شاورما لحم",
+        description: "شاورما لحم مقطّعة مع الطحينة والبطاطا.",
+        ingredients: ["شاورما لحم مقطّعة", "طحينة", "بطاطا", "مخلل"],
+        price: 500,
+        image: `${IMAGES_PATH}/meat-shawarma-meal.webp`,
+        isBestSeller: true,
+        isAvailable: true,
+    },
+    {
+        id: "crispy-meal",
+        categoryId: "meals",
+        name: "وجبة كرسبي",
+        description: "قطع كرسبي مقرمشة مع البطاطا والثوم.",
+        ingredients: ["قطع كرسبي", "بطاطا", "ثوم", "مخلل"],
+        price: 550,
+        image: `${IMAGES_PATH}/crispy-meal.webp`,
+        isBestSeller: false,
+        isAvailable: true,
+    },
+    {
+        id: "zinger-meal",
+        categoryId: "meals",
+        name: "وجبة زنجر",
+        description: "قطع زنجر حارة مع جبنة سايحة وبطاطا.",
+        ingredients: ["قطع زنجر حارة", "جبنة سايحة", "بطاطا", "كول سلو"],
+        price: 600,
+        image: `${IMAGES_PATH}/zinger-meal.webp`,
+        isBestSeller: true,
+        isAvailable: true,
+    },
+
+    // Whole chicken
     {
         id: "grilled-chicken",
         categoryId: "chicken",
@@ -88,29 +167,5 @@ export const products: readonly Product[] = [
         image: `${IMAGES_PATH}/broasted-chicken.webp`,
         isBestSeller: false,
         isAvailable: true,
-    },
-    {
-        id: "crispy",
-        categoryId: "crispy",
-        name: "كرسبي",
-        description: "قطع صدر دجاج مقرمشة بخلطة البهارات الخاصة.",
-        ingredients: ["قطع صدر مقرمشة", "ثوم", "مخلل", "بطاطا"],
-        price: 350,
-        image: `${IMAGES_PATH}/crispy.webp`,
-        isBestSeller: false,
-        isAvailable: true,
-        optionGroups: [sizeOptions, extrasOptions],
-    },
-    {
-        id: "zinger",
-        categoryId: "crispy",
-        name: "زنجر",
-        description: "قطع زنجر حارة مع جبنة سايحة وبطاطا.",
-        ingredients: ["قطع زنجر حارة", "جبنة سايحة", "شرائح جامبون", "بطاطا", "كول سلو"],
-        price: 400,
-        image: `${IMAGES_PATH}/zinger.webp`,
-        isBestSeller: true,
-        isAvailable: true,
-        optionGroups: [extrasOptions],
     },
 ];
