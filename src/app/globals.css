@@ -26,6 +26,8 @@
 }
 
 [data-theme="fire"] {
+  /* Dark theme: native controls (select lists, scrollbars) render dark too */
+  color-scheme: dark;
   --theme-primary: #ff8a00;
   --theme-background: #0b0b0b;
   --theme-surface: #111111;

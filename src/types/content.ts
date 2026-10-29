@@ -82,6 +82,22 @@ export interface ReviewsContent {
     reviews: readonly Review[];
 }
 
+/**
+ * One slide of the menu page banner. The text is real HTML over the photo
+ * (editable, sharp on every screen), not baked into the image.
+ */
+export interface MenuBanner {
+    id: string;
+    /** Small label above the title, e.g. "عرض الأسبوع". */
+    eyebrow?: string;
+    /** Short; typed line breaks are kept. */
+    title: string;
+    /** Dish photo on a transparent background (like offer images). */
+    image: ContentImage;
+    action?: { label: string; href: string };
+    isActive: boolean;
+}
+
 export interface AboutContent {
     eyebrow: string;
     /** The **marked** part gets the brand underline. */

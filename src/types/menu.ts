@@ -4,17 +4,26 @@
 export interface Category {
     id: string;
     name: string;
+    /** One emoji shown with the name (category grid, section menu). Optional: a default is used. */
+    icon?: string;
     /** Display order, ascending. */
     order: number;
 }
 
 export interface ProductOption {
     id: string;
+    /** Full name, used in the cart and the WhatsApp message. */
     name: string;
+    /** Optional compact label for tight UI (the menu toggle). Falls back to name. */
+    shortName?: string;
     /** Added to the base price, in the restaurant currency (0 = no change). */
     priceDelta: number;
 }
 
+/**
+ * Price-changing choices only (e.g. size). Free-form requests such as
+ * "no garlic" go in the cart notes instead, to keep the menu simple.
+ */
 export interface ProductOptionGroup {
     id: string;
     name: string;
@@ -33,7 +42,8 @@ export interface Product {
     ingredients: readonly string[];
     /** Whole units of the restaurant currency (see restaurantConfig.currency). */
     price: number;
-    image: string;
+    /** Square dish photo on a transparent background. Optional: the menu shows a placeholder. */
+    image?: string;
     isBestSeller: boolean;
     isAvailable: boolean;
     optionGroups?: readonly ProductOptionGroup[];
