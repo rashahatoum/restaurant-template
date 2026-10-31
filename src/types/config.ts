@@ -37,6 +37,11 @@ export interface RestaurantConfig {
 
     theme: ThemeName;
 
+    reviews?: {
+        /** Tiling chat wallpaper behind each review's messages (brand doodles). Without it: plain dots. */
+        chatWallpaper?: string;
+    };
+
     hero: {
         /** Small pill above the name, e.g. the city. Optional. */
         badge?: string;

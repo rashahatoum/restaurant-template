@@ -44,6 +44,10 @@ export const restaurantConfig = {
 
     theme: "fire",
 
+    reviews: {
+        chatWallpaper: "/assets/imgs/reviews/chat-pattern.webp",
+    },
+
     hero: {
         badge: "من قلب السويداء",
 

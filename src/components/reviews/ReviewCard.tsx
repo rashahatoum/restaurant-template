@@ -9,12 +9,14 @@ interface ReviewCardProps {
     /** Customer's reply; supports **highlights**. */
     answer: string;
     time?: string;
+    /** Tiling chat wallpaper (brand asset, from config). Falls back to plain dots. */
+    wallpaper?: string;
 }
 
 // A review as a tiny WhatsApp chat, in theme colors. As in Arabic WhatsApp,
 // the sender (restaurant) sits on the end side (left in RTL), the customer on
 // the start side. Fills its slide height so cards in a slider match.
-const ReviewCard = ({ customerName, question, answer, time }: ReviewCardProps) => {
+const ReviewCard = ({ customerName, question, answer, time, wallpaper }: ReviewCardProps) => {
     return (
         <article className="flex h-full w-full flex-col overflow-hidden rounded-3xl border border-border bg-background shadow-[0_24px_60px_-30px_var(--color-primary)]">
             {/* Chat header */}
@@ -31,11 +33,18 @@ const ReviewCard = ({ customerName, question, answer, time }: ReviewCardProps) =
                 <FaWhatsapp aria-label="واتساب" className="text-xl text-muted" />
             </header>
 
-            {/* Chat body: subtle dotted wallpaper. Messages sit at the bottom like
-                a real chat, so shorter reviews leave the empty space on top. */}
-            <div className="flex flex-1 flex-col justify-end gap-12 bg-[radial-gradient(var(--color-border)_1px,transparent_1px)] bg-size-[16px_16px] p-16">
-                {/* Restaurant (sender) */}
-                <p className="max-w-[85%] self-end rounded-2xl rounded-se-none bg-primary/15 px-12 py-8 text-sm leading-relaxed">
+            {/* Chat body: the brand's chat wallpaper (or subtle dots). Messages sit
+                at the bottom like a real chat, so shorter reviews leave the empty space on top. */}
+            <div
+                className={`flex flex-1 flex-col justify-end gap-12 p-16 ${
+                    wallpaper
+                        ? "bg-size-[400px] bg-repeat"
+                        : "bg-[radial-gradient(var(--color-border)_1px,transparent_1px)] bg-size-[16px_16px]"
+                }`}
+                style={wallpaper ? { backgroundImage: `url(${wallpaper})` } : undefined}
+            >
+                {/* Restaurant (sender): the same 15% orange tint, but solid, so the wallpaper doesn't show through */}
+                <p className="max-w-[85%] self-end rounded-2xl rounded-se-none bg-[color-mix(in_srgb,var(--color-primary)_15%,var(--color-background))] px-12 py-8 text-sm leading-relaxed">
                     {question}
                     <IoCheckmarkDone
                         aria-hidden="true"
