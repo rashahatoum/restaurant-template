@@ -43,34 +43,27 @@ export interface RestaurantConfig {
     theme: ThemeName;
 
     hero: {
+        /** Fire texture behind the menu banner slides (the hero itself uses `backdrop`). */
         background: string;
         headline: string;
         primaryAction: Action;
         secondaryAction: Action;
 
-        // Provisional: Phase 6 replaces this with the hero motion config.
-        media: {
-            type: "image-sequence";
-            animation: {
-                framesPath: string;
-                filePrefix: string;
-                fileExtension: string;
-                frameStep: number;
-                startAngle: number;
-                endAngle: number;
-                frameDuration: number;
-                autoPlay: boolean;
-                autoPlayDelay: number;
-                interaction: {
-                    hover: boolean;
-                    click: boolean;
-                };
-            };
-            image: {
-                alt: string;
-                width: number;
-                height: number;
-            };
+        /**
+         * Hero backdrop, one photo per orientation (art direction: the browser
+         * downloads only the one it shows). Dark on the text side, glow behind the spit.
+         */
+        backdrop: {
+            desktop: { src: string; width: number; height: number };
+            mobile: { src: string; width: number; height: number };
+        };
+
+        /** The 3D-turning spit (components/motion/HeroSpit). */
+        spit: {
+            /** Front view of the whole spit on a transparent background. */
+            image: { src: string; alt: string; width: number; height: number };
+            /** One spin session (on load, hover, tap). Speed in °/s, times in seconds. */
+            motion: { speed: number; easeIn: number; hold: number; easeOut: number };
         };
 
         features: readonly {

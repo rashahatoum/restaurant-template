@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Short screens (e.g. laptops with browser bars): `short:` tightens tall layouts like the hero */
+@custom-variant short (@media (max-height: 760px));
+
 @theme {
   --spacing : 1px;
   
