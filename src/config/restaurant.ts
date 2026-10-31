@@ -45,6 +45,8 @@ export const restaurantConfig = {
     theme: "fire",
 
     hero: {
+        badge: "من قلب السويداء",
+
         background: "/assets/imgs/fire-heroBg.webp",
 
         headline: "شاورما بطعم أصيل",
