@@ -1,16 +1,12 @@
 "use client";
 
+import CheckoutForm from "@/components/cart/CheckoutForm";
 import QuantityStepper from "@/components/ui/QuantityStepper";
 import { cartActions, useCartLines, useIsHydrated, useOrderNote } from "@/hooks/useCart";
-import {
-    cartTotals,
-    formatPieces,
-    MAX_NOTE_LENGTH,
-    MAX_ORDER_NOTE_LENGTH,
-    priceLines,
-} from "@/lib/cart";
+import { cartTotals, MAX_NOTE_LENGTH, MAX_ORDER_NOTE_LENGTH, priceLines } from "@/lib/cart";
 import { formatPrice } from "@/lib/format-price";
 import type { CartCatalog } from "@/types/cart";
+import type { OrderingOptions } from "@/types/order";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
@@ -19,11 +15,12 @@ import { MdOutlineRestaurant } from "react-icons/md";
 
 interface CartViewProps {
     catalog: CartCatalog;
+    orderingOptions: OrderingOptions;
 }
 
-// The /cart page body: lines with quantity, note and remove, then the total.
-// Checkout (order type, customer details, WhatsApp) comes in feat/checkout.
-const CartView = ({ catalog }: CartViewProps) => {
+// The /cart page body: lines with quantity, note and remove, the order
+// note, then checkout (order type, details, totals, WhatsApp).
+const CartView = ({ catalog, orderingOptions }: CartViewProps) => {
     const isHydrated = useIsHydrated();
     const lines = priceLines(useCartLines(), catalog);
     const { itemCount, subtotal } = cartTotals(lines);
@@ -140,36 +137,25 @@ const CartView = ({ catalog }: CartViewProps) => {
             </label>
 
             {/* =========================
-                SUMMARY
+                CHECKOUT
             ========================== */}
 
-            <aside
-                aria-label="ملخص الطلب"
-                className="flex flex-col gap-14 rounded-[20px] border border-border bg-surface p-16 lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1"
+            {/* Not sticky: the form can be taller than the screen */}
+            <section
+                aria-labelledby="checkout-title"
+                className="flex flex-col gap-14 rounded-[20px] border border-border bg-surface p-16 lg:col-start-2 lg:row-span-2 lg:row-start-1"
             >
-                <div className="flex items-center justify-between text-muted">
-                    <span>عدد الأطعمة الشهية</span>
-                    <span className="tabular-nums">{formatPieces(itemCount)}</span>
-                </div>
-                <div className="flex items-center justify-between text-lg font-extrabold">
-                    <span>المجموع</span>
-                    <span className="text-primary tabular-nums">{formatPrice(subtotal)}</span>
-                </div>
-                <p className="text-sm text-muted">أجرة التوصيل (إذا في) بتنضاف بالخطوة الجاية.</p>
-
-                {/* Wired in feat/checkout (order type, details, WhatsApp). */}
-                <button
-                    type="button"
-                    disabled
-                    className="h-50 rounded-full bg-primary font-extrabold text-background disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    متابعة الطلب (قريباً)
-                </button>
-
-                <Link href="/menu" className="text-center text-sm font-bold text-primary hover:underline">
-                    العودة لقائمة الطعام
-                </Link>
-            </aside>
+                <h2 id="checkout-title" className="font-display text-xl font-bold">
+                    تأكيد الطلب
+                </h2>
+                <CheckoutForm
+                    lines={lines}
+                    itemCount={itemCount}
+                    subtotal={subtotal}
+                    orderNote={orderNote}
+                    options={orderingOptions}
+                />
+            </section>
         </div>
     );
 };

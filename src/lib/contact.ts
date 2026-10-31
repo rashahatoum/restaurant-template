@@ -4,7 +4,7 @@ export function toTelHref(number: string): string {
     return `tel:${number}`;
 }
 
-/** wa.me wants digits only. `text` pre-fills the message (used by checkout later). */
+/** wa.me wants digits only. `text` pre-fills the message (checkout). */
 export function toWhatsAppHref(number: string, text?: string): string {
     const digits = number.replace(/\D/g, "");
     return text
