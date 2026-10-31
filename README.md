@@ -19,7 +19,7 @@ npm run dev        # http://localhost:3000
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript type-check (`tsc --noEmit`) |
 
-Development-only experiments: `/lab/rotation` (hero spit-rotation approaches) and `/lab/scroll` (scroll storytelling). Both return 404 in production.
+Development-only experiment: `/lab/rotation` (hero spit rotation in 3D, three.js). Returns 404 in production.
 
 ## Project structure
 

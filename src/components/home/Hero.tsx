@@ -1,5 +1,6 @@
 import { restaurantConfig } from "@/config/restaurant";
 import type { FeatureIconKey } from "@/types/config";
+import { getImageProps } from "next/image";
 import Link from "next/link";
 
 import type { IconType } from "react-icons";
@@ -7,9 +8,8 @@ import { FiArrowLeft, FiAward, FiUser } from "react-icons/fi";
 import { LuFlame } from "react-icons/lu";
 import { TiFeather } from "react-icons/ti";
 
+import HeroSpit from "@/components/motion/HeroSpit";
 import Underline from "@/components/ui/Underline";
-
-import ShawarmaRotator from "./HeroImageSequence";
 
 /* =========================
    FEATURE ICONS
@@ -49,23 +49,44 @@ const actionClasses = `
 
 const actionIconClasses = "shrink-0 text-lg lg:text-xl xl:text-2xl";
 
+/* =========================
+   BACKDROP (art direction)
+   One photo per orientation; the browser downloads only the one it shows.
+========================= */
+
+const { desktop, mobile } = restaurantConfig.hero.backdrop;
+const backdropCommon = { alt: "", sizes: "100vw" };
+const {
+    props: { srcSet: desktopSrcSet },
+} = getImageProps({ ...backdropCommon, ...desktop });
+const {
+    props: { srcSet: mobileSrcSet, ...backdropProps },
+} = getImageProps({ ...backdropCommon, ...mobile });
+
 const Hero = () => {
     return (
         <section
             aria-labelledby="hero-title"
-            style={{
-                backgroundImage: `url(${restaurantConfig.hero.background})`,
-            }}
             className="
                 relative
                 min-h-dvh
                 w-full
                 overflow-hidden
-                bg-cover
-                bg-center
-                bg-no-repeat
+                bg-background
             "
         >
+            <picture>
+                <source media="(min-width: 48rem)" srcSet={desktopSrcSet} />
+                <img
+                    {...backdropProps}
+                    srcSet={mobileSrcSet}
+                    alt=""
+                    fetchPriority="high"
+                    loading="eager"
+                    className="absolute inset-0 size-full object-cover"
+                />
+            </picture>
+
             {/* =========================
                 HERO CONTENT
             ========================== */}
@@ -84,6 +105,7 @@ const Hero = () => {
                     py-80
 
                     md:col-span-7
+                    md:short:pt-104
                 "
             >
                 {/* Content Wrapper */}
@@ -117,6 +139,9 @@ const Hero = () => {
                                 md:text-7xl
                                 lg:text-8xl
                                 xl:text-9xl
+
+                                md:short:text-6xl
+                                lg:short:text-7xl
                             "
                         >
                             {restaurantConfig.name}
@@ -286,24 +311,36 @@ const Hero = () => {
                 SHAWARMA
             ========================== */}
 
+            {/* Phones: full screen height on the end side (left in RTL), half of it
+                off screen, turning behind the text (owner's choice).
+                md+: its own column, the full screen height from the very top
+                (behind the see-through NavBar). */}
             <div
                 className="
                     absolute
                     inset-y-0
-                    inset-e-[-15%]
-                    flex
-                    w-[75%]
-                    justify-center
-
-                    sm:w-[60%]
+                    inset-e-[-33dvh]
+                    h-dvh
 
                     md:relative
+                    md:inset-y-auto
+                    md:bottom-auto
                     md:inset-e-auto
                     md:col-span-5
-                    md:w-auto
+                    md:flex
+                    md:h-auto
+                    md:items-start
+                    md:justify-center
                 "
             >
-                <ShawarmaRotator />
+                <div className="relative isolate h-full md:h-dvh">
+                    {/* Warm glow behind the meat: separates it from the dark backdrop */}
+                    <span
+                        aria-hidden="true"
+                        className="absolute inset-x-[-15%] inset-y-[15%] -z-10 rounded-full bg-[radial-gradient(closest-side,rgb(255_138_0/0.3),transparent)] blur-2xl"
+                    />
+                    <HeroSpit image={restaurantConfig.hero.spit.image} motion={restaurantConfig.hero.spit.motion} />
+                </div>
             </div>
             </div>
 

@@ -5,15 +5,12 @@ export const restaurantConfig = {
     logo: "/assets/imgs/ahl-alkaram-logo.webp",
 
     navbar: {
-        mobileBackground: "/assets/imgs/nav-mobile-bg.webp",
-
-        // icon: key mapped to a component in NavBar (navIcons)
         links: [
-            { label: "الرئيسية", href: "/", icon: "home" },
-            { label: "القائمة", href: "/menu", icon: "menu" },
-            { label: "من نحن", href: "/#about", icon: "about" },
-            { label: "موقعنا", href: "/#location", icon: "location" },
-            { label: "تواصل معنا", href: "/#contact", icon: "contact" },
+            { label: "الرئيسية", href: "/" },
+            { label: "القائمة", href: "/menu" },
+            { label: "من نحن", href: "/#about" },
+            { label: "موقعنا", href: "/#location" },
+            { label: "تواصل معنا", href: "/#contact" },
         ],
 
         orderAction: {
@@ -62,35 +59,20 @@ export const restaurantConfig = {
             href: "/#about",
         },
 
-        media: {
-            type: "image-sequence",
+        backdrop: {
+            desktop: { src: "/assets/imgs/hero/hero-bg.webp", width: 1672, height: 941 },
+            mobile: { src: "/assets/imgs/hero/hero-bg-mobile.webp", width: 941, height: 1672 },
+        },
 
-            animation: {
-                framesPath:"/assets/imgs/shawarma-sequence",
-                filePrefix: "shawarma",
-                fileExtension: "webp",
-
-                frameStep: 15,
-
-                startAngle: 0,
-                endAngle: 180,
-
-                frameDuration: 300,
-
-                autoPlay: true,
-                autoPlayDelay: 300,
-
-                interaction: {
-                    hover: true,
-                    click: true,
-                },
-            },
-
+        spit: {
             image: {
-                    alt: "سيخ شاورما مشوي",
-                    width: 1024,
-                    height: 1536,
+                src: "/assets/imgs/hero/shawarma_transparent.webp",
+                alt: "سيخ شاورما جاج مشوي",
+                width: 1024,
+                height: 1536,
             },
+            // Tuned with the owner in /lab/rotation.
+            motion: { speed: 30, easeIn: 1, hold: 4, easeOut: 2.5 },
         },
 
         features: [

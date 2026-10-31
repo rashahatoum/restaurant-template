@@ -33,7 +33,10 @@ function formatResults(count: number) {
     return `لقينا ${count} نتائج`;
 }
 
-const gridClasses = "grid gap-10 md:grid-cols-2 md:gap-16";
+/** The fixed NavBar's height once the page has scrolled (see NavBar). */
+const NAV_HEIGHT = 64;
+
+const gridClasses ="grid gap-10 md:grid-cols-2 md:gap-16";
 
 // Category cards, sticky bar (always-visible search + section dropdown) and
 // the menu body. One client component because the search box and the results
@@ -75,13 +78,13 @@ const MenuBrowser = ({ sections, categoryCards }: MenuBrowserProps) => {
     // Marks where the bar sits in the page.
     const barStartRef = useRef<HTMLDivElement>(null);
 
-    // Scrolls so the bar is pinned to the top (only if it's below that point),
-    // so search results start right under it.
+    // Scrolls so the bar is pinned under the NavBar (only if it's below that
+    // point), so search results start right under it.
     const pinBarToTop = () => {
         const start = barStartRef.current;
         if (!start) return;
 
-        const top = start.getBoundingClientRect().top;
+        const top = start.getBoundingClientRect().top - NAV_HEIGHT;
         if (top > 0) window.scrollTo({ top: top + window.scrollY });
     };
 
@@ -110,7 +113,8 @@ const MenuBrowser = ({ sections, categoryCards }: MenuBrowserProps) => {
 
             {/* Phones: the section picker hangs under the search row (absolute,
                 so showing it never shifts the page). md+: one row. */}
-            <div className="sticky top-0 z-40 border-b border-border/60 bg-background/95 px-page-gutter backdrop-blur-sm">
+            {/* top-64: sticks under the fixed NavBar (64px once scrolled) */}
+            <div className="sticky top-64 z-40 border-b border-border/60 bg-background/95 px-page-gutter backdrop-blur-sm">
                 <div className="flex flex-col py-10 md:flex-row md:items-center md:gap-12 md:py-14">
                     <SearchField
                         value={query}

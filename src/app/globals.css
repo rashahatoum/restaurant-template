@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Short screens (e.g. laptops with browser bars): `short:` tightens tall layouts like the hero */
+@custom-variant short (@media (max-height: 760px));
+
 @theme {
   --spacing : 1px;
   
@@ -41,6 +44,8 @@
    <html> lets Next.js turn it off during route changes. */
 html {
   scroll-behavior: smooth;
+  /* The NavBar is fixed (64px once scrolled): in-page jumps stop below it. */
+  scroll-padding-top: 72px;
 }
 
 @media (prefers-reduced-motion: reduce) {
