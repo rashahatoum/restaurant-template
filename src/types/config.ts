@@ -38,6 +38,8 @@ export interface RestaurantConfig {
     theme: ThemeName;
 
     hero: {
+        /** Small pill above the name, e.g. the city. Optional. */
+        badge?: string;
         /** Fire texture behind the menu banner slides (the hero itself uses `backdrop`). */
         background: string;
         headline: string;

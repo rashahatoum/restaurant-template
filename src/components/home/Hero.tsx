@@ -4,11 +4,12 @@ import { getImageProps } from "next/image";
 import Link from "next/link";
 
 import type { IconType } from "react-icons";
-import { FiArrowLeft, FiAward, FiUser } from "react-icons/fi";
+import { FiArrowLeft, FiAward, FiMapPin, FiUser } from "react-icons/fi";
 import { LuFlame } from "react-icons/lu";
 import { TiFeather } from "react-icons/ti";
 
 import HeroSpit from "@/components/motion/HeroSpit";
+import Badge from "@/components/ui/Badge";
 import Underline from "@/components/ui/Underline";
 
 /* =========================
@@ -106,6 +107,7 @@ const Hero = () => {
 
                     md:col-span-7
                     md:short:pt-104
+                    md:short:pb-40
                 "
             >
                 {/* Content Wrapper */}
@@ -115,23 +117,34 @@ const Hero = () => {
                         w-full
                         max-w-3xl
                         flex-col
-                        gap-10
+                        gap-14
 
                         lg:max-w-760
                         md:gap-20
+                        md:short:gap-12
 
                         xl:max-w-820
                     "
                 >
                     {/* =========================
+                        BADGE (e.g. the city)
+                    ========================== */}
+
+                    {restaurantConfig.hero.badge && (
+                        <div>
+                            <Badge icon={FiMapPin}>{restaurantConfig.hero.badge}</Badge>
+                        </div>
+                    )}
+
+                    {/* =========================
                         RESTAURANT NAME
                     ========================== */}
 
-                    <div className="w-fit max-w-[65%] md:max-w-none">
+                    <div className="w-fit max-w-[70%] md:max-w-none">
                         <h1
                             className="
                                 font-display
-                                text-5xl
+                                text-[3.5rem]
                                 font-extrabold
                                 leading-none
 
@@ -222,88 +235,103 @@ const Hero = () => {
                         FEATURES
                     ========================== */}
 
-                    <div
+                    {/* Glass card: readable over anything behind it (on phones,
+                        the spit's meat). Each icon sits in a soft orange disc. */}
+                    <ul
                         className="
-                            mt-8
+                            mt-12
                             grid
                             w-full
                             grid-cols-3
-                            items-start
+                            divide-x
+                            divide-foreground/10
+                            rounded-2xl
+                            border
+                            border-foreground/10
+                            bg-background/60
+                            shadow-[0_20px_50px_-25px_rgb(0_0_0/0.8)]
+                            backdrop-blur-md
 
                             sm:max-w-xl
 
-                            md:mt-16
+                            md:mt-20
+                            md:rounded-3xl
 
-                            lg:mt-24
+                            lg:mt-28
                             lg:max-w-none
+
+                            md:short:mt-8
+                            lg:short:mt-8
                         "
                     >
-                        {restaurantConfig.hero.features.map(
-                            (feature, index) => {
-                                const Icon = featureIcons[feature.icon];
+                        {restaurantConfig.hero.features.map((feature) => {
+                            const Icon = featureIcons[feature.icon];
 
-                                return (
-                                    <div
-                                        key={feature.label}
-                                        className={`
+                            return (
+                                <li
+                                    key={feature.label}
+                                    className="
+                                        flex
+                                        min-w-0
+                                        flex-col
+                                        items-center
+                                        gap-8
+                                        px-6
+                                        py-14
+                                        text-center
+
+                                        md:gap-12
+                                        md:px-16
+                                        md:py-20
+                                        lg:py-24
+
+                                        md:short:py-14
+                                        lg:short:py-14
+                                    "
+                                >
+                                    <span
+                                        aria-hidden="true"
+                                        className="
                                             flex
-                                            min-w-0
-                                            min-h-80
-                                            md:min-h-120
-                                            flex-col
+                                            size-40
+                                            shrink-0
                                             items-center
-                                            justify-start
-                                            gap-8
-                                            px-8
-                                            text-center
+                                            justify-center
+                                            rounded-full
+                                            bg-primary/15
+                                            text-xl
+                                            text-primary
 
-                                            lg:min-h-130
-                                            lg:gap-12
-                                            lg:px-20
+                                            md:size-56
+                                            md:text-3xl
+                                            lg:size-64
 
-                                            xl:px-28
-
-                                            ${index !==
-                                                restaurantConfig.hero.features
-                                                    .length -
-                                                1
-                                                ? "border-e border-foreground/30"
-                                                : ""
-                                            }
-                                        `}
+                                            md:short:size-48
+                                            lg:short:size-48
+                                            md:short:text-2xl
+                                        "
                                     >
-                                        {/* Feature Icon */}
-                                        <Icon
-                                            className="
-                                                shrink-0
-                                                text-3xl
-                                                text-primary
+                                        <Icon />
+                                    </span>
 
-                                                md:text-5xl
-                                                lg:text-6xl
-                                            "
-                                        />
+                                    <span
+                                        className="
+                                            text-xs
+                                            font-bold
+                                            leading-snug
+                                            text-foreground
 
-                                        {/* Feature Label */}
-                                        <span
-                                            className="
-                                                text-[11px]
-                                                font-semibold
-                                                leading-relaxed
-                                                text-foreground
-
-                                                sm:text-xs
-                                                md:text-base
-                                                lg:text-lg
-                                            "
-                                        >
-                                            {feature.label}
-                                        </span>
-                                    </div>
-                                );
-                            }
-                        )}
-                    </div>
+                                            sm:text-sm
+                                            md:text-base
+                                            lg:text-lg
+                                        "
+                                    >
+                                        {feature.label}
+                                    </span>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </div>
             </div>
 
@@ -314,7 +342,8 @@ const Hero = () => {
             {/* Phones: full screen height on the end side (left in RTL), half of it
                 off screen, turning behind the text (owner's choice).
                 md+: its own column, the full screen height from the very top
-                (behind the see-through NavBar). */}
+                (behind the see-through NavBar), pushed toward the text so the
+                middle of the hero isn't empty. */}
             <div
                 className="
                     absolute
@@ -333,7 +362,9 @@ const Hero = () => {
                     md:justify-center
                 "
             >
-                <div className="relative isolate h-full md:h-dvh">
+                {/* md+: nudged toward the text (the photo is wider than its column, so
+                    aligning it to an edge would push the overflow the wrong way) */}
+                <div className="relative isolate h-full md:h-dvh md:rtl:translate-x-[14%] md:ltr:-translate-x-[14%]">
                     {/* Warm glow behind the meat: separates it from the dark backdrop */}
                     <span
                         aria-hidden="true"
