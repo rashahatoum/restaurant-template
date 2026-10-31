@@ -14,8 +14,11 @@ interface OfferCardProps {
     /** 4:3 photo on a transparent background; it pops out of the card top. */
     image: string;
     badge?: string;
+    /** The action button's target. */
     href: string;
     actionLabel?: string;
+    /** Details page; the photo and title link there. */
+    detailsHref?: string;
 }
 
 // "Ticket" card: photo overlapping the top edge, a FREE sticker,
@@ -29,19 +32,30 @@ const OfferCard = ({
     badge,
     href,
     actionLabel = "اطلب العرض",
+    detailsHref,
 }: OfferCardProps) => {
+    const photo = (
+        <Image
+            src={image}
+            alt={title}
+            width={800}
+            height={600}
+            sizes="(min-width: 768px) 30vw, 75vw"
+            className="h-auto w-full drop-shadow-[0_16px_24px_rgb(0_0_0/0.5)] transition-transform duration-500 group-hover:-translate-y-6 motion-reduce:transition-none"
+        />
+    );
+
     return (
         <article className="group relative w-full">
-            {/* Photo, above the card body */}
+            {/* Photo, above the card body. Linked like the title (one keyboard stop: the title). */}
             <div className="relative z-10 px-12">
-                <Image
-                    src={image}
-                    alt={title}
-                    width={800}
-                    height={600}
-                    sizes="(min-width: 768px) 30vw, 75vw"
-                    className="h-auto w-full drop-shadow-[0_16px_24px_rgb(0_0_0/0.5)] transition-transform duration-500 group-hover:-translate-y-6 motion-reduce:transition-none"
-                />
+                {detailsHref ? (
+                    <Link href={detailsHref} scroll={false} tabIndex={-1} aria-hidden="true" className="block">
+                        {photo}
+                    </Link>
+                ) : (
+                    photo
+                )}
             </div>
 
             {/* Card body slides up behind the photo (negative margin), text starts below it */}
@@ -61,7 +75,13 @@ const OfferCard = ({
                 {/* What you buy + what you get */}
                 <div className="flex flex-col items-center gap-8 px-20 pb-20 pt-12 text-center">
                     <h3 className="font-display text-2xl font-bold lg:text-3xl">
-                        {title}
+                        {detailsHref ? (
+                            <Link href={detailsHref} scroll={false} className="transition-colors hover:text-primary">
+                                {title}
+                            </Link>
+                        ) : (
+                            title
+                        )}
                     </h3>
 
                     <p className="text-sm text-muted lg:text-base">

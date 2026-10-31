@@ -94,6 +94,85 @@ html {
   }
 }
 
+/* =========================
+   ITEM DETAILS (time-based, play on open)
+   Each arrow draws down from the dish, then its part's label rises in,
+   one after another (--delay). Reduced motion: everything just shows.
+   Paths use pathLength="100", so the dash values work for any arrow.
+========================= */
+
+@keyframes arrow-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+/* The dish rises in softly, then floats gently up and down */
+@keyframes dish-in {
+  from {
+    opacity: 0;
+    scale: 0.88;
+    translate: 0 24px;
+  }
+}
+
+@keyframes dish-float {
+  50% {
+    translate: 0 -8px;
+  }
+}
+
+@utility dish-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation:
+      dish-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
+      dish-float 4s ease-in-out 700ms infinite;
+    animation-delay: var(--delay, 0ms), calc(var(--delay, 0ms) + 700ms);
+  }
+}
+
+@utility arrow-draw {
+  @media (prefers-reduced-motion: no-preference) {
+    stroke-dasharray: 100;
+    animation: arrow-draw 500ms ease-out both;
+    animation-delay: var(--delay, 0ms);
+  }
+}
+
+@utility rise-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: rise-in 450ms ease-out both;
+    animation-delay: var(--delay, 0ms);
+  }
+}
+
+/* Route modal: the blurred view simply fades in */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@utility modal-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: fade-in 250ms ease-out both;
+
+    &::backdrop {
+      animation: fade-in 250ms ease-out both;
+    }
+  }
+}
+
 body {
   margin: 0;
   background: var(--color-background);

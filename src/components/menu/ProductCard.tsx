@@ -50,7 +50,8 @@ const ProductCard = ({
     const classes = "group flex w-full flex-col items-center gap-16";
 
     return href ? (
-        <Link href={href} className={classes}>
+        // scroll={false}: item pages open as a modal over the current page
+        <Link href={href} scroll={false} className={classes}>
             {content}
         </Link>
     ) : (
