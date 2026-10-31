@@ -49,6 +49,30 @@ export interface Product {
     optionGroups?: readonly ProductOptionGroup[];
 }
 
+/**
+ * A product or an offer as its details page (/menu/<id>) shows it.
+ * Product and offer ids share this URL space, so they must not collide.
+ */
+export interface MenuItemDetails {
+    id: string;
+    kind: "product" | "offer";
+    /** Cart reference (lib/cart productKey / offerKey). */
+    itemKey: string;
+    name: string;
+    description?: string;
+    image?: string;
+    price: number;
+    /** Ingredients (product) or what the offer includes. */
+    parts: readonly string[];
+    /** Offers: what comes free. */
+    freeItem?: string;
+    badge?: string;
+    isAvailable: boolean;
+    /** Single-choice, price-changing options (size). */
+    options?: readonly ProductOption[];
+    optionsLabel?: string;
+}
+
 /** A category with its products, as the menu page renders it. */
 export interface MenuSection {
     category: Category;

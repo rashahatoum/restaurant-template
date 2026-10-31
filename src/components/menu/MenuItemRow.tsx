@@ -1,6 +1,7 @@
 import ItemPurchase from "@/components/menu/ItemPurchase";
 import type { ProductOption } from "@/types/menu";
 import Image from "next/image";
+import Link from "next/link";
 import { FiGift } from "react-icons/fi";
 import { LuFlame } from "react-icons/lu";
 import { MdOutlineRestaurant } from "react-icons/md";
@@ -10,6 +11,8 @@ interface MenuItemRowProps {
     id: string;
     /** Cart reference: lib/cart productKey / offerKey. */
     itemKey: string;
+    /** Details page; the photo and name link there. */
+    href: string;
     name: string;
     /** Ingredients for a product, contents for an offer. */
     details: readonly string[];
@@ -32,6 +35,7 @@ interface MenuItemRowProps {
 const MenuItemRow = ({
     id,
     itemKey,
+    href,
     name,
     details,
     image,
@@ -52,7 +56,15 @@ const MenuItemRow = ({
                 PHOTO (or placeholder)
             ========================== */}
 
-            <div className="relative isolate flex size-92 shrink-0 items-center justify-center md:size-120">
+            {/* Same target as the name: hidden from keyboard/screen readers to avoid a duplicate stop.
+                scroll={false}: the details open as a modal, so the menu keeps its place. */}
+            <Link
+                href={href}
+                scroll={false}
+                tabIndex={-1}
+                aria-hidden="true"
+                className="relative isolate flex size-92 shrink-0 items-center justify-center transition-transform hover:scale-105 motion-reduce:transition-none md:size-120"
+            >
                 {image ? (
                     <>
                         <span
@@ -74,7 +86,7 @@ const MenuItemRow = ({
                         <MdOutlineRestaurant aria-hidden="true" />
                     </span>
                 )}
-            </div>
+            </Link>
 
             {/* =========================
                 DETAILS
@@ -82,7 +94,11 @@ const MenuItemRow = ({
 
             <div className="flex min-w-0 flex-1 flex-col gap-6">
                 <div className="flex flex-wrap items-center gap-6">
-                    <h3 className="text-lg font-extrabold md:text-xl">{name}</h3>
+                    <h3 className="text-lg font-extrabold md:text-xl">
+                        <Link href={href} scroll={false} className="transition-colors hover:text-primary">
+                            {name}
+                        </Link>
+                    </h3>
 
                     {badge && (
                         <span className="inline-flex items-center gap-2 rounded-full bg-primary/15 px-8 py-2 text-xs font-bold text-primary">

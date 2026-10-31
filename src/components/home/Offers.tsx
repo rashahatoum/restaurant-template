@@ -37,6 +37,7 @@ const Offers = async () => {
                         image={offer.image}
                         badge={offer.badge}
                         href="/menu#category-offers"
+                        detailsHref={`/menu/${offer.id}`}
                     />
                 ))}
             </Slider>

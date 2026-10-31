@@ -47,7 +47,7 @@ const BestSellers = async () => {
                             description={product.description}
                             image={product.image}
                             price={product.price}
-                            href="/menu"
+                            href={`/menu/${product.id}`}
                         />
                     ))}
                 </Slider>

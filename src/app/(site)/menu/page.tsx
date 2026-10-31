@@ -50,6 +50,7 @@ const MenuPage = async () => {
                 <MenuItemRow
                     id={`offer-${offer.id}`}
                     itemKey={offerKey(offer.id)}
+                    href={`/menu/${offer.id}`}
                     name={offer.title}
                     details={offer.items}
                     freeItem={offer.freeItem}
@@ -82,6 +83,7 @@ const MenuPage = async () => {
                         <MenuItemRow
                             id={product.id}
                             itemKey={productKey(product.id)}
+                            href={`/menu/${product.id}`}
                             name={product.name}
                             details={product.ingredients}
                             image={product.image}
