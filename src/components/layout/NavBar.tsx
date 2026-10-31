@@ -1,11 +1,13 @@
 "use client"
 
 import { restaurantConfig } from "@/config/restaurant";
+import { useCartLines } from "@/hooks/useCart";
+import { countItems, formatPieces } from "@/lib/cart";
 import type { NavIconKey } from "@/types/config";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { FiHome, FiMapPin, FiMenu, FiPhone, FiUser, FiX } from "react-icons/fi";
+import { FiHome, FiMapPin, FiMenu, FiPhone, FiShoppingBag, FiUser, FiX } from "react-icons/fi";
 import { MdOutlineRestaurant } from "react-icons/md";
 import type { IconType } from "react-icons";
 
@@ -21,6 +23,7 @@ const { links, orderAction } = restaurantConfig.navbar;
 
 const NavBar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const cartCount = countItems(useCartLines());
     const dialogRef = useRef<HTMLDialogElement>(null);
 
     // showModal() has no React prop equivalent; it gives us Escape-to-close,
@@ -65,22 +68,40 @@ const NavBar = () => {
                     })}
                 </div>
 
-                <Link
-                    href={orderAction.href}
-                    className="hidden md:flex rounded-4xl bg-primary px-15 py-5 text-lg font-bold text-background transition-opacity hover:opacity-90">
-                    {orderAction.label}
-                </Link>
+                <div className="flex items-center gap-16 md:gap-20">
+                    <Link
+                        href="/cart"
+                        aria-label={cartCount > 0 ? `السلة، فيها ${formatPieces(cartCount)}` : "السلة"}
+                        className="relative flex text-2xl text-foreground transition-colors hover:text-primary"
+                    >
+                        <FiShoppingBag aria-hidden="true" />
+                        {cartCount > 0 && (
+                            <span
+                                aria-hidden="true"
+                                className="absolute -top-8 -inset-e-10 flex h-18 min-w-18 items-center justify-center rounded-full bg-primary px-4 text-xs font-extrabold text-background tabular-nums"
+                            >
+                                {cartCount}
+                            </span>
+                        )}
+                    </Link>
 
-                <button
-                    type="button"
-                    aria-label="فتح القائمة"
-                    aria-expanded={isOpen}
-                    aria-controls="mobile-menu"
-                    className="flex md:hidden"
-                    onClick={() => setIsOpen(true)}
-                >
-                    <FiMenu className="text-2xl text-foreground" />
-                </button>
+                    <Link
+                        href={orderAction.href}
+                        className="hidden md:flex rounded-4xl bg-primary px-15 py-5 text-lg font-bold text-background transition-opacity hover:opacity-90">
+                        {orderAction.label}
+                    </Link>
+
+                    <button
+                        type="button"
+                        aria-label="فتح القائمة"
+                        aria-expanded={isOpen}
+                        aria-controls="mobile-menu"
+                        className="flex md:hidden"
+                        onClick={() => setIsOpen(true)}
+                    >
+                        <FiMenu className="text-2xl text-foreground" />
+                    </button>
+                </div>
                 <dialog
                     ref={dialogRef}
                     id="mobile-menu"

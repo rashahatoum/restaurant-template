@@ -8,6 +8,8 @@ import { MdOutlineRestaurant } from "react-icons/md";
 interface MenuItemRowProps {
     /** Unique id, used to group the option radios. */
     id: string;
+    /** Cart reference: lib/cart productKey / offerKey. */
+    itemKey: string;
     name: string;
     /** Ingredients for a product, contents for an offer. */
     details: readonly string[];
@@ -29,6 +31,7 @@ interface MenuItemRowProps {
 // Server Component; only ItemPurchase ships JS.
 const MenuItemRow = ({
     id,
+    itemKey,
     name,
     details,
     image,
@@ -101,6 +104,7 @@ const MenuItemRow = ({
 
                 {isAvailable ? (
                     <ItemPurchase
+                        itemKey={itemKey}
                         inputName={`option-${id}`}
                         itemName={name}
                         price={price}
