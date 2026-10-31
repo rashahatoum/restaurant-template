@@ -18,6 +18,20 @@ export async function getSiteInfo(): Promise<SiteInfo> {
     return siteInfo;
 }
 
+/** The mobile menu's quick contact: first WhatsApp number, first phone, opening hours. */
+export async function getNavContact(): Promise<{
+    whatsAppNumber?: string;
+    phoneNumber?: string;
+    openingHours?: string;
+}> {
+    const { phones, openingHours } = await getSiteInfo();
+    return {
+        whatsAppNumber: phones.find((phone) => phone.hasWhatsApp)?.number,
+        phoneNumber: phones[0]?.number,
+        openingHours,
+    };
+}
+
 export async function getAboutContent(): Promise<AboutContent> {
     return about;
 }

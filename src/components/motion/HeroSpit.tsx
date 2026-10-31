@@ -106,8 +106,8 @@ const HeroSpit = ({ image, motion }: HeroSpitProps) => {
                 height={image.height}
                 preload
                 draggable={false}
-                // Shown 100vh tall (md+) or 50vh (phones), at a 2:3 ratio
-                sizes="(min-width: 48rem) 67vh, 34vh"
+                // Shown 100vh tall, at a 2:3 ratio
+                sizes="67vh"
                 className={`absolute inset-0 size-full object-contain transition-opacity duration-500 ${
                     is3d ? "opacity-0" : ""
                 }`}

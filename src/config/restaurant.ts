@@ -5,15 +5,12 @@ export const restaurantConfig = {
     logo: "/assets/imgs/ahl-alkaram-logo.webp",
 
     navbar: {
-        mobileBackground: "/assets/imgs/nav-mobile-bg.webp",
-
-        // icon: key mapped to a component in NavBar (navIcons)
         links: [
-            { label: "الرئيسية", href: "/", icon: "home" },
-            { label: "القائمة", href: "/menu", icon: "menu" },
-            { label: "من نحن", href: "/#about", icon: "about" },
-            { label: "موقعنا", href: "/#location", icon: "location" },
-            { label: "تواصل معنا", href: "/#contact", icon: "contact" },
+            { label: "الرئيسية", href: "/" },
+            { label: "القائمة", href: "/menu" },
+            { label: "من نحن", href: "/#about" },
+            { label: "موقعنا", href: "/#location" },
+            { label: "تواصل معنا", href: "/#contact" },
         ],
 
         orderAction: {

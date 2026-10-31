@@ -3,9 +3,6 @@
 /** Must match a [data-theme="…"] block in globals.css. */
 export type ThemeName = "fire";
 
-/** Keys mapped to icon components in NavBar (navIcons). */
-export type NavIconKey = "home" | "menu" | "about" | "location" | "contact";
-
 /** Keys mapped to icon components in Hero (featureIcons). */
 export type FeatureIconKey = "fresh" | "fire" | "quality";
 
@@ -14,16 +11,14 @@ export interface Action {
     href: string;
 }
 
-export interface NavLink extends Action {
-    icon: NavIconKey;
-}
+/** Page (/menu) or home-page section (/#about); only pages get the "current" underline. */
+export type NavLink = Action;
 
 export interface RestaurantConfig {
     name: string;
     logo: string;
 
     navbar: {
-        mobileBackground: string;
         links: readonly NavLink[];
         orderAction: Action;
     };

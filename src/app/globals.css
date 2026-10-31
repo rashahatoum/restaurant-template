@@ -44,6 +44,8 @@
    <html> lets Next.js turn it off during route changes. */
 html {
   scroll-behavior: smooth;
+  /* The NavBar is fixed (64px once scrolled): in-page jumps stop below it. */
+  scroll-padding-top: 72px;
 }
 
 @media (prefers-reduced-motion: reduce) {

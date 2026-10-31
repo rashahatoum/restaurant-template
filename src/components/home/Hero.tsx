@@ -67,15 +67,12 @@ const Hero = () => {
     return (
         <section
             aria-labelledby="hero-title"
-            // Phones: at least 720px tall, so on short screens the spit sits below
-            // the text (a little scroll) instead of under it.
             className="
                 relative
-                min-h-[max(100dvh,720px)]
+                min-h-dvh
                 w-full
                 overflow-hidden
                 bg-background
-                md:min-h-dvh
             "
         >
             <picture>
@@ -96,7 +93,7 @@ const Hero = () => {
 
             {/* Mobile: spit is an absolute layer at the end side (left in RTL).
                 md+: 12-column grid, content 7 cols (start) + spit 5 cols (end). */}
-            <div className="relative grid min-h-[max(100dvh,720px)] w-full grid-cols-1 px-page-gutter md:min-h-dvh md:grid-cols-12 md:gap-x-40">
+            <div className="relative grid min-h-dvh w-full grid-cols-1 px-page-gutter md:grid-cols-12 md:gap-x-40">
             <div
                 className="
                     relative
@@ -104,13 +101,10 @@ const Hero = () => {
                     flex
                     flex-col
                     items-start
-                    justify-start
-                    pt-120
-                    pb-80
+                    justify-center
+                    py-80
 
                     md:col-span-7
-                    md:justify-center
-                    md:py-80
                     md:short:pt-104
                 "
             >
@@ -317,18 +311,19 @@ const Hero = () => {
                 SHAWARMA
             ========================== */}
 
-            {/* Phones: the text sits high and a smaller spit fills the lower
-                end-side corner (part of it off screen), over the backdrop's glow.
+            {/* Phones: full screen height on the end side (left in RTL), half of it
+                off screen, turning behind the text (owner's choice).
                 md+: its own column, the full screen height from the very top
                 (behind the see-through NavBar). */}
             <div
                 className="
                     absolute
-                    bottom-0
-                    inset-e-[-14%]
-                    h-[50dvh]
+                    inset-y-0
+                    inset-e-[-33dvh]
+                    h-dvh
 
                     md:relative
+                    md:inset-y-auto
                     md:bottom-auto
                     md:inset-e-auto
                     md:col-span-5

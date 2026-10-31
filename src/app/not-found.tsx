@@ -1,5 +1,6 @@
 import Footer from "@/components/layout/Footer";
 import NavBar from "@/components/layout/NavBar";
+import { getNavContact } from "@/services/content";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -12,10 +13,12 @@ export const metadata: Metadata = {
 
 // Root not-found: handles every unmatched URL. It renders in the root layout,
 // outside (site)/layout, so it adds the NavBar and Footer itself.
-const NotFound = () => {
+const NotFound = async () => {
+    const navContact = await getNavContact();
+
     return (
         <>
-            <NavBar />
+            <NavBar {...navContact} />
 
             <main className="flex min-h-dvh flex-col items-center justify-center gap-16 px-page-gutter pb-80 pt-160 text-center">
                 <p aria-hidden="true" className="font-display text-8xl font-bold text-primary">
