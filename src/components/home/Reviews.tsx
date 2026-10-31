@@ -1,5 +1,6 @@
 import ReviewCard from "@/components/reviews/ReviewCard";
 import SectionTitle from "@/components/ui/SectionTitle";
+import { restaurantConfig } from "@/config/restaurant";
 import Slider from "@/components/ui/Slider";
 import { toPlainText } from "@/lib/highlight";
 import { getReviewsContent } from "@/services/content";
@@ -34,6 +35,7 @@ const Reviews = async () => {
                         question={review.question ?? content.defaultQuestion}
                         answer={review.answer}
                         time={review.time}
+                        wallpaper={restaurantConfig.reviews?.chatWallpaper}
                     />
                 ))}
             </Slider>
