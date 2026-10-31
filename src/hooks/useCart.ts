@@ -104,6 +104,8 @@ export const cartActions = {
         update({ lines: cart.setNote(lines(), lineId, note) }),
     remove: (lineId: string) => update({ lines: cart.removeLine(lines(), lineId) }),
     setOrderNote: (note: string) => update({ note: note.slice(0, cart.MAX_ORDER_NOTE_LENGTH) }),
+    /** Empties the cart and the order note (after an order is sent). */
+    clear: () => update(EMPTY),
     /** Drops lines the current menu can't price (removed, unavailable, unknown size). */
     prune: (catalog: CartCatalog) => {
         const current = lines();
