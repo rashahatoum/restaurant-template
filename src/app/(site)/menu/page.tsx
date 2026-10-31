@@ -1,10 +1,14 @@
+import CartBar from "@/components/cart/CartBar";
 import MenuBannerSlide from "@/components/menu/MenuBannerSlide";
 import MenuBrowser, { type MenuBrowserSection } from "@/components/menu/MenuBrowser";
 import MenuItemRow from "@/components/menu/MenuItemRow";
 import AutoCarousel from "@/components/ui/AutoCarousel";
 import CategoryCards, { type CategoryCardItem } from "@/components/ui/CategoryCards";
 import { restaurantConfig } from "@/config/restaurant";
+import { offerKey, productKey } from "@/lib/cart";
+import { getSingleChoiceGroup } from "@/lib/menu";
 import { normalizeArabic } from "@/lib/search";
+import { getCartCatalog } from "@/services/cart";
 import { getMenuBanners, getOffersContent } from "@/services/content";
 import { getMenu } from "@/services/menu";
 import type { Metadata } from "next";
@@ -28,11 +32,12 @@ const toSearchText = (...parts: readonly string[]) => normalizeArabic(parts.join
 // carousel, the sticky bar/search (MenuBrowser) and each row's option
 // toggle + add button run on the client.
 const MenuPage = async () => {
-    const [categorySections, banners, offers] = await Promise.all([
+    const [categorySections, banners, offers, cartCatalog] = await Promise.all([
         getMenu(),
         getMenuBanners(),
         // null when the offers section is off or has no active offer
         getOffersContent(),
+        getCartCatalog(),
     ]);
 
     const offersSection: MenuBrowserSection | null = offers && {
@@ -44,6 +49,7 @@ const MenuPage = async () => {
             node: (
                 <MenuItemRow
                     id={`offer-${offer.id}`}
+                    itemKey={offerKey(offer.id)}
                     name={offer.title}
                     details={offer.items}
                     freeItem={offer.freeItem}
@@ -63,7 +69,7 @@ const MenuPage = async () => {
             title: category.name,
             entries: products.map((product) => {
                 // Only price-changing single choices (size) are shown here.
-                const sizeGroup = product.optionGroups?.find((group) => group.maxSelect === 1);
+                const sizeGroup = getSingleChoiceGroup(product);
 
                 return {
                     key: product.id,
@@ -75,6 +81,7 @@ const MenuPage = async () => {
                     node: (
                         <MenuItemRow
                             id={product.id}
+                            itemKey={productKey(product.id)}
                             name={product.name}
                             details={product.ingredients}
                             image={product.image}
@@ -113,7 +120,8 @@ const MenuPage = async () => {
 
     return (
         // pt: the NavBar is absolutely positioned over the page top
-        <main className="pb-80 pt-80 md:pb-120">
+        // pb: room for the fixed cart bar
+        <main className="pb-120 pt-80 md:pb-140">
             <div className="px-page-gutter">
                 {/* Visible from md; on phones the banner and items come first */}
                 <header className="sr-only md:not-sr-only md:pb-24 md:pt-24">
@@ -159,6 +167,8 @@ const MenuPage = async () => {
                     />
                 </div>
             )}
+
+            <CartBar catalog={cartCatalog} />
         </main>
     );
 };
