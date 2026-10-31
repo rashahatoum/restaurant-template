@@ -5,7 +5,7 @@ import SectionSelect from "@/components/ui/SectionSelect";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { matchesQuery } from "@/lib/search";
 import type { SectionNavItem } from "@/types/navigation";
-import { Fragment, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 
 export interface MenuBrowserEntry {
     key: string;
@@ -18,12 +18,13 @@ export interface MenuBrowserEntry {
 export interface MenuBrowserSection {
     id: string;
     title: string;
-    icon: string;
     entries: readonly MenuBrowserEntry[];
 }
 
 interface MenuBrowserProps {
     sections: readonly MenuBrowserSection[];
+    /** Server-rendered category cards, shown above the sticky bar. */
+    categoryCards: ReactNode;
 }
 
 function formatResults(count: number) {
@@ -34,17 +35,17 @@ function formatResults(count: number) {
 
 const gridClasses = "grid gap-10 md:grid-cols-2 md:gap-16";
 
-// Sticky bar (always-visible search + section dropdown) and the menu body.
-// One client component because the search box and the results share state.
-// The rows are server-rendered and arrive as `node`s; only filtering runs here.
-const MenuBrowser = ({ sections }: MenuBrowserProps) => {
+// Category cards, sticky bar (always-visible search + section dropdown) and
+// the menu body. One client component because the search box and the results
+// share state. Cards and rows are server-rendered and arrive as nodes; only
+// filtering and the dropdown's visibility run here.
+const MenuBrowser = ({ sections, categoryCards }: MenuBrowserProps) => {
     const [query, setQuery] = useState("");
     const isSearching = query.trim() !== "";
 
     const navItems: SectionNavItem[] = sections.map((section) => ({
         id: section.id,
         label: section.title,
-        icon: section.icon,
         count: section.entries.length,
     }));
 
@@ -52,6 +53,24 @@ const MenuBrowser = ({ sections }: MenuBrowserProps) => {
         navItems.map((item) => item.id),
         !isSearching
     );
+
+    // The dropdown repeats the cards, so it only shows once they scroll away.
+    // Starts true: the page opens at the top, where the cards are.
+    const cardsRef = useRef<HTMLDivElement>(null);
+    const [cardsInView, setCardsInView] = useState(true);
+
+    useEffect(() => {
+        const cards = cardsRef.current;
+        if (!cards) return;
+
+        const observer = new IntersectionObserver(([entry]) =>
+            setCardsInView(entry.isIntersecting)
+        );
+        observer.observe(cards);
+        return () => observer.disconnect();
+    }, []);
+
+    const showSectionSelect = !isSearching && !cardsInView;
 
     // Marks where the bar sits in the page.
     const barStartRef = useRef<HTMLDivElement>(null);
@@ -79,15 +98,20 @@ const MenuBrowser = ({ sections }: MenuBrowserProps) => {
 
     return (
         <>
-            <div ref={barStartRef} />
+            <div ref={cardsRef} className="px-page-gutter">
+                {categoryCards}
+            </div>
+
+            <div ref={barStartRef} className="mt-16 md:mt-24" />
 
             {/* =========================
                 STICKY BAR
             ========================== */}
 
-            {/* Phones: search on its own row, the section picker under it. md+: one row. */}
+            {/* Phones: the section picker hangs under the search row (absolute,
+                so showing it never shifts the page). md+: one row. */}
             <div className="sticky top-0 z-40 border-b border-border/60 bg-background/95 px-page-gutter backdrop-blur-sm">
-                <div className="flex flex-col gap-8 py-10 md:flex-row md:items-center md:gap-12 md:py-14">
+                <div className="flex flex-col py-10 md:flex-row md:items-center md:gap-12 md:py-14">
                     <SearchField
                         value={query}
                         onChange={handleQueryChange}
@@ -96,9 +120,12 @@ const MenuBrowser = ({ sections }: MenuBrowserProps) => {
                         placeholder="دوّر على وجبة أو مكوّن…"
                     />
 
-                    {/* Hidden while searching: results replace the sections */}
-                    {!isSearching && (
-                        <nav aria-label="التصنيفات" className="md:w-280 md:shrink-0">
+                    {/* Hidden while the cards are on screen or while searching */}
+                    {showSectionSelect && (
+                        <nav
+                            aria-label="التصنيفات"
+                            className="absolute inset-x-0 top-full border-b border-border/60 bg-background/95 px-page-gutter pb-10 backdrop-blur-sm md:static md:w-280 md:shrink-0 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none"
+                        >
                             <SectionSelect
                                 items={navItems}
                                 activeId={activeId}
@@ -154,9 +181,8 @@ const MenuBrowser = ({ sections }: MenuBrowserProps) => {
                         >
                             <h2
                                 id={`${section.id}-title`}
-                                className="mb-12 flex items-center gap-8 font-display text-2xl font-bold md:mb-16 md:text-3xl"
+                                className="mb-12 font-display text-2xl font-bold md:mb-16 md:text-3xl"
                             >
-                                <span aria-hidden="true">{section.icon}</span>
                                 {section.title}
                             </h2>
 

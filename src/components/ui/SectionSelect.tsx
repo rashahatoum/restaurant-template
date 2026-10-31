@@ -37,7 +37,7 @@ const SectionSelect = ({ items, activeId, onSelect, placeholder }: SectionSelect
                 <option value="">{placeholder}</option>
                 {items.map((item) => (
                     <option key={item.id} value={item.id}>
-                        {`${item.icon} ${item.label} (${item.count})`}
+                        {`${item.label} (${item.count})`}
                     </option>
                 ))}
             </select>

@@ -2,6 +2,7 @@ import MenuBannerSlide from "@/components/menu/MenuBannerSlide";
 import MenuBrowser, { type MenuBrowserSection } from "@/components/menu/MenuBrowser";
 import MenuItemRow from "@/components/menu/MenuItemRow";
 import AutoCarousel from "@/components/ui/AutoCarousel";
+import CategoryCards, { type CategoryCardItem } from "@/components/ui/CategoryCards";
 import { restaurantConfig } from "@/config/restaurant";
 import { normalizeArabic } from "@/lib/search";
 import { getMenuBanners, getOffersContent } from "@/services/content";
@@ -20,9 +21,6 @@ const categoryAnchor = (categoryId: string) => `category-${categoryId}`;
 /** The offers section id: banner slides and home offer cards link here. */
 const OFFERS_ANCHOR = categoryAnchor("offers");
 
-const OFFERS_ICON = "🎁";
-const DEFAULT_CATEGORY_ICON = "🍽️";
-
 /** What a search can match: name, details, free item, option names. */
 const toSearchText = (...parts: readonly string[]) => normalizeArabic(parts.join(" "));
 
@@ -40,7 +38,6 @@ const MenuPage = async () => {
     const offersSection: MenuBrowserSection | null = offers && {
         id: OFFERS_ANCHOR,
         title: "العروض",
-        icon: OFFERS_ICON,
         entries: offers.offers.map((offer) => ({
             key: `offer-${offer.id}`,
             searchText: toSearchText(offer.title, ...offer.items, offer.freeItem),
@@ -64,7 +61,6 @@ const MenuPage = async () => {
         ...categorySections.map(({ category, products }) => ({
             id: categoryAnchor(category.id),
             title: category.name,
-            icon: category.icon ?? DEFAULT_CATEGORY_ICON,
             entries: products.map((product) => {
                 // Only price-changing single choices (size) are shown here.
                 const sizeGroup = product.optionGroups?.find((group) => group.maxSelect === 1);
@@ -91,6 +87,27 @@ const MenuPage = async () => {
                     ),
                 };
             }),
+        })),
+    ];
+
+    // Same order as the sections; offers first when they're on. Without a card
+    // photo from the dashboard, the first item photo in the section stands in.
+    const categoryCards: CategoryCardItem[] = [
+        ...(offers
+            ? [
+                  {
+                      id: OFFERS_ANCHOR,
+                      label: "العروض",
+                      image: offers.menuCardImage,
+                      fallbackImage: offers.offers[0]?.image,
+                  },
+              ]
+            : []),
+        ...categorySections.map(({ category, products }) => ({
+            id: categoryAnchor(category.id),
+            label: category.name,
+            image: category.image,
+            fallbackImage: products.find((product) => product.image)?.image,
         })),
     ];
 
@@ -135,8 +152,11 @@ const MenuPage = async () => {
                     </Link>
                 </div>
             ) : (
-                <div className="mt-8 md:mt-16">
-                    <MenuBrowser sections={sections} />
+                <div className="mt-16 md:mt-24">
+                    <MenuBrowser
+                        sections={sections}
+                        categoryCards={<CategoryCards items={categoryCards} label="تصنيفات القائمة" />}
+                    />
                 </div>
             )}
         </main>
