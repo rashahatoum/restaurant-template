@@ -9,6 +9,7 @@ export const offers: OffersContent = {
     isEnabled: true,
     eyebrow: "عروض أهل الكرم",
     title: "الكرم **بالعروض**",
+    menuCardImage: "/assets/imgs/categories/offers.webp",
     offers: [
         {
             id: "chicken-cola",

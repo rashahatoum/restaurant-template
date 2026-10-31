@@ -55,6 +55,8 @@ export interface OffersContent {
     eyebrow: string;
     /** The **marked** part gets the brand underline. */
     title: string;
+    /** Full photo for the "العروض" category card on the menu. Optional: the card falls back to the first offer photo. */
+    menuCardImage?: string;
     offers: readonly Offer[];
 }
 

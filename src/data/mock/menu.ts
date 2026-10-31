@@ -6,11 +6,17 @@
 import type { Category, Product, ProductOptionGroup } from "@/types/menu";
 
 const IMAGES_PATH = "/assets/imgs/menu";
+const CATEGORY_IMAGES_PATH = "/assets/imgs/categories";
 
 export const categories: readonly Category[] = [
-    { id: "sandwiches", name: "سندويشات", icon: "🌯", order: 1 },
-    { id: "meals", name: "وجبات", icon: "🍱", order: 2 },
-    { id: "chicken", name: "فروج", icon: "🍗", order: 3 },
+    {
+        id: "sandwiches",
+        name: "سندويشات",
+        image: `${CATEGORY_IMAGES_PATH}/sandwiches.webp`,
+        order: 1,
+    },
+    { id: "meals", name: "وجبات", image: `${CATEGORY_IMAGES_PATH}/meals.webp`, order: 2 },
+    { id: "chicken", name: "فروج", image: `${CATEGORY_IMAGES_PATH}/chickens.webp`, order: 3 },
 ];
 
 /* =========================

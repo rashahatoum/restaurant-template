@@ -4,8 +4,8 @@
 export interface Category {
     id: string;
     name: string;
-    /** One emoji shown with the name (category grid, section menu). Optional: a default is used. */
-    icon?: string;
+    /** Full photo (not cut out) for the menu category card. Optional: the card falls back to the first product photo. */
+    image?: string;
     /** Display order, ascending. */
     order: number;
 }
