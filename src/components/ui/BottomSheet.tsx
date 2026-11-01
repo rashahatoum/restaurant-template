@@ -8,6 +8,8 @@ interface BottomSheetProps {
     /** Escape, the ✕, or a tap on the dimmed page. */
     onClose: () => void;
     title: string;
+    /** Small link or button next to the title (e.g. "عودة للقائمة"). */
+    headerAction?: ReactNode;
     children: ReactNode;
 }
 
@@ -15,7 +17,7 @@ interface BottomSheetProps {
 // on phones and sits centered from md. Unlike RouteModal it has no URL: it's
 // a step inside the page, not a page. Content taller than 90% of the screen
 // scrolls inside it.
-const BottomSheet = ({ open, onClose, title, children }: BottomSheetProps) => {
+const BottomSheet = ({ open, onClose, title, headerAction, children }: BottomSheetProps) => {
     const dialogRef = useRef<HTMLDialogElement>(null);
 
     // showModal()/close() have no React prop equivalent.
@@ -39,7 +41,10 @@ const BottomSheet = ({ open, onClose, title, children }: BottomSheetProps) => {
         >
             <div className="flex max-h-[90dvh] flex-col bg-surface">
                 <header className="flex shrink-0 items-center justify-between gap-12 border-b border-border px-20 py-14">
-                    <h2 className="font-display text-xl font-bold">{title}</h2>
+                    <div className="flex min-w-0 items-center gap-12">
+                        <h2 className="font-display text-xl font-bold">{title}</h2>
+                        {headerAction}
+                    </div>
                     <button
                         type="button"
                         onClick={() => dialogRef.current?.close()}
@@ -50,7 +55,7 @@ const BottomSheet = ({ open, onClose, title, children }: BottomSheetProps) => {
                     </button>
                 </header>
 
-                <div className="overflow-y-auto overscroll-contain px-20 pt-16 pb-[max(20px,env(safe-area-inset-bottom))]">
+                <div className="overflow-y-auto overscroll-contain [scrollbar-color:var(--color-border)_transparent] [scrollbar-width:thin] px-20 pt-16 pb-[max(20px,env(safe-area-inset-bottom))]">
                     {children}
                 </div>
             </div>

@@ -148,7 +148,8 @@ const NavBar = ({ whatsAppNumber, phoneNumber, openingHours }: NavBarProps) => {
                 ========================== */}
 
                 <div className="flex items-center gap-10 md:gap-14">
-                    <Link href="/cart" aria-label={cartLabel} className={iconButtonClasses}>
+                    {/* Opens as a popup over the current page (@modal/(.)cart); scroll={false} keeps its place */}
+                    <Link href="/cart" scroll={false} aria-label={cartLabel} className={iconButtonClasses}>
                         <FiShoppingBag aria-hidden="true" />
                         {cartBadge}
                     </Link>

@@ -34,7 +34,7 @@ const CheckoutSheet = ({ open, onClose, lines, itemCount, subtotal, orderNote, o
     };
 
     return (
-        <BottomSheet open={open} onClose={close} title={sent ? "تم" : "أرسل الطلب"}>
+        <BottomSheet open={open} onClose={close} title={sent ? "تم" : "أكّد الطلب"}>
             {sent ? (
                 <OrderSentPanel
                     whatsAppHref={sent.whatsAppHref}
@@ -53,7 +53,8 @@ const CheckoutSheet = ({ open, onClose, lines, itemCount, subtotal, orderNote, o
                         <span className="text-muted">
                             {formatPieces(itemCount)} · <span className="font-bold text-foreground tabular-nums">{formatPrice(subtotal)}</span>
                         </span>
-                        <Link href="/cart" className="font-bold text-primary hover:underline">
+                        {/* Closes this sheet first: the cart opens as its own popup, not stacked on this one */}
+                        <Link href="/cart" scroll={false} onClick={close} className="font-bold text-primary hover:underline">
                             راجع السلة
                         </Link>
                     </div>
@@ -65,7 +66,6 @@ const CheckoutSheet = ({ open, onClose, lines, itemCount, subtotal, orderNote, o
                         orderNote={orderNote}
                         options={options}
                         onSent={markSent}
-                        showMenuLink={false}
                     />
                 </div>
             )}

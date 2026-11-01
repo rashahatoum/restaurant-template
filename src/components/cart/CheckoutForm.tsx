@@ -7,7 +7,6 @@ import { formatPrice } from "@/lib/format-price";
 import { buildOrderMessage, normalizeSyrianMobile, orderTotals } from "@/lib/order";
 import type { PricedCartLine } from "@/types/cart";
 import type { OrderDetails, OrderingOptions } from "@/types/order";
-import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -19,8 +18,6 @@ interface CheckoutFormProps {
     options: OrderingOptions;
     /** Called once WhatsApp has been opened with the order. */
     onSent: (sent: { whatsAppHref: string; name: string }) => void;
-    /** "Back to the menu" under the button; off where the menu is already behind (the sheet). */
-    showMenuLink?: boolean;
 }
 
 type OrderType = OrderDetails["type"];
@@ -32,15 +29,7 @@ const labelClasses = "flex flex-col gap-6 text-sm font-bold";
 // Order type, customer details, totals and "send on WhatsApp". Native
 // validation (required + a custom message for the phone); nothing typed here
 // is stored. What happens after sending (empty cart, thank-you) is the parent's call.
-const CheckoutForm = ({
-    lines,
-    itemCount,
-    subtotal,
-    orderNote,
-    options,
-    onSent,
-    showMenuLink = true,
-}: CheckoutFormProps) => {
+const CheckoutForm = ({ lines, itemCount, subtotal, orderNote, options, onSent }: CheckoutFormProps) => {
     const { delivery, dineInBranches } = options;
     const types: OrderType[] = [
         ...(delivery ? (["delivery"] as const) : []),
@@ -243,12 +232,6 @@ const CheckoutForm = ({
                 <FaWhatsapp aria-hidden="true" className="text-xl" />
                 أرسل الطلب عالواتساب
             </button>
-
-            {showMenuLink && (
-                <Link href="/menu" className="text-center text-sm font-bold text-primary hover:underline">
-                    العودة لقائمة الطعام
-                </Link>
-            )}
         </form>
     );
 };
