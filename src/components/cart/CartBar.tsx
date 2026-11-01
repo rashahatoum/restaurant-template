@@ -17,7 +17,7 @@ interface CartBarProps {
 }
 
 // Fixed bar at the bottom of the menu once the cart has something: the cart
-// (count + total, to /cart for review) and "send", which opens checkout in a
+// (count + total, opens the cart popup) and "أكّد الطلب", which opens checkout in a
 // sheet so ordering doesn't need a trip to /cart. Also announces cart changes
 // to screen readers.
 const CartBar = ({ catalog, orderingOptions }: CartBarProps) => {
@@ -40,6 +40,7 @@ const CartBar = ({ catalog, orderingOptions }: CartBarProps) => {
                     <div className="mx-auto flex h-60 max-w-560 items-center gap-8 rounded-full bg-primary p-6 ps-8 shadow-lg shadow-black/40">
                         <Link
                             href="/cart"
+                            scroll={false}
                             aria-label={`السلة: ${formatPieces(itemCount)}، ${formatPrice(subtotal)}`}
                             className="flex h-full min-w-0 flex-1 items-center gap-10 rounded-full pe-8 text-background transition-colors hover:bg-background/10"
                         >
@@ -62,7 +63,7 @@ const CartBar = ({ catalog, orderingOptions }: CartBarProps) => {
                             className="flex h-full shrink-0 items-center gap-8 rounded-full bg-background px-18 font-extrabold text-primary transition-transform hover:scale-[1.02] active:scale-[0.98] motion-reduce:transition-none"
                         >
                             <FaWhatsapp aria-hidden="true" className="text-lg" />
-                            أرسل الطلب
+                            أكّد الطلب
                         </button>
                     </div>
                 </div>

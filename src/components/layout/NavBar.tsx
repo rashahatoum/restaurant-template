@@ -18,7 +18,7 @@ interface NavBarProps {
     openingHours?: string;
 }
 
-const { links, orderAction } = restaurantConfig.navbar;
+const { links, orderAction, menuPageAction } = restaurantConfig.navbar;
 
 /** Past this scroll offset the bar turns solid and compact. */
 const SCROLLED_AFTER = 16;
@@ -80,6 +80,8 @@ const NavBar = ({ whatsAppNumber, phoneNumber, openingHours }: NavBarProps) => {
     };
     /** Only real pages can be "current"; in-page anchors (/#about) never are. */
     const isCurrent = (href: string) => !href.includes("#") && href === pathname;
+    /** On the menu itself, "order now" would link to the same page: invite people to the site instead. */
+    const action = pathname === orderAction.href ? menuPageAction : orderAction;
 
     const cartLabel = cartCount > 0 ? `السلة، فيها ${formatPieces(cartCount)}` : "السلة";
     const cartBadge = cartCount > 0 && (
@@ -148,16 +150,17 @@ const NavBar = ({ whatsAppNumber, phoneNumber, openingHours }: NavBarProps) => {
                 ========================== */}
 
                 <div className="flex items-center gap-10 md:gap-14">
-                    <Link href="/cart" aria-label={cartLabel} className={iconButtonClasses}>
+                    {/* Opens as a popup over the current page (@modal/(.)cart); scroll={false} keeps its place */}
+                    <Link href="/cart" scroll={false} aria-label={cartLabel} className={iconButtonClasses}>
                         <FiShoppingBag aria-hidden="true" />
                         {cartBadge}
                     </Link>
 
                     <Link
-                        href={orderAction.href}
+                        href={action.href}
                         className="hidden h-44 items-center rounded-full bg-primary px-20 font-bold text-background transition-[filter] hover:brightness-110 md:flex"
                     >
-                        {orderAction.label}
+                        {action.label}
                     </Link>
 
                     <button
@@ -249,11 +252,11 @@ const NavBar = ({ whatsAppNumber, phoneNumber, openingHours }: NavBarProps) => {
                                 style={{ "--delay": `${60 + links.length * 50}ms` } as CSSProperties}
                             >
                                 <Link
-                                    href={orderAction.href}
+                                    href={action.href}
                                     onClick={closeMenu}
                                     className="flex h-54 items-center justify-center gap-8 rounded-full bg-primary text-lg font-extrabold text-background"
                                 >
-                                    {orderAction.label}
+                                    {action.label}
                                     <FiArrowLeft aria-hidden="true" />
                                 </Link>
 

@@ -17,6 +17,11 @@ export const restaurantConfig = {
             label: "اطلب الآن",
             href: "/menu",
         },
+
+        menuPageAction: {
+            label: "تعرّف علينا",
+            href: "/",
+        },
     },
 
     seo: {

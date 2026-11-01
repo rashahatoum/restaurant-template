@@ -13,6 +13,7 @@ import type { CartCatalog } from "@/types/cart";
 import type { OrderingOptions } from "@/types/order";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { FiTrash2 } from "react-icons/fi";
 import { MdOutlineRestaurant } from "react-icons/md";
@@ -20,12 +21,18 @@ import { MdOutlineRestaurant } from "react-icons/md";
 interface CartViewProps {
     catalog: CartCatalog;
     orderingOptions: OrderingOptions;
+    /** "page": /cart, two columns from lg. "sheet": the popup, one column;
+        "تمام" after sending closes it (router.back). */
+    layout?: "page" | "sheet";
 }
 
-// The /cart page body: lines with quantity, note and remove, the order
-// note, then checkout (order type, details, totals, WhatsApp).
+// The cart body: lines with quantity, note and remove, the order note, then
+// checkout (order type, details, totals, WhatsApp). Used by the /cart page
+// and the cart popup (@modal/(.)cart).
 // Sending empties the cart right away; the thank-you panel can put it back (useOrderSent).
-const CartView = ({ catalog, orderingOptions }: CartViewProps) => {
+const CartView = ({ catalog, orderingOptions, layout = "page" }: CartViewProps) => {
+    const isSheet = layout === "sheet";
+    const router = useRouter();
     const isHydrated = useIsHydrated();
     const lines = priceLines(useCartLines(), catalog);
     const { itemCount, subtotal } = cartTotals(lines);
@@ -46,13 +53,14 @@ const CartView = ({ catalog, orderingOptions }: CartViewProps) => {
                     name: sent.name,
                 })}
                 onRestore={restore}
+                onDone={isSheet ? () => router.back() : undefined}
             />
         );
     }
 
     if (lines.length === 0) {
         return (
-            <div className="flex flex-col items-center gap-12 py-64 text-center">
+            <div className={`flex flex-col items-center gap-12 text-center ${isSheet ? "py-32" : "py-64"}`}>
                 <p className="font-display text-2xl font-bold">سلتك فاضية</p>
                 <p className="text-muted">اختار من القائمة وضيف يلي بدك ياه.</p>
                 <Link
@@ -66,7 +74,7 @@ const CartView = ({ catalog, orderingOptions }: CartViewProps) => {
     }
 
     return (
-        <div className="grid gap-24 lg:grid-cols-[1fr_360px] lg:items-start">
+        <div className={isSheet ? "flex flex-col gap-16" : "grid gap-24 lg:grid-cols-[1fr_360px] lg:items-start"}>
             <ul className="flex flex-col gap-10">
                 {lines.map((line) => {
                     const label = line.optionName ? `${line.name} ${line.optionName}` : line.name;
@@ -140,7 +148,11 @@ const CartView = ({ catalog, orderingOptions }: CartViewProps) => {
                 ORDER NOTE
             ========================== */}
 
-            <label className="flex flex-col gap-8 rounded-[20px] border border-border bg-surface p-12 md:p-16 lg:col-start-1">
+            <label
+                className={`flex flex-col gap-8 rounded-[20px] border border-border bg-surface p-12 md:p-16 ${
+                    isSheet ? "" : "lg:col-start-1"
+                }`}
+            >
                 <span className="font-extrabold md:text-lg">ملاحظات على الطلب</span>
                 <textarea
                     value={orderNote}
@@ -162,7 +174,9 @@ const CartView = ({ catalog, orderingOptions }: CartViewProps) => {
             {/* Not sticky: the form can be taller than the screen */}
             <section
                 aria-labelledby="checkout-title"
-                className="flex flex-col gap-14 rounded-[20px] border border-border bg-surface p-16 lg:col-start-2 lg:row-span-2 lg:row-start-1"
+                className={`flex flex-col gap-14 rounded-[20px] border border-border bg-surface p-16 ${
+                    isSheet ? "" : "lg:col-start-2 lg:row-span-2 lg:row-start-1"
+                }`}
             >
                 <h2 id="checkout-title" className="font-display text-xl font-bold">
                     تأكيد الطلب

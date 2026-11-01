@@ -21,6 +21,8 @@ export interface RestaurantConfig {
     navbar: {
         links: readonly NavLink[];
         orderAction: Action;
+        /** Replaces orderAction on the menu page itself, where "order" would go nowhere. */
+        menuPageAction: Action;
     };
 
     seo: {
