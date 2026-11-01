@@ -106,6 +106,8 @@ export const cartActions = {
     setOrderNote: (note: string) => update({ note: note.slice(0, cart.MAX_ORDER_NOTE_LENGTH) }),
     /** Empties the cart and the order note (after an order is sent). */
     clear: () => update(EMPTY),
+    /** The whole cart as stored (lines + order note), e.g. to keep before clear. */
+    snapshot: (): CartState => getState(),
     /** Puts back a cart taken before clear (the customer didn't send after all). */
     restore: (snapshot: CartState) => update(snapshot),
     /** Drops lines the current menu can't price (removed, unavailable, unknown size). */

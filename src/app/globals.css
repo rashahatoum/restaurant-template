@@ -178,6 +178,27 @@ html {
   }
 }
 
+/* Bottom sheet: slides up on phones, fades in from md (centered there) */
+@keyframes sheet-up {
+  from {
+    translate: 0 100%;
+  }
+}
+
+@utility sheet-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: sheet-up 300ms ease-out both;
+
+    @media (width >= 48rem) {
+      animation: fade-in 200ms ease-out both;
+    }
+
+    &::backdrop {
+      animation: fade-in 250ms ease-out both;
+    }
+  }
+}
+
 body {
   margin: 0;
   background: var(--color-background);
