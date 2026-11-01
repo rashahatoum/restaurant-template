@@ -1,3 +1,4 @@
+import DetailsHint from "@/components/ui/DetailsHint";
 import { formatPrice } from "@/lib/format-price";
 import Image from "next/image";
 import Link from "next/link";
@@ -43,6 +44,9 @@ const ProductCard = ({
                 <p className="text-xl font-extrabold text-primary lg:text-2xl">
                     {formatPrice(price)}
                 </p>
+
+                {/* Tells people the card opens the ingredients (inside the card's link) */}
+                {href && <DetailsHint />}
             </div>
         </>
     );

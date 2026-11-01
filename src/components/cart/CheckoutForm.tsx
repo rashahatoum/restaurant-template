@@ -1,11 +1,10 @@
 "use client";
 
 import { restaurantConfig } from "@/config/restaurant";
-import { cartActions } from "@/hooks/useCart";
 import { toWhatsAppHref } from "@/lib/contact";
 import { formatPieces } from "@/lib/cart";
 import { formatPrice } from "@/lib/format-price";
-import { buildOrderMessage, fillTemplate, normalizeSyrianMobile, orderTotals } from "@/lib/order";
+import { buildOrderMessage, normalizeSyrianMobile, orderTotals } from "@/lib/order";
 import type { PricedCartLine } from "@/types/cart";
 import type { OrderDetails, OrderingOptions } from "@/types/order";
 import Link from "next/link";
@@ -18,6 +17,8 @@ interface CheckoutFormProps {
     subtotal: number;
     orderNote: string;
     options: OrderingOptions;
+    /** Called once WhatsApp has been opened with the order. */
+    onSent: (sent: { whatsAppHref: string; name: string }) => void;
 }
 
 type OrderType = OrderDetails["type"];
@@ -28,8 +29,8 @@ const labelClasses = "flex flex-col gap-6 text-sm font-bold";
 
 // Order type, customer details, totals and "send on WhatsApp". Native
 // validation (required + a custom message for the phone); nothing typed here
-// is stored. The cart is only emptied when the customer confirms it was sent.
-const CheckoutForm = ({ lines, itemCount, subtotal, orderNote, options }: CheckoutFormProps) => {
+// is stored. What happens after sending (empty cart, thank-you) is the parent's call.
+const CheckoutForm = ({ lines, itemCount, subtotal, orderNote, options, onSent }: CheckoutFormProps) => {
     const { delivery, dineInBranches } = options;
     const types: OrderType[] = [
         ...(delivery ? (["delivery"] as const) : []),
@@ -38,8 +39,6 @@ const CheckoutForm = ({ lines, itemCount, subtotal, orderNote, options }: Checko
 
     const [type, setType] = useState<OrderType | undefined>(types[0]);
     const [branchId, setBranchId] = useState(dineInBranches[0]?.id);
-    // Set once WhatsApp has been opened: shows the thank-you panel.
-    const [sent, setSent] = useState<{ href: string; name: string } | null>(null);
 
     const branch = dineInBranches.find((candidate) => candidate.id === branchId);
     const deliveryFee = type === "delivery" && delivery ? delivery.fee : 0;
@@ -97,48 +96,8 @@ const CheckoutForm = ({ lines, itemCount, subtotal, orderNote, options }: Checko
 
         // Phones open the WhatsApp app; if a popup is blocked, the panel's link still works.
         window.open(href, "_blank", "noopener,noreferrer");
-        setSent({ href, name });
+        onSent({ whatsAppHref: href, name });
     };
-
-    /* =========================
-       AFTER SENDING
-    ========================== */
-
-    if (sent) {
-        return (
-            <div className="flex flex-col gap-14 text-center" role="status">
-                <p className="font-display text-xl font-bold">فتحنالك واتساب برسالة الطلب</p>
-                <p className="leading-relaxed text-muted">
-                    {fillTemplate(options.thankYou, { restaurant: restaurantConfig.name, name: sent.name })}
-                </p>
-
-                <a
-                    href={sent.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex h-46 items-center justify-center gap-8 rounded-full border border-primary font-bold text-primary transition-colors hover:bg-primary/10"
-                >
-                    <FaWhatsapp aria-hidden="true" />
-                    ما انفتح واتساب؟ افتحه من هون
-                </a>
-
-                <button
-                    type="button"
-                    onClick={cartActions.clear}
-                    className="h-50 rounded-full bg-primary font-extrabold text-background transition-opacity hover:opacity-90"
-                >
-                    بعتّ الطلب، بلّش طلب جديد
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setSent(null)}
-                    className="text-sm font-bold text-muted hover:text-primary"
-                >
-                    ما بعتّ، رجوع للسلة
-                </button>
-            </div>
-        );
-    }
 
     /* =========================
        FORM

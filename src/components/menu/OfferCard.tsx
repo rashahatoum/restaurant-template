@@ -1,4 +1,5 @@
 import Badge from "@/components/ui/Badge";
+import DetailsHint from "@/components/ui/DetailsHint";
 import { formatPrice } from "@/lib/format-price";
 import Image from "next/image";
 import Link from "next/link";
@@ -92,6 +93,13 @@ const OfferCard = ({
                         <FiGift aria-hidden="true" className="shrink-0" />+{" "}
                         {freeItem} مجاناً
                     </p>
+
+                    {/* Same target as the title: hidden from keyboard/screen readers */}
+                    {detailsHref && (
+                        <Link href={detailsHref} scroll={false} tabIndex={-1} aria-hidden="true">
+                            <DetailsHint>شو بالعرض؟</DetailsHint>
+                        </Link>
+                    )}
                 </div>
 
                 {/* Perforation: dashed line with orange notches on both edges */}

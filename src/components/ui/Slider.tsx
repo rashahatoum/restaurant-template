@@ -8,6 +8,8 @@ interface SliderProps {
     label: string;
     /** One child per slide. Children (not a render prop) so a Server Component can pass server-rendered cards. */
     children: ReactNode;
+    /** Optional link in the arrows row, on the end side (e.g. "عرض الكل"). */
+    action?: ReactNode;
 }
 
 /** Distance of slide `index` from the active slide, in (-count/2, count/2]. */
@@ -41,7 +43,7 @@ function getPositionClasses(offset: number) {
     return `${far} scale-80 invisible opacity-0`;
 }
 
-const Slider = ({ label, children }: SliderProps) => {
+const Slider = ({ label, children, action }: SliderProps) => {
     const slides = Children.toArray(children);
     const count = slides.length;
 
@@ -62,6 +64,7 @@ const Slider = ({ label, children }: SliderProps) => {
         return (
             <div className="mx-auto w-[75%] max-w-360 md:w-[28%] md:max-w-none">
                 {slides}
+                {action && <div className="mt-24 flex justify-center">{action}</div>}
             </div>
         );
     }
@@ -108,25 +111,31 @@ const Slider = ({ label, children }: SliderProps) => {
                 })}
             </div>
 
-            {/* Arrows: in RTL the first button sits on the right (previous). */}
-            <div className="mt-24 flex justify-center gap-16">
-                <button
-                    type="button"
-                    onClick={() => move(-1)}
-                    aria-label="السابق"
-                    className="flex size-48 items-center justify-center rounded-full border-2 border-primary text-2xl text-primary transition-colors hover:bg-primary hover:text-background"
-                >
-                    <FiChevronRight className="ltr:rotate-180" />
-                </button>
+            {/* Arrows centered, the optional action on the end side (left in RTL).
+                Three columns so the action never pushes the arrows off center. */}
+            <div className="mt-24 grid grid-cols-[1fr_auto_1fr] items-center">
+                {/* In RTL the first button sits on the right (previous). */}
+                <div className="col-start-2 flex gap-16">
+                    <button
+                        type="button"
+                        onClick={() => move(-1)}
+                        aria-label="السابق"
+                        className="flex size-48 items-center justify-center rounded-full border-2 border-primary text-2xl text-primary transition-colors hover:bg-primary hover:text-background"
+                    >
+                        <FiChevronRight className="ltr:rotate-180" />
+                    </button>
 
-                <button
-                    type="button"
-                    onClick={() => move(1)}
-                    aria-label="التالي"
-                    className="flex size-48 items-center justify-center rounded-full border-2 border-primary text-2xl text-primary transition-colors hover:bg-primary hover:text-background"
-                >
-                    <FiChevronLeft className="ltr:rotate-180" />
-                </button>
+                    <button
+                        type="button"
+                        onClick={() => move(1)}
+                        aria-label="التالي"
+                        className="flex size-48 items-center justify-center rounded-full border-2 border-primary text-2xl text-primary transition-colors hover:bg-primary hover:text-background"
+                    >
+                        <FiChevronLeft className="ltr:rotate-180" />
+                    </button>
+                </div>
+
+                {action && <div className="justify-self-end">{action}</div>}
             </div>
 
             <p aria-live="polite" className="sr-only">

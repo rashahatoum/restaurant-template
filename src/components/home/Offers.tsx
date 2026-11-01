@@ -1,6 +1,8 @@
 import OfferCard from "@/components/menu/OfferCard";
 import SectionTitle from "@/components/ui/SectionTitle";
+import DetailsHint from "@/components/ui/DetailsHint";
 import Slider from "@/components/ui/Slider";
+import Link from "next/link";
 import { toPlainText } from "@/lib/highlight";
 import { getOffersContent } from "@/services/content";
 import { FiGift } from "react-icons/fi";
@@ -26,7 +28,14 @@ const Offers = async () => {
                 />
             </div>
 
-            <Slider label={toPlainText(content.title)}>
+            <Slider
+                label={toPlainText(content.title)}
+                action={
+                    <Link href="/menu" className="group">
+                        <DetailsHint>عرض الكل</DetailsHint>
+                    </Link>
+                }
+            >
                 {content.offers.map((offer) => (
                     <OfferCard
                         key={offer.id}
