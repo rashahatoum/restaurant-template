@@ -11,6 +11,7 @@ import { normalizeArabic } from "@/lib/search";
 import { getCartCatalog } from "@/services/cart";
 import { getMenuBanners, getOffersContent } from "@/services/content";
 import { getMenu } from "@/services/menu";
+import { getOrderingOptions } from "@/services/ordering";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -32,12 +33,13 @@ const toSearchText = (...parts: readonly string[]) => normalizeArabic(parts.join
 // carousel, the sticky bar/search (MenuBrowser) and each row's option
 // toggle + add button run on the client.
 const MenuPage = async () => {
-    const [categorySections, banners, offers, cartCatalog] = await Promise.all([
+    const [categorySections, banners, offers, cartCatalog, orderingOptions] = await Promise.all([
         getMenu(),
         getMenuBanners(),
         // null when the offers section is off or has no active offer
         getOffersContent(),
         getCartCatalog(),
+        getOrderingOptions(),
     ]);
 
     const offersSection: MenuBrowserSection | null = offers && {
@@ -170,7 +172,7 @@ const MenuPage = async () => {
                 </div>
             )}
 
-            <CartBar catalog={cartCatalog} />
+            <CartBar catalog={cartCatalog} orderingOptions={orderingOptions} />
         </main>
     );
 };

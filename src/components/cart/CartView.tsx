@@ -5,14 +5,15 @@ import OrderSentPanel from "@/components/cart/OrderSentPanel";
 import QuantityStepper from "@/components/ui/QuantityStepper";
 import { restaurantConfig } from "@/config/restaurant";
 import { cartActions, useCartLines, useIsHydrated, useOrderNote } from "@/hooks/useCart";
+import { useOrderSent } from "@/hooks/useOrderSent";
 import { cartTotals, MAX_NOTE_LENGTH, MAX_ORDER_NOTE_LENGTH, priceLines } from "@/lib/cart";
 import { formatPrice } from "@/lib/format-price";
 import { fillTemplate } from "@/lib/order";
-import type { CartCatalog, CartState } from "@/types/cart";
+import type { CartCatalog } from "@/types/cart";
 import type { OrderingOptions } from "@/types/order";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { FiTrash2 } from "react-icons/fi";
 import { MdOutlineRestaurant } from "react-icons/md";
 
@@ -23,15 +24,13 @@ interface CartViewProps {
 
 // The /cart page body: lines with quantity, note and remove, the order
 // note, then checkout (order type, details, totals, WhatsApp).
-// Sending empties the cart right away; a copy stays in memory so the
-// thank-you panel can put it back if the customer didn't send after all.
+// Sending empties the cart right away; the thank-you panel can put it back (useOrderSent).
 const CartView = ({ catalog, orderingOptions }: CartViewProps) => {
     const isHydrated = useIsHydrated();
-    const storedLines = useCartLines();
-    const lines = priceLines(storedLines, catalog);
+    const lines = priceLines(useCartLines(), catalog);
     const { itemCount, subtotal } = cartTotals(lines);
     const orderNote = useOrderNote();
-    const [sent, setSent] = useState<{ whatsAppHref: string; name: string; snapshot: CartState } | null>(null);
+    const { sent, markSent, restore } = useOrderSent();
 
     useEffect(() => cartActions.prune(catalog), [catalog]);
 
@@ -46,10 +45,7 @@ const CartView = ({ catalog, orderingOptions }: CartViewProps) => {
                     restaurant: restaurantConfig.name,
                     name: sent.name,
                 })}
-                onRestore={() => {
-                    cartActions.restore(sent.snapshot);
-                    setSent(null);
-                }}
+                onRestore={restore}
             />
         );
     }
@@ -177,10 +173,7 @@ const CartView = ({ catalog, orderingOptions }: CartViewProps) => {
                     subtotal={subtotal}
                     orderNote={orderNote}
                     options={orderingOptions}
-                    onSent={({ whatsAppHref, name }) => {
-                        setSent({ whatsAppHref, name, snapshot: { lines: storedLines, note: orderNote } });
-                        cartActions.clear();
-                    }}
+                    onSent={markSent}
                 />
             </section>
         </div>
