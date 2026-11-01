@@ -1,4 +1,5 @@
 import ItemPurchase from "@/components/menu/ItemPurchase";
+import DetailsHint from "@/components/ui/DetailsHint";
 import type { ProductOption } from "@/types/menu";
 import Image from "next/image";
 import Link from "next/link";
@@ -117,6 +118,11 @@ const MenuItemRow = ({
                         <FiGift aria-hidden="true" className="shrink-0" />+ {freeItem} مجاناً
                     </p>
                 )}
+
+                {/* Same target as the name: hidden from keyboard/screen readers */}
+                <Link href={href} scroll={false} tabIndex={-1} aria-hidden="true" className="group self-start">
+                    <DetailsHint>{freeItem ? "شو بالعرض؟" : undefined}</DetailsHint>
+                </Link>
 
                 {isAvailable ? (
                     <ItemPurchase

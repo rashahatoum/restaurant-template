@@ -1,6 +1,8 @@
 import ProductCard from "@/components/menu/ProductCard";
 import SectionTitle from "@/components/ui/SectionTitle";
+import DetailsHint from "@/components/ui/DetailsHint";
 import Slider from "@/components/ui/Slider";
+import Link from "next/link";
 import { getBestSellers } from "@/services/menu";
 import { LuFlame } from "react-icons/lu";
 
@@ -39,7 +41,14 @@ const BestSellers = async () => {
                     className="pointer-events-none absolute inset-x-0 top-[10%] -z-10 mx-auto size-280 rounded-full bg-primary/25 blur-[100px] md:size-420 md:blur-[140px]"
                 />
 
-                <Slider label="الأكثر مبيعاً">
+                <Slider
+                    label="الأكثر مبيعاً"
+                    action={
+                        <Link href="/menu" className="group">
+                            <DetailsHint>عرض الكل</DetailsHint>
+                        </Link>
+                    }
+                >
                     {products.map((product) => (
                         <ProductCard
                             key={product.id}
