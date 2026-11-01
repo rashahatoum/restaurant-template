@@ -59,10 +59,14 @@ const WIDE: Stage = {
     strokeWidth: 6,
 };
 
-/** Timing, in ms: the dish spins in first, then the arrows draw one by one. */
-const DISH_START = 100;
-const ARROW_START = 750;
-const ARROW_STEP = 180;
+/** Timing, in ms. Photo and labels are there at once; the arrows draw one by
+    one, all starting within ARROWS_SPAN whatever the number of parts. */
+const ARROW_START = 150;
+const ARROWS_SPAN = 400;
+const ARROW_HEAD_DELAY = 250;
+
+const arrowStart = (index: number, count: number) =>
+    ARROW_START + (count > 1 ? Math.round((index * ARROWS_SPAN) / (count - 1)) : 0);
 
 const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as CSSProperties;
 const pct = (value: number, total: number) => `${(value / total) * 100}%`;
@@ -111,11 +115,11 @@ const StageArrows = ({ stage, count, className }: { stage: Stage; count: number;
     >
         {labelSpots(stage, count).map((spot, index) => {
             const { line, head } = arrowPaths(stage, spot);
-            const startMs = ARROW_START + index * ARROW_STEP;
+            const startMs = arrowStart(index, count);
             return (
                 <g key={index}>
                     <path pathLength={100} d={line} className="arrow-draw" style={delay(startMs)} />
-                    <path pathLength={100} d={head} className="arrow-draw" style={delay(startMs + 300)} />
+                    <path pathLength={100} d={head} className="arrow-draw" style={delay(startMs + ARROW_HEAD_DELAY)} />
                 </g>
             );
         })}
@@ -198,8 +202,8 @@ const ItemDetails = ({
                         {!isFocus && (
                             <span aria-hidden="true" className="absolute inset-[8%] -z-10 rounded-full bg-primary/35 blur-3xl" />
                         )}
-                        {/* Own wrapper: the spin uses `rotate`/`scale`, the box above uses `inset`/`top` */}
-                        <div className="dish-in absolute inset-0" style={delay(DISH_START)}>
+                        {/* Own wrapper: the float animates `translate`, the box above uses `inset`/`top` */}
+                        <div className="dish-float absolute inset-0">
                             {item.image ? (
                                 <Image
                                     src={item.image}
@@ -235,7 +239,6 @@ const ItemDetails = ({
                                         "--wide-x": pct(wide.x, WIDE.width),
                                         "--wide-y": pct(wide.y, WIDE.height),
                                         "--wide-w": pct(wide.width, WIDE.width),
-                                        ...delay(ARROW_START + index * ARROW_STEP + 350),
                                     } as CSSProperties;
 
                                     return (
@@ -243,12 +246,11 @@ const ItemDetails = ({
                                             key={`${part.label}-${index}`}
                                             style={spot}
                                             // Centered on its arrow: inset-s + a half-width shift (flipped in RTL).
-                                            // The rise animation sits on the inner span: it animates `translate` too.
                                             className={`absolute inset-s-(--x) top-(--y) w-(--w) -translate-x-1/2 px-4 text-center text-sm leading-snug font-extrabold [text-shadow:0_2px_10px_rgb(0_0_0/0.9)] rtl:translate-x-1/2 md:inset-s-(--wide-x) md:top-(--wide-y) md:w-(--wide-w) md:text-lg ${
                                                 part.isGift ? "text-primary" : "text-foreground"
                                             }`}
                                         >
-                                            <span className="rise-in flex items-start justify-center gap-4">
+                                            <span className="flex items-start justify-center gap-4">
                                                 {part.isGift && <FiGift aria-hidden="true" className="mt-3 shrink-0" />}
                                                 <span className="line-clamp-2">{part.label}</span>
                                             </span>
