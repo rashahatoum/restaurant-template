@@ -8,6 +8,7 @@ import { restaurantConfig } from "@/config/restaurant";
 import { offerKey, productKey } from "@/lib/cart";
 import { getSingleChoiceGroup } from "@/lib/menu";
 import { normalizeArabic } from "@/lib/search";
+import { pageMetadata } from "@/lib/seo";
 import { getCartCatalog } from "@/services/cart";
 import { getMenuBanners, getOffersContent } from "@/services/content";
 import { getMenu } from "@/services/menu";
@@ -15,10 +16,11 @@ import { getOrderingOptions } from "@/services/ordering";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
     title: "القائمة",
     description: `قائمة ${restaurantConfig.name}: عروض، سندويشات شاورما، وجبات، وفروج مشوي وبروستد، بالأسعار. اختار طلبك وأضفه للسلة.`,
-};
+    path: "/menu",
+});
 
 /** Section id for a category (the section dropdown and banner links jump to it). */
 const categoryAnchor = (categoryId: string) => `category-${categoryId}`;

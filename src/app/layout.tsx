@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { restaurantConfig } from "@/config/restaurant";
+import { baseOpenGraph, defaultShareImage } from "@/lib/seo";
+import { siteUrl } from "@/lib/site-url";
 import { Tajawal, Playpen_Sans_Arabic} from "next/font/google";
 
 const bodyFont = Tajawal({
@@ -17,6 +19,9 @@ const displayFont = Playpen_Sans_Arabic({
 
 
 export const metadata: Metadata = {
+  // Relative URLs in metadata (OG images, canonical) resolve against this.
+  metadataBase: siteUrl,
+
   title: {
     default: `${restaurantConfig.name} | ${restaurantConfig.seo.title}`,
     template: `%s | ${restaurantConfig.name}`,
@@ -30,6 +35,16 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+
+  // Defaults for pages without their own (pages build theirs with lib/seo pageMetadata).
+  openGraph: {
+    ...baseOpenGraph,
+    title: `${restaurantConfig.name} | ${restaurantConfig.seo.title}`,
+    description: restaurantConfig.seo.description,
+    images: [defaultShareImage],
+  },
+
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({

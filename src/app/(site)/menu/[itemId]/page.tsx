@@ -1,5 +1,6 @@
 import ItemDetails from "@/components/menu/ItemDetails";
 import { restaurantConfig } from "@/config/restaurant";
+import { pageMetadata } from "@/lib/seo";
 import { getMenuItem, getMenuItemIds } from "@/services/menu";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -24,11 +25,12 @@ export async function generateMetadata({ params }: ItemPageProps): Promise<Metad
         item.description ??
         `${item.parts.join("، ")}${item.freeItem ? ` + ${item.freeItem} مجاناً` : ""}`;
 
-    return {
+    return pageMetadata({
         title: item.name,
         description: `${description} من ${restaurantConfig.name}.`,
-        openGraph: item.image ? { images: [{ url: item.image, alt: item.name }] } : undefined,
-    };
+        path: `/menu/${item.id}`,
+        image: item.image ? { url: item.image, alt: item.name } : undefined,
+    });
 }
 
 // Standalone page: opened from a shared link, a refresh, or a new tab.

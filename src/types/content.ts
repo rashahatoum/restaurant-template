@@ -29,6 +29,9 @@ export interface SiteInfo {
     phones: readonly ContactPhone[];
     branches: readonly Branch[];
     openingHours?: string;
+    /** The same hours for Google (schema.org format), e.g. ["Mo-Su 09:00-24:00"].
+        Not shown on the site; keep it in step with openingHours. */
+    openingHoursSchema?: readonly string[];
     socialLinks?: readonly { platform: SocialPlatform; url: string }[];
 }
 

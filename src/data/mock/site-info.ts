@@ -24,4 +24,5 @@ export const siteInfo: SiteInfo = {
         },
     ],
     openingHours: "يومياً من 9 الصبح لـ 12 بالليل",
+    openingHoursSchema: ["Mo-Su 09:00-24:00"],
 };

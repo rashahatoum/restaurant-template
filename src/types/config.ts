@@ -29,6 +29,17 @@ export interface RestaurantConfig {
         title: string;
         description: string;
         keywords: readonly string[];
+        /** Default link-preview image (WhatsApp, Facebook…): 1200×630 JPG/PNG, not WebP. */
+        shareImage: { src: string; width: number; height: number; alt: string };
+        /** For the Restaurant JSON-LD (Google). */
+        business: {
+            cuisine: readonly string[];
+            city: string;
+            /** ISO 3166-1 alpha-2, e.g. "SY". */
+            countryCode: string;
+        };
+        /** Open Graph locale, e.g. "ar_SY". */
+        locale: string;
     };
 
     /** Currency of every price in the menu data. */
