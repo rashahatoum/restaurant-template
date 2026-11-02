@@ -2,6 +2,7 @@ import CartBar from "@/components/cart/CartBar";
 import MenuBannerSlide from "@/components/menu/MenuBannerSlide";
 import MenuBrowser, { type MenuBrowserSection } from "@/components/menu/MenuBrowser";
 import MenuItemRow from "@/components/menu/MenuItemRow";
+import TableWelcome from "@/components/menu/TableWelcome";
 import AutoCarousel from "@/components/ui/AutoCarousel";
 import CategoryCards, { type CategoryCardItem } from "@/components/ui/CategoryCards";
 import { restaurantConfig } from "@/config/restaurant";
@@ -152,6 +153,9 @@ const MenuPage = async () => {
                         ))}
                     </AutoCarousel>
                 )}
+
+                {/* Table QR links: remembers the table and greets the customer */}
+                <TableWelcome dineInBranches={orderingOptions.dineInBranches} />
             </div>
 
             {sections.length === 0 ? (
