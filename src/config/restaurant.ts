@@ -45,7 +45,13 @@ export const restaurantConfig = {
             src: "/assets/imgs/og/og-default.jpg",
             width: 1200,
             height: 630,
-            alt: "أهل الكرم: سيخ شاورما جاج مشوي مع شعار المطعم",
+            alt: "شيف أهل الكرم بيقصّ شاورما جاج عن السيخ",
+        },
+
+        // Same as the "fire" theme's background and primary
+        shareColors: {
+            background: "#0b0b0b",
+            accent: "#ff8a00",
         },
 
         business: {

@@ -12,6 +12,11 @@ export function toWhatsAppHref(number: string, text?: string): string {
         : `https://wa.me/${digits}`;
 }
 
+/** No number: WhatsApp asks who to send `text` to (sharing a link with a friend). */
+export function toWhatsAppShareHref(text: string): string {
+    return `https://wa.me/?text=${encodeURIComponent(text)}`;
+}
+
 /** "+963930539614" → "+963 930 539 614" (groups of 3 after the country code). */
 export function formatPhone(number: string): string {
     const match = number.match(/^(\+\d{3})(\d+)$/);

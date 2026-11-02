@@ -27,13 +27,13 @@ interface PageMetadataInput {
     description: string;
     /** Canonical path, e.g. "/menu". */
     path: string;
-    /** Page-specific preview image; the brand default otherwise. */
-    image?: OpenGraphImage;
+    /** True when the route has its own opengraph-image file; otherwise the brand default image is used. */
+    hasOwnImage?: boolean;
 }
 
 // A page's openGraph replaces the layout's whole object (Next doesn't merge
 // it), so every page builds it here from the shared fields.
-export function pageMetadata({ title, description, path, image }: PageMetadataInput): Metadata {
+export function pageMetadata({ title, description, path, hasOwnImage }: PageMetadataInput): Metadata {
     const fullTitle = title ? `${title} | ${name}` : `${name} | ${seo.title}`;
 
     return {
@@ -45,7 +45,7 @@ export function pageMetadata({ title, description, path, image }: PageMetadataIn
             title: fullTitle,
             description,
             url: path,
-            images: [image ?? defaultShareImage],
+            ...(!hasOwnImage && { images: [defaultShareImage] }),
         },
     };
 }

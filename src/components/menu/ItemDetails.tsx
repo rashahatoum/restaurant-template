@@ -1,4 +1,7 @@
 import ItemPurchase from "@/components/menu/ItemPurchase";
+import ShareOnWhatsApp from "@/components/ui/ShareOnWhatsApp";
+import { restaurantConfig } from "@/config/restaurant";
+import { absoluteUrl } from "@/lib/site-url";
 import type { MenuItemDetails } from "@/types/menu";
 import Image from "next/image";
 import type { CSSProperties } from "react";
@@ -289,6 +292,11 @@ const ItemDetails = ({
                         غير متوفر حالياً
                     </span>
                 )}
+
+                {/* Next to "أضف" (owner); shown for unavailable items too */}
+                <ShareOnWhatsApp
+                    text={`شوف ${item.name} من ${restaurantConfig.name} 😋\n${absoluteUrl(`/menu/${item.id}`)}`}
+                />
             </div>
         </article>
     );
