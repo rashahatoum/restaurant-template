@@ -40,6 +40,21 @@ export const restaurantConfig = {
             "فروج مشوي",
             "كرسبي",
         ],
+
+        shareImage: {
+            src: "/assets/imgs/og/og-default.jpg",
+            width: 1200,
+            height: 630,
+            alt: "أهل الكرم: سيخ شاورما جاج مشوي مع شعار المطعم",
+        },
+
+        business: {
+            cuisine: ["شاورما", "مشاوي", "وجبات سريعة"],
+            city: "السويداء",
+            countryCode: "SY",
+        },
+
+        locale: "ar_SY",
     },
 
     currency: {
