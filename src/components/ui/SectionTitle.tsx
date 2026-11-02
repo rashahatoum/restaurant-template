@@ -1,4 +1,5 @@
 import { splitHighlights } from "@/lib/highlight";
+import type { ReactNode } from "react";
 import type { IconType } from "react-icons";
 
 import Underline from "./Underline";
@@ -11,6 +12,8 @@ interface SectionTitleProps {
     title: string;
     eyebrowIcon?: IconType;
     align?: "center" | "start";
+    /** Small link under the title, e.g. "عرض الكل". */
+    action?: ReactNode;
 }
 
 // Shared heading for home sections: orange eyebrow + display h2.
@@ -20,6 +23,7 @@ const SectionTitle = ({
     title,
     eyebrowIcon: EyebrowIcon,
     align = "center",
+    action,
 }: SectionTitleProps) => {
     return (
         <div
@@ -51,6 +55,9 @@ const SectionTitle = ({
                     )
                 )}
             </h2>
+
+            {/* mt: clear of the tilted underline */}
+            {action && <div className="mt-8">{action}</div>}
         </div>
     );
 };

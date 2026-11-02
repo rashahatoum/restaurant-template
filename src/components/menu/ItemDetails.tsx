@@ -146,6 +146,9 @@ const ItemDetails = ({
         ...item.parts.map((label) => ({ label, isGift: false })),
         ...(item.freeItem ? [{ label: `${item.freeItem} مجاناً`, isGift: true }] : []),
     ];
+    const share = (
+        <ShareOnWhatsApp text={`شوف ${item.name} من ${restaurantConfig.name} 😋\n${absoluteUrl(`/menu/${item.id}`)}`} />
+    );
     const phoneSpots = labelSpots(PHONE, parts.length);
     const wideSpots = labelSpots(WIDE, parts.length);
 
@@ -286,17 +289,18 @@ const ItemDetails = ({
                         price={item.price}
                         options={item.options}
                         optionsLabel={item.optionsLabel}
+                        // Right beside "أضف" (owner)
+                        secondaryAction={share}
                     />
                 ) : (
-                    <span className="self-center rounded-full border border-dashed border-border px-14 py-6 font-bold text-muted">
-                        غير متوفر حالياً
-                    </span>
+                    // Unavailable items can still be shared
+                    <div className="flex items-center justify-center gap-12">
+                        <span className="rounded-full border border-dashed border-border px-14 py-6 font-bold text-muted">
+                            غير متوفر حالياً
+                        </span>
+                        {share}
+                    </div>
                 )}
-
-                {/* Next to "أضف" (owner); shown for unavailable items too */}
-                <ShareOnWhatsApp
-                    text={`شوف ${item.name} من ${restaurantConfig.name} 😋\n${absoluteUrl(`/menu/${item.id}`)}`}
-                />
             </div>
         </article>
     );

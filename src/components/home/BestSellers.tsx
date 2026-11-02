@@ -27,6 +27,11 @@ const BestSellers = async () => {
                     eyebrow="أطباقنا المفضّلة"
                     eyebrowIcon={LuFlame}
                     title="الأكثر **مبيعاً**"
+                    action={
+                        <Link href="/menu" className="group">
+                            <DetailsHint>عرض الكل</DetailsHint>
+                        </Link>
+                    }
                 />
             </div>
 
@@ -41,14 +46,7 @@ const BestSellers = async () => {
                     className="pointer-events-none absolute inset-x-0 top-[10%] -z-10 mx-auto size-280 rounded-full bg-primary/25 blur-[100px] md:size-420 md:blur-[140px]"
                 />
 
-                <Slider
-                    label="الأكثر مبيعاً"
-                    action={
-                        <Link href="/menu" className="group">
-                            <DetailsHint>عرض الكل</DetailsHint>
-                        </Link>
-                    }
-                >
+                <Slider label="الأكثر مبيعاً">
                     {products.map((product) => (
                         <ProductCard
                             key={product.id}
