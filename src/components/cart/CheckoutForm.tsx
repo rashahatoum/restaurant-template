@@ -1,7 +1,9 @@
 "use client";
 
 import { restaurantConfig } from "@/config/restaurant";
+import { useTableSession } from "@/hooks/useTableSession";
 import { toWhatsAppHref } from "@/lib/contact";
+import { resolveTable } from "@/lib/table-session";
 import { formatPieces } from "@/lib/cart";
 import { formatPrice } from "@/lib/format-price";
 import { buildOrderMessage, normalizeSyrianMobile, orderTotals } from "@/lib/order";
@@ -36,8 +38,11 @@ const CheckoutForm = ({ lines, itemCount, subtotal, orderNote, options, onSent }
         ...(dineInBranches.length > 0 ? (["dineIn"] as const) : []),
     ];
 
-    const [type, setType] = useState<OrderType | undefined>(types[0]);
-    const [branchId, setBranchId] = useState(dineInBranches[0]?.id);
+    // Scanned a table QR? Start on "table" with its branch and number picked.
+    // (The form only mounts after hydration, so the stored table is already readable.)
+    const scanned = resolveTable(useTableSession(), dineInBranches);
+    const [type, setType] = useState<OrderType | undefined>(scanned ? "dineIn" : types[0]);
+    const [branchId, setBranchId] = useState(scanned?.branch.id ?? dineInBranches[0]?.id);
 
     const branch = dineInBranches.find((candidate) => candidate.id === branchId);
     const deliveryFee = type === "delivery" && delivery ? delivery.fee : 0;
@@ -150,7 +155,13 @@ const CheckoutForm = ({ lines, itemCount, subtotal, orderNote, options, onSent }
                     <label className={labelClasses}>
                         رقم الطاولة
                         {/* key: resets the pick when the branch (and its table count) changes */}
-                        <select key={branchId} name="table" required defaultValue="" className={`${fieldClasses} cursor-pointer`}>
+                        <select
+                            key={branchId}
+                            name="table"
+                            required
+                            defaultValue={scanned?.branch.id === branchId ? scanned.table : ""}
+                            className={`${fieldClasses} cursor-pointer`}
+                        >
                             <option value="" disabled>
                                 اختر رقم الطاولة
                             </option>

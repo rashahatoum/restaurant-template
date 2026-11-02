@@ -43,3 +43,6 @@ next-env.d.ts
 # local Codex instructions and project memory
 AGENTS.md
 .local-docs/
+
+# Generated table QR sheets (npm run qr)
+/qr-codes/

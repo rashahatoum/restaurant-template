@@ -12,6 +12,7 @@ const CartModal = async () => {
 
     return (
         <RouteSheet
+            path="/cart"
             title="سلتك"
             headerAction={
                 <Link href="/menu" className="group">

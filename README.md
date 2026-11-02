@@ -18,6 +18,7 @@ npm run dev        # http://localhost:3000
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript type-check (`tsc --noEmit`) |
+| `npm run qr -- https://your-domain` | Printable table QR sheets (one HTML per branch + a menu QR) in `qr-codes/` (git-ignored). Print only once the final domain is set |
 
 Development-only experiment: `/lab/rotation` (hero spit rotation in 3D, three.js). Returns 404 in production.
 
