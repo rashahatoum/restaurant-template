@@ -29,7 +29,8 @@ export async function generateMetadata({ params }: ItemPageProps): Promise<Metad
         title: item.name,
         description: `${description} من ${restaurantConfig.name}.`,
         path: `/menu/${item.id}`,
-        image: item.image ? { url: item.image, alt: item.name } : undefined,
+        // Preview image: this segment's opengraph-image.tsx (dish on the brand background)
+        hasOwnImage: true,
     });
 }
 

@@ -31,6 +31,8 @@ export interface RestaurantConfig {
         keywords: readonly string[];
         /** Default link-preview image (WhatsApp, Facebook…): 1200×630 JPG/PNG, not WebP. */
         shareImage: { src: string; width: number; height: number; alt: string };
+        /** Colors of the generated per-item share images (match the theme). */
+        shareColors: { background: string; accent: string };
         /** For the Restaurant JSON-LD (Google). */
         business: {
             cuisine: readonly string[];

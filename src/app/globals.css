@@ -12,6 +12,8 @@
   --color-foreground: var(--theme-foreground);
   --color-muted: var(--theme-muted);
   --color-border: var(--theme-border);
+  /* WhatsApp's own green: the same for every brand, so not a theme value */
+  --color-whatsapp: #25d366;
 
   --font-body: var(--font-tajawal);
   --font-display: var(--font-playpen);
