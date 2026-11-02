@@ -5,7 +5,7 @@ import { cartActions, useCartLines } from "@/hooks/useCart";
 import { lineIdOf } from "@/lib/cart";
 import { formatPrice } from "@/lib/format-price";
 import type { ProductOption } from "@/types/menu";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 interface ItemPurchaseProps {
     /** Cart reference: lib/cart productKey / offerKey. */
@@ -20,6 +20,8 @@ interface ItemPurchaseProps {
     options?: readonly ProductOption[];
     /** Name of the option group, read by screen readers (e.g. "الحجم"). */
     optionsLabel?: string;
+    /** Extra control beside the add button (item details: share on WhatsApp). */
+    secondaryAction?: ReactNode;
 }
 
 // The interactive part of a menu row: option toggle, live price, add button.
@@ -31,6 +33,7 @@ const ItemPurchase = ({
     price,
     options,
     optionsLabel,
+    secondaryAction,
 }: ItemPurchaseProps) => {
     const [selectedId, setSelectedId] = useState(options?.[0]?.id);
     const selected = options?.find((option) => option.id === selectedId);
@@ -96,14 +99,18 @@ const ItemPurchase = ({
                     {formatPrice(total)}
                 </span>
 
-                {/* Shows the quantity of the selected size: switching size switches the count */}
-                <QuantityStepper
-                    quantity={quantity}
-                    onIncrement={() => cartActions.add(itemKey, selectedId)}
-                    onDecrement={() => cartActions.setQuantity(lineId, quantity - 1)}
-                    itemLabel={`${itemName}${selected ? ` ${selected.name}` : ""}`}
-                    addText="أضف"
-                />
+                <div className="flex items-center gap-8">
+                    {secondaryAction}
+
+                    {/* Shows the quantity of the selected size: switching size switches the count */}
+                    <QuantityStepper
+                        quantity={quantity}
+                        onIncrement={() => cartActions.add(itemKey, selectedId)}
+                        onDecrement={() => cartActions.setQuantity(lineId, quantity - 1)}
+                        itemLabel={`${itemName}${selected ? ` ${selected.name}` : ""}`}
+                        addText="أضف"
+                    />
+                </div>
             </div>
         </>
     );

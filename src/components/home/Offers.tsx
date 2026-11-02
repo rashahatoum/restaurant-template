@@ -25,17 +25,15 @@ const Offers = async () => {
                     eyebrow={content.eyebrow}
                     eyebrowIcon={FiGift}
                     title={content.title}
+                    action={
+                        <Link href="/menu" className="group">
+                            <DetailsHint>عرض الكل</DetailsHint>
+                        </Link>
+                    }
                 />
             </div>
 
-            <Slider
-                label={toPlainText(content.title)}
-                action={
-                    <Link href="/menu" className="group">
-                        <DetailsHint>عرض الكل</DetailsHint>
-                    </Link>
-                }
-            >
+            <Slider label={toPlainText(content.title)}>
                 {content.offers.map((offer) => (
                     <OfferCard
                         key={offer.id}
