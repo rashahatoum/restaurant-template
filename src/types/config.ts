@@ -44,6 +44,9 @@ export interface RestaurantConfig {
         locale: string;
     };
 
+    /** IANA time zone of the restaurant, e.g. "Asia/Damascus" (order numbers use its date and time). */
+    timeZone: string;
+
     /** Currency of every price in the menu data. */
     currency: {
         code: string;

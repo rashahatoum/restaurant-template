@@ -50,6 +50,7 @@ export async function getMenuItem(id: string): Promise<MenuItemDetails | null> {
             name: product.name,
             description: product.description,
             image: product.image,
+            imageStyle: product.imageStyle,
             price: product.price,
             parts: product.ingredients,
             badge: product.isBestSeller ? "الأكثر طلباً" : undefined,

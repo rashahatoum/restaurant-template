@@ -17,7 +17,7 @@ const Offers = async () => {
         <section
             id="offers"
             aria-labelledby="offers-title"
-            className="isolate px-page-gutter py-80 md:py-120"
+            className="isolate px-page-gutter py-56 md:py-80"
         >
             <div className="mb-40 md:mb-64">
                 <SectionTitle

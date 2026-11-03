@@ -33,6 +33,12 @@ export interface ProductOptionGroup {
     options: readonly ProductOption[];
 }
 
+/**
+ * "cutout": the dish on a transparent background (the default look).
+ * "photo": a full photo with its own background, shown with rounded corners.
+ */
+export type ImageStyle = "cutout" | "photo";
+
 export interface Product {
     /** Kebab-case, also used for the image file name and future URLs. */
     id: string;
@@ -44,6 +50,8 @@ export interface Product {
     price: number;
     /** Square dish photo on a transparent background. Optional: the menu shows a placeholder. */
     image?: string;
+    /** See ImageStyle. Defaults to "cutout". */
+    imageStyle?: ImageStyle;
     isBestSeller: boolean;
     isAvailable: boolean;
     optionGroups?: readonly ProductOptionGroup[];
@@ -61,6 +69,7 @@ export interface MenuItemDetails {
     name: string;
     description?: string;
     image?: string;
+    imageStyle?: ImageStyle;
     price: number;
     /** Ingredients (product) or what the offer includes. */
     parts: readonly string[];

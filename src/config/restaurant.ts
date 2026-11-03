@@ -63,6 +63,8 @@ export const restaurantConfig = {
         locale: "ar_SY",
     },
 
+    timeZone: "Asia/Damascus",
+
     currency: {
         code: "SYP",
         label: "ل.س",

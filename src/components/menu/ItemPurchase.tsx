@@ -22,6 +22,12 @@ interface ItemPurchaseProps {
     optionsLabel?: string;
     /** Extra control beside the add button (item details: share on WhatsApp). */
     secondaryAction?: ReactNode;
+    /**
+     * "row": the menu row. Price, toggle and buttons are grid items placed in
+     *   MenuItemRow's grid areas (`price`, `size`, `add`), so the parent must be that grid.
+     * "stacked": a large centered price, then the toggle, then the buttons (item details).
+     */
+    layout?: "row" | "stacked";
 }
 
 // The interactive part of a menu row: option toggle, live price, add button.
@@ -34,7 +40,9 @@ const ItemPurchase = ({
     options,
     optionsLabel,
     secondaryAction,
+    layout = "row",
 }: ItemPurchaseProps) => {
+    const isStacked = layout === "stacked";
     const [selectedId, setSelectedId] = useState(options?.[0]?.id);
     const selected = options?.find((option) => option.id === selectedId);
     const total = price + (selected?.priceDelta ?? 0);
@@ -47,10 +55,35 @@ const ItemPurchase = ({
     const lineId = lineIdOf({ itemKey, optionId: selectedId });
     const quantity = quantityOf(selectedId);
 
+    const priceText = formatPrice(total);
+    // relative z-10 (row): above the row's stretched link
+    const buttons = (
+        <div className={`flex items-center gap-8 ${isStacked ? "" : "relative z-10 [grid-area:add]"}`}>
+            {secondaryAction}
+
+            {/* Shows the quantity of the selected size: switching size switches the count */}
+            <QuantityStepper
+                quantity={quantity}
+                onIncrement={() => cartActions.add(itemKey, selectedId)}
+                onDecrement={() => cartActions.setQuantity(lineId, quantity - 1)}
+                itemLabel={`${itemName}${selected ? ` ${selected.name}` : ""}`}
+                addText="أضف"
+            />
+        </div>
+    );
+
     return (
         <>
+            {isStacked && (
+                <span className="text-3xl font-extrabold text-primary tabular-nums md:text-4xl">{priceText}</span>
+            )}
+
             {options && options.length > 0 && (
-                <fieldset className="flex rounded-xl border border-border bg-background p-3 md:self-start">
+                <fieldset
+                    className={`flex rounded-xl border border-border bg-background p-3 ${
+                        isStacked ? "w-full md:w-auto" : "relative z-10 mt-8 [grid-area:size] md:justify-self-start"
+                    }`}
+                >
                     <legend className="sr-only">{optionsLabel}</legend>
 
                     {/* Native radios: arrow keys and screen readers work out of the box */}
@@ -68,7 +101,7 @@ const ItemPurchase = ({
                                     onChange={() => setSelectedId(option.id)}
                                     className="peer sr-only"
                                 />
-                                <span className="flex h-32 items-center justify-center gap-3 whitespace-nowrap rounded-[9px] px-4 text-xs font-bold text-muted transition-colors peer-checked:bg-primary peer-checked:text-background peer-focus-visible:outline-2 peer-focus-visible:outline-primary md:h-34 md:gap-6 md:px-16 md:text-sm">
+                                <span className="flex h-28 items-center justify-center gap-3 whitespace-nowrap rounded-[9px] px-4 text-xs font-bold text-muted transition-colors peer-checked:bg-primary peer-checked:text-background peer-focus-visible:outline-2 peer-focus-visible:outline-primary md:h-34 md:gap-6 md:px-16 md:text-sm">
                                     {/* Short label on phones, full name from md */}
                                     <span className="md:hidden">{option.shortName ?? option.name}</span>
                                     <span className="hidden md:inline">{option.name}</span>
@@ -94,24 +127,13 @@ const ItemPurchase = ({
                 </fieldset>
             )}
 
-            <div className="flex min-h-36 items-center justify-between gap-8 md:min-h-46">
-                <span className="text-base font-extrabold text-primary md:text-lg">
-                    {formatPrice(total)}
+            {!isStacked && (
+                <span className="mt-2 text-sm font-extrabold text-primary tabular-nums [grid-area:price] md:text-base">
+                    {priceText}
                 </span>
+            )}
 
-                <div className="flex items-center gap-8">
-                    {secondaryAction}
-
-                    {/* Shows the quantity of the selected size: switching size switches the count */}
-                    <QuantityStepper
-                        quantity={quantity}
-                        onIncrement={() => cartActions.add(itemKey, selectedId)}
-                        onDecrement={() => cartActions.setQuantity(lineId, quantity - 1)}
-                        itemLabel={`${itemName}${selected ? ` ${selected.name}` : ""}`}
-                        addText="أضف"
-                    />
-                </div>
-            </div>
+            {buttons}
         </>
     );
 };

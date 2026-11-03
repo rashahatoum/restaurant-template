@@ -14,7 +14,7 @@ const About = async () => {
         <section
             id="about"
             aria-labelledby="about-title"
-            className="overflow-x-clip px-page-gutter py-80 md:py-120"
+            className="overflow-x-clip px-page-gutter py-56 md:py-80"
         >
             <div className="grid items-center gap-40 md:grid-cols-2 md:gap-64 lg:gap-96">
                 {/* =========================

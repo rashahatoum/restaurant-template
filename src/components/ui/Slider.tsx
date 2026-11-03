@@ -73,7 +73,8 @@ const Slider = ({ label, children }: SliderProps) => {
             aria-label={label}
             className="w-full"
         >
-            <div className="grid overflow-x-clip py-20">
+            {/* overflow-x-clip leaves the y axis visible, so shadows below need no padding */}
+            <div className="grid overflow-x-clip">
                 {slides.map((slide, index) => {
                     const offset = getOffset(index, active, count);
                     const wrapped =
@@ -109,7 +110,7 @@ const Slider = ({ label, children }: SliderProps) => {
             </div>
 
             {/* Arrows: in RTL the first button sits on the right (previous). */}
-            <div className="mt-24 flex justify-center gap-16">
+            <div className="mt-30 flex justify-center gap-16">
                 <button
                     type="button"
                     onClick={() => move(-1)}

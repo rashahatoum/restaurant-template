@@ -21,9 +21,10 @@ export async function generateMetadata({ params }: ItemPageProps): Promise<Metad
     const item = await getMenuItem((await params).itemId);
     if (!item) return {};
 
-    const description =
-        item.description ??
-        `${item.parts.join("، ")}${item.freeItem ? ` + ${item.freeItem} مجاناً` : ""}`;
+    // The first non-empty one: description, then parts (+ free item), then the name,
+    // so an item without parts never shares "من أهل الكرم." on its own.
+    const partsText = `${item.parts.join("، ")}${item.freeItem ? ` + ${item.freeItem} مجاناً` : ""}`;
+    const description = item.description?.trim() || partsText || item.name;
 
     return pageMetadata({
         title: item.name,

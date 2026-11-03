@@ -71,6 +71,15 @@ const ARROW_HEAD_DELAY = 250;
 const arrowStart = (index: number, count: number) =>
     ARROW_START + (count > 1 ? Math.round((index * ARROWS_SPAN) / (count - 1)) : 0);
 
+/** No parts means no labels: cut the stage just under the plate (same margin as above it). */
+const withoutLabels = (stage: Stage): Stage => ({ ...stage, height: stage.plate.cy * 2 });
+
+/** Room kept under the stage for the price block (price, size toggle, buttons + gap). */
+function purchaseReserve(item: MenuItemDetails) {
+    if (!item.isAvailable) return "60px";
+    return item.options && item.options.length > 0 ? "170px" : "115px";
+}
+
 const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as CSSProperties;
 const pct = (value: number, total: number) => `${(value / total) * 100}%`;
 
@@ -142,6 +151,7 @@ const ItemDetails = ({
     variant = "full",
 }: ItemDetailsProps) => {
     const isFocus = variant === "focus";
+    const isPhoto = item.imageStyle === "photo";
     const parts = [
         ...item.parts.map((label) => ({ label, isGift: false })),
         ...(item.freeItem ? [{ label: `${item.freeItem} مجاناً`, isGift: true }] : []),
@@ -149,8 +159,20 @@ const ItemDetails = ({
     const share = (
         <ShareOnWhatsApp text={`شوف ${item.name} من ${restaurantConfig.name} 😋\n${absoluteUrl(`/menu/${item.id}`)}`} />
     );
-    const phoneSpots = labelSpots(PHONE, parts.length);
-    const wideSpots = labelSpots(WIDE, parts.length);
+    const phoneStage = parts.length > 0 ? PHONE : withoutLabels(PHONE);
+    const wideStage = parts.length > 0 ? WIDE : withoutLabels(WIDE);
+    const phoneSpots = labelSpots(phoneStage, parts.length);
+    const wideSpots = labelSpots(wideStage, parts.length);
+
+    // The stage keeps its aspect ratio and takes the largest width that fits:
+    // the container's width, or what its height allows once the price block has its room.
+    const reserve = purchaseReserve(item);
+    const stageSize = {
+        "--ratio": `${phoneStage.width} / ${phoneStage.height}`,
+        "--wide-ratio": `${wideStage.width} / ${wideStage.height}`,
+        "--stage-w": `min(100cqw, calc((100cqh - ${reserve}) * ${phoneStage.width / phoneStage.height}))`,
+        "--wide-stage-w": `min(100cqw, calc((100cqh - ${reserve}) * ${wideStage.width / wideStage.height}))`,
+    } as CSSProperties;
 
     const plateBox = (stage: Stage) => {
         const { cx, cy, r } = stage.plate;
@@ -161,8 +183,8 @@ const ItemDetails = ({
             height: pct(r * 2, stage.height),
         };
     };
-    const phonePlate = plateBox(PHONE);
-    const widePlate = plateBox(WIDE);
+    const phonePlate = plateBox(phoneStage);
+    const widePlate = plateBox(wideStage);
 
     return (
         <article className="flex h-full min-h-0 w-full flex-col items-center gap-8 md:gap-12">
@@ -180,15 +202,23 @@ const ItemDetails = ({
                 <Heading id={headingId} className="font-display text-2xl font-bold md:text-4xl">
                     {item.name}
                 </Heading>
+                {/* Under the name, so the price sits right under the parts (owner).
+                    Dropped on short screens so everything fits without scrolling. */}
+                {!isFocus && item.description && (
+                    <p className="line-clamp-2 max-w-560 text-sm leading-relaxed text-muted md:text-base [@media(max-height:680px)]:hidden">
+                        {item.description}
+                    </p>
+                )}
             </header>
 
             {/* =========================
                 STAGE: photo + arrows + labels
             ========================== */}
 
-            {/* Centered in the height that's left (phones are usually limited by width) */}
-            <div className="flex min-h-0 w-full flex-1 items-center [container-type:size]">
-                <div className="relative mx-auto aspect-[10/13] w-[min(100cqw,calc(100cqh*10/13))] md:aspect-[16/9] md:w-[min(100cqw,calc(100cqh*16/9))]">
+            {/* Stage and price block are one group, centered in the height that's left,
+                so the price sits right under the photo (owner), not at the bottom. */}
+            <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-12 [container-type:size]">
+                <div style={stageSize} className="relative aspect-(--ratio) w-(--stage-w) shrink-0 md:aspect-(--wide-ratio) md:w-(--wide-stage-w)">
                     {/* Photo box, positioned per stage */}
                     <div
                         style={
@@ -210,7 +240,21 @@ const ItemDetails = ({
                         )}
                         {/* Own wrapper: the float animates `translate`, the box above uses `inset`/`top` */}
                         <div className="dish-float absolute inset-0">
-                            {item.image ? (
+                            {item.image && isPhoto ? (
+                                // A full photo: a rounded square inside the plate circle, so the
+                                // arrows (which start on the circle) clear its corners.
+                                // inset 12% + radius 12% keeps the corners within the circle.
+                                <div className="absolute inset-[12%] overflow-hidden rounded-[12%] shadow-[0_20px_30px_rgb(0_0_0/0.55)]">
+                                    <Image
+                                        src={item.image}
+                                        alt={item.name}
+                                        fill
+                                        preload={preloadImage}
+                                        sizes="(min-width: 768px) 320px, 50vw"
+                                        className="object-cover"
+                                    />
+                                </div>
+                            ) : item.image ? (
                                 <Image
                                     src={item.image}
                                     alt={item.name}
@@ -230,8 +274,8 @@ const ItemDetails = ({
 
                     {parts.length > 0 && (
                         <>
-                            <StageArrows stage={PHONE} count={parts.length} className="md:hidden" />
-                            <StageArrows stage={WIDE} count={parts.length} className="hidden md:block" />
+                            <StageArrows stage={phoneStage} count={parts.length} className="md:hidden" />
+                            <StageArrows stage={wideStage} count={parts.length} className="hidden md:block" />
 
                             <h3 className="sr-only">{item.kind === "offer" ? "محتوى العرض" : "المكونات"}</h3>
                             <ol>
@@ -239,12 +283,12 @@ const ItemDetails = ({
                                     const phone = phoneSpots[index];
                                     const wide = wideSpots[index];
                                     const spot = {
-                                        "--x": pct(phone.x, PHONE.width),
-                                        "--y": pct(phone.y, PHONE.height),
-                                        "--w": pct(phone.width, PHONE.width),
-                                        "--wide-x": pct(wide.x, WIDE.width),
-                                        "--wide-y": pct(wide.y, WIDE.height),
-                                        "--wide-w": pct(wide.width, WIDE.width),
+                                        "--x": pct(phone.x, phoneStage.width),
+                                        "--y": pct(phone.y, phoneStage.height),
+                                        "--w": pct(phone.width, phoneStage.width),
+                                        "--wide-x": pct(wide.x, wideStage.width),
+                                        "--wide-y": pct(wide.y, wideStage.height),
+                                        "--wide-w": pct(wide.width, wideStage.width),
                                     } as CSSProperties;
 
                                     return (
@@ -267,40 +311,35 @@ const ItemDetails = ({
                         </>
                     )}
                 </div>
-            </div>
 
-            {/* =========================
-                DESCRIPTION + ORDER
-            ========================== */}
+                {/* =========================
+                    ORDER: price, size, add + share (stacked, centered)
+                    Its height must stay within purchaseReserve.
+                ========================== */}
 
-            {!isFocus && item.description && (
-                // Dropped on short screens so everything fits without scrolling
-                <p className="line-clamp-2 max-w-560 shrink-0 text-center text-sm leading-relaxed text-muted md:text-base [@media(max-height:680px)]:hidden">
-                    {item.description}
-                </p>
-            )}
-
-            <div className="flex w-full max-w-360 shrink-0 flex-col gap-8 [text-shadow:0_2px_10px_rgb(0_0_0/0.9)] md:max-w-none md:flex-row md:items-center md:justify-center md:gap-24 md:*:min-w-200">
-                {item.isAvailable ? (
-                    <ItemPurchase
-                        itemKey={item.itemKey}
-                        inputName={`details-option-${item.id}`}
-                        itemName={item.name}
-                        price={item.price}
-                        options={item.options}
-                        optionsLabel={item.optionsLabel}
-                        // Right beside "أضف" (owner)
-                        secondaryAction={share}
-                    />
-                ) : (
-                    // Unavailable items can still be shared
-                    <div className="flex items-center justify-center gap-12">
-                        <span className="rounded-full border border-dashed border-border px-14 py-6 font-bold text-muted">
-                            غير متوفر حالياً
-                        </span>
-                        {share}
-                    </div>
-                )}
+                <div className="flex w-full max-w-360 shrink-0 flex-col items-center gap-10 [text-shadow:0_2px_10px_rgb(0_0_0/0.9)]">
+                    {item.isAvailable ? (
+                        <ItemPurchase
+                            itemKey={item.itemKey}
+                            inputName={`details-option-${item.id}`}
+                            itemName={item.name}
+                            price={item.price}
+                            options={item.options}
+                            optionsLabel={item.optionsLabel}
+                            layout="stacked"
+                            // Right beside "أضف" (owner)
+                            secondaryAction={share}
+                        />
+                    ) : (
+                        // Unavailable items can still be shared
+                        <div className="flex items-center justify-center gap-12">
+                            <span className="rounded-full border border-dashed border-border px-14 py-6 font-bold text-muted">
+                                غير متوفر حالياً
+                            </span>
+                            {share}
+                        </div>
+                    )}
+                </div>
             </div>
         </article>
     );
