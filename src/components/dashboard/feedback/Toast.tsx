@@ -10,15 +10,14 @@ interface ToastProps {
 }
 
 // A short message after a quick action (price changed, saved, failed).
-// Presentational: where it sits and when it hides is the caller's (the toast
-// stack comes with the first quick edit, phase D1).
+// Presentational: ToastViewport places it and owns the live region, which
+// must exist before the text appears for screen readers to announce it.
 const Toast = ({ tone, message, action, onClose }: ToastProps) => {
     const style = toneStyles[tone];
     const Icon = style.icon;
 
     return (
         <div
-            role="status"
             className="flex w-full max-w-420 items-center gap-10 rounded-2xl border border-border bg-surface p-10 ps-14 text-sm shadow-lg shadow-black/40"
         >
             <Icon aria-hidden="true" className={`shrink-0 text-lg ${style.text}`} />
