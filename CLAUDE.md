@@ -44,7 +44,7 @@ After each feature, report:
 
 ## Engineering rules
 
-- **Frontend-first.** Do not add a backend, database, auth, API routes for persistence, or SaaS/multi-tenant infrastructure. Future integration happens behind `src/services/*`.
+- **Frontend-first, Laravel backend.** The backend (Laravel + database) is built by a separate developer. Do not build a database, server persistence, or SaaS/multi-tenant infrastructure here. Public reads go through `src/services/*`; dashboard writes go through the dashboard repository (Server Actions → one API client). Until the API exists: mock data, and the dashboard saves in the browser. The dashboard login is the only auth here (env-var account now, Laravel later). Never put credentials in code or docs.
 - **Separate UI, models, and data access:** `types/` → `data/mock/` → `services/` → components. Components never import mock data directly. Pure business logic (totals, fees, the WhatsApp message) goes in `lib/`.
 - **Server Components by default.** Use client components only for real browser interaction, and keep them small. No `useEffect` without a real reason.
 - **Preserve working functionality.** Use incremental, reviewable changes. Don't do large rewrites or refactors without approval. Don't modify unrelated files.

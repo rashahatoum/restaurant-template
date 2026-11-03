@@ -1,6 +1,7 @@
 // Pure cart logic: no React, no storage. Used by the cart store (hooks/useCart)
 // and, later, by checkout (WhatsApp message, delivery fee).
 
+import { formatCount } from "@/lib/arabic-count";
 import type { CartCatalog, CartLine, CartState, PricedCartLine } from "@/types/cart";
 
 export const MAX_QUANTITY = 99;
@@ -108,10 +109,7 @@ export function cartTotals(lines: readonly PricedCartLine[]) {
 
 /** 1 → "قطعة وحدة", 2 → "قطعتين", 3–10 → "3 قطع", 11+ → "11 قطعة". */
 export function formatPieces(count: number) {
-    if (count === 1) return "قطعة وحدة";
-    if (count === 2) return "قطعتين";
-    if (count <= 10) return `${count} قطع`;
-    return `${count} قطعة`;
+    return formatCount(count, { one: "قطعة وحدة", two: "قطعتين", few: "قطع", many: "قطعة" });
 }
 
 /** Raw piece count (no catalog needed), e.g. for the NavBar badge. */
