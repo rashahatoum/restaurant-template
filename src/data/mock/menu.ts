@@ -17,6 +17,8 @@ export const categories: readonly Category[] = [
     },
     { id: "meals", name: "وجبات", image: `${CATEGORY_IMAGES_PATH}/meals.webp`, order: 2 },
     { id: "chicken", name: "فروج", image: `${CATEGORY_IMAGES_PATH}/chickens.webp`, order: 3 },
+    // No card photo yet: the card falls back to the first drink photo.
+    { id: "drinks", name: "مشروبات", order: 4 },
 ];
 
 /* =========================
@@ -171,6 +173,20 @@ export const products: readonly Product[] = [
         ingredients: ["8 قطع بروستد", "ثوم", "بطاطا", "كول سلو", "خبز"],
         price: 1200,
         image: `${IMAGES_PATH}/broasted-chicken.webp`,
+        isBestSeller: false,
+        isAvailable: true,
+    },
+
+    // Drinks: no ingredients (the menu hides that line). Price is a placeholder.
+    {
+        id: "small-pepsi",
+        categoryId: "drinks",
+        name: "بيبسي صغير",
+        description: "علبة بيبسي باردة.",
+        ingredients: [],
+        price: 75,
+        image: `${IMAGES_PATH}/small-pepsi.webp`,
+        imageStyle: "photo",
         isBestSeller: false,
         isAvailable: true,
     },

@@ -19,7 +19,7 @@ interface CategoryCardsProps {
     label: string;
 }
 
-const imageSizes = "(min-width: 1024px) 16vw, (min-width: 768px) 25vw, 33vw";
+const imageSizes = "(min-width: 768px) 16vw, 25vw";
 
 // Category photo cards that wrap onto new rows (never sideways scroll), so
 // every category is visible however many the dashboard adds.
@@ -27,7 +27,8 @@ const imageSizes = "(min-width: 1024px) 16vw, (min-width: 768px) 25vw, 33vw";
 const CategoryCards = ({ items, label }: CategoryCardsProps) => {
     return (
         <nav aria-label={label}>
-            <ul className="grid grid-cols-3 gap-8 md:grid-cols-4 md:gap-14 lg:grid-cols-6">
+            {/* 4 per row on phones, 6 from md: small cards keep the items close (owner) */}
+            <ul className="grid grid-cols-4 gap-8 md:grid-cols-6 md:gap-14">
                 {items.map((item) => (
                     <li key={item.id}>
                         <a
@@ -50,7 +51,7 @@ const CategoryCards = ({ items, label }: CategoryCardsProps) => {
                                         alt=""
                                         fill
                                         sizes={imageSizes}
-                                        className="object-contain p-8 pb-32 transition-transform duration-300 motion-safe:group-hover:scale-105 md:pb-44"
+                                        className="object-contain p-6 pb-24 transition-transform duration-300 motion-safe:group-hover:scale-105 md:p-8 md:pb-36"
                                     />
                                 )
                             )}
@@ -64,7 +65,7 @@ const CategoryCards = ({ items, label }: CategoryCardsProps) => {
                             )}
 
                             <span
-                                className={`relative w-full p-8 text-sm font-bold md:p-12 md:text-lg ${
+                                className={`relative w-full truncate p-6 text-xs font-bold md:p-10 md:text-base ${
                                     item.image || item.fallbackImage ? "text-white" : "text-foreground"
                                 }`}
                             >

@@ -32,7 +32,7 @@ const SectionSelect = ({ items, activeId, onSelect, placeholder }: SectionSelect
                 value={activeId ?? ""}
                 onChange={(event) => handleChange(event.target.value)}
                 aria-label={placeholder}
-                className="h-44 w-full cursor-pointer appearance-none rounded-full border border-border bg-surface ps-16 pe-40 text-base font-bold text-foreground transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                className="h-44 w-full cursor-pointer appearance-none truncate rounded-full border border-border bg-surface ps-14 pe-34 text-base font-bold text-foreground transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             >
                 <option value="">{placeholder}</option>
                 {items.map((item) => (
@@ -44,7 +44,7 @@ const SectionSelect = ({ items, activeId, onSelect, placeholder }: SectionSelect
 
             <FiChevronDown
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-e-16 top-1/2 -translate-y-1/2 text-primary"
+                className="pointer-events-none absolute inset-e-12 top-1/2 -translate-y-1/2 text-primary"
             />
         </div>
     );

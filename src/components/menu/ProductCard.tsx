@@ -1,5 +1,6 @@
 import DetailsHint from "@/components/ui/DetailsHint";
 import { formatPrice } from "@/lib/format-price";
+import type { ImageStyle } from "@/types/menu";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -8,9 +9,13 @@ interface ProductCardProps {
     description: string;
     /** Square image of the dish on a transparent background (round plate). */
     image: string;
+    /** "photo": a full photo, shown with rounded corners. */
+    imageStyle?: ImageStyle;
     price: number;
     /** When set, the whole card links there. */
     href?: string;
+    /** Show "شوف المكونات" on a linked card. Off for items without ingredients. */
+    showDetailsHint?: boolean;
 }
 
 // Presentational and borderless; the parent decides layout and size.
@@ -18,8 +23,10 @@ const ProductCard = ({
     name,
     description,
     image,
+    imageStyle,
     price,
     href,
+    showDetailsHint = true,
 }: ProductCardProps) => {
     const content = (
         <>
@@ -29,7 +36,12 @@ const ProductCard = ({
                 width={500}
                 height={500}
                 sizes="(min-width: 768px) 33vw, 80vw"
-                className="aspect-square w-full object-contain drop-shadow-[0_16px_24px_rgb(0_0_0/0.5)] transition-transform duration-500 group-hover:rotate-6 motion-reduce:transition-none"
+                // A full photo is rounded and grows on hover (rotating a square looks off)
+                className={`aspect-square w-full transition-transform duration-500 motion-reduce:transition-none ${
+                    imageStyle === "photo"
+                        ? "rounded-3xl object-cover shadow-[0_16px_24px_rgb(0_0_0/0.5)] group-hover:scale-105"
+                        : "object-contain drop-shadow-[0_16px_24px_rgb(0_0_0/0.5)] group-hover:rotate-6"
+                }`}
             />
 
             <div className="flex flex-col items-center gap-8 text-center">
@@ -46,7 +58,7 @@ const ProductCard = ({
                 </p>
 
                 {/* Tells people the card opens the ingredients (inside the card's link) */}
-                {href && <DetailsHint />}
+                {href && showDetailsHint && <DetailsHint />}
             </div>
         </>
     );

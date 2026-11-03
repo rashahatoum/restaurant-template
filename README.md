@@ -2,7 +2,7 @@
 
 A reusable restaurant website and digital menu built with Next.js (App Router), React, TypeScript, and Tailwind CSS. The interface is Arabic (RTL) and mobile-first. The first brand is **Ahl Al Karam (أهل الكرم)**, a shawarma restaurant.
 
-> **Status:** early development. The home page hero and navigation exist. The menu, cart and WhatsApp checkout, the remaining home sections, and a dashboard prototype are planned. There is no backend: the project is frontend-first with typed mock data.
+> **Status:** the public site is MVP-complete: home page (3D hero, best sellers, offers, about, reviews), digital menu with item details, cart and WhatsApp checkout (delivery or table), table QR codes, sharing, and SEO. Live at https://restaurant-template-ecru.vercel.app. A browser-only dashboard prototype is next. There is no backend: the project is frontend-first with typed mock data behind `src/services/`.
 
 ## Getting started
 
@@ -32,10 +32,16 @@ Development-only experiment: `/lab/rotation` (hero spit rotation in 3D, three.js
 
 ```text
 src/
-├── app/            # Routes (App Router), root layout, global styles & theme tokens
-├── components/     # layout/, home/, lab/ (dev-only)
-└── config/         # restaurant.ts: brand identity, SEO, contact, theme, hero content
-public/assets/      # Logo, backgrounds, hero frame sequence
+├── app/            # Routes: (site)/ public pages + @modal popups (item details, cart), icons, sitemap, robots
+├── components/     # layout/, home/, menu/, cart/, reviews/, seo/, motion/ (hero spit), ui/ (shared), lab/ (dev-only)
+├── config/         # restaurant.ts: brand identity, nav, SEO, currency, theme, hero
+├── types/          # Data models
+├── data/mock/      # Mock content (only services/ import it)
+├── services/       # Data access: the future API boundary
+├── hooks/          # Browser stores: cart, sent order, table session
+└── lib/            # Pure logic: cart, order message, SEO, search, table links…
+scripts/            # table-qr.mjs (npm run qr)
+public/assets/      # Logo, hero, menu photos, share image
 ```
 
 ## Customizing for another restaurant

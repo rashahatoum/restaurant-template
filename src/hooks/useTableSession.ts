@@ -53,6 +53,8 @@ export function useTableSession(): TableSession | null {
 }
 
 export const tableSessionActions = {
+    /** The current table outside React (e.g. to keep a copy before clearing). */
+    snapshot: () => getSession(),
     set: (next: TableSession) => save(next),
     clear: () => save(null),
 };

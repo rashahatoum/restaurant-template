@@ -92,6 +92,7 @@ const MenuPage = async () => {
                             name={product.name}
                             details={product.ingredients}
                             image={product.image}
+                            imageStyle={product.imageStyle}
                             price={product.price}
                             badge={product.isBestSeller ? "الأكثر طلباً" : undefined}
                             isAvailable={product.isAvailable}
@@ -117,12 +118,18 @@ const MenuPage = async () => {
                   },
               ]
             : []),
-        ...categorySections.map(({ category, products }) => ({
-            id: categoryAnchor(category.id),
-            label: category.name,
-            image: category.image,
-            fallbackImage: products.find((product) => product.image)?.image,
-        })),
+        ...categorySections.map(({ category, products }) => {
+            const firstWithImage = products.find((product) => product.image);
+            return {
+                id: categoryAnchor(category.id),
+                label: category.name,
+                // A full product photo can fill the card like a category photo; a cut-out can't.
+                image:
+                    category.image ??
+                    (firstWithImage?.imageStyle === "photo" ? firstWithImage.image : undefined),
+                fallbackImage: firstWithImage?.image,
+            };
+        }),
     ];
 
     return (

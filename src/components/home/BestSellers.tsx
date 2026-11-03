@@ -15,7 +15,7 @@ const BestSellers = async () => {
     return (
         <section
             aria-labelledby="best-sellers-title"
-            className="isolate px-page-gutter py-80 md:py-120"
+            className="isolate px-page-gutter py-56 md:py-80"
         >
             {/* =========================
                 TITLE
@@ -53,8 +53,10 @@ const BestSellers = async () => {
                             name={product.name}
                             description={product.description}
                             image={product.image}
+                            imageStyle={product.imageStyle}
                             price={product.price}
                             href={`/menu/${product.id}`}
+                            showDetailsHint={product.ingredients.length > 0}
                         />
                     ))}
                 </Slider>

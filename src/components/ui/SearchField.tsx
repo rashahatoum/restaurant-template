@@ -13,10 +13,10 @@ interface SearchFieldProps {
 }
 
 // Always-visible, controlled search input. The ✕ appears once there is text.
-// flex-1 only from md (row layout): in a column, flex-basis 0 would override h-44.
+// flex-1: fills what the row leaves (the parent is always a row).
 const SearchField = ({ value, onChange, onClear, label, placeholder }: SearchFieldProps) => {
     return (
-        <label className="flex h-44 min-w-0 items-center md:flex-1 gap-8 rounded-full border border-border bg-surface px-14 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30">
+        <label className="flex h-44 min-w-0 flex-1 items-center gap-8 rounded-full border border-border bg-surface px-14 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30">
             <FiSearch aria-hidden="true" className="shrink-0 text-primary" />
             <span className="sr-only">{label}</span>
 

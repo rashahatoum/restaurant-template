@@ -6,7 +6,7 @@ import { toWhatsAppHref } from "@/lib/contact";
 import { resolveTable } from "@/lib/table-session";
 import { formatPieces } from "@/lib/cart";
 import { formatPrice } from "@/lib/format-price";
-import { buildOrderMessage, normalizeSyrianMobile, orderTotals } from "@/lib/order";
+import { buildOrderMessage, createOrderRef, normalizeSyrianMobile, orderTotals } from "@/lib/order";
 import type { PricedCartLine } from "@/types/cart";
 import type { OrderDetails, OrderingOptions } from "@/types/order";
 import { useState, type FormEvent } from "react";
@@ -88,6 +88,7 @@ const CheckoutForm = ({ lines, itemCount, subtotal, orderNote, options, onSent }
         }
 
         const message = buildOrderMessage({
+            orderRef: createOrderRef(new Date(), restaurantConfig.timeZone),
             restaurantName: restaurantConfig.name,
             template: options.message,
             details,

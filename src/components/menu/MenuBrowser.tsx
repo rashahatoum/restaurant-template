@@ -36,7 +36,7 @@ function formatResults(count: number) {
 /** The fixed NavBar's height once the page has scrolled (see NavBar). */
 const NAV_HEIGHT = 64;
 
-const gridClasses ="grid gap-10 md:grid-cols-2 md:gap-16";
+const gridClasses = "grid gap-8 md:grid-cols-2 md:gap-16";
 
 // Category cards, sticky bar (always-visible search + section dropdown) and
 // the menu body. One client component because the search box and the results
@@ -111,25 +111,23 @@ const MenuBrowser = ({ sections, categoryCards }: MenuBrowserProps) => {
                 STICKY BAR
             ========================== */}
 
-            {/* Phones: the section picker hangs under the search row (absolute,
-                so showing it never shifts the page). md+: one row. */}
+            {/* One row on every screen (owner): search, then the section picker
+                beside it, so the bar takes one line and more items fit on a phone. */}
             {/* top-64: sticks under the fixed NavBar (64px once scrolled) */}
             <div className="sticky top-64 z-40 border-b border-border/60 bg-background/95 px-page-gutter backdrop-blur-sm">
-                <div className="flex flex-col py-10 md:flex-row md:items-center md:gap-12 md:py-14">
+                <div className="flex items-center gap-8 py-8 md:gap-12 md:py-14">
                     <SearchField
                         value={query}
                         onChange={handleQueryChange}
                         onClear={() => setQuery("")}
                         label="بحث بالقائمة"
-                        placeholder="دوّر على وجبة أو مكوّن…"
+                        // Short: on phones the field shares the row with the picker
+                        placeholder="دوّر على وجبة…"
                     />
 
                     {/* Hidden while the cards are on screen or while searching */}
                     {showSectionSelect && (
-                        <nav
-                            aria-label="التصنيفات"
-                            className="absolute inset-x-0 top-full border-b border-border/60 bg-background/95 px-page-gutter pb-10 backdrop-blur-sm md:static md:w-280 md:shrink-0 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none"
-                        >
+                        <nav aria-label="التصنيفات" className="w-150 shrink-0 md:w-280">
                             <SectionSelect
                                 items={navItems}
                                 activeId={activeId}
@@ -180,7 +178,7 @@ const MenuBrowser = ({ sections, categoryCards }: MenuBrowserProps) => {
                             key={section.id}
                             id={section.id}
                             aria-labelledby={`${section.id}-title`}
-                            // Clears the sticky bar (two rows on phones) when jumped to
+                            // Clears the NavBar + sticky bar when jumped to
                             className="scroll-mt-120 pt-24 md:scroll-mt-80 md:pt-40"
                         >
                             <h2

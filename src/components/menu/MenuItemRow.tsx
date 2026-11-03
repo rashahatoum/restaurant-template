@@ -1,8 +1,8 @@
 import ItemPurchase from "@/components/menu/ItemPurchase";
-import DetailsHint from "@/components/ui/DetailsHint";
-import type { ProductOption } from "@/types/menu";
+import type { ImageStyle, ProductOption } from "@/types/menu";
 import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { FiGift } from "react-icons/fi";
 import { LuFlame } from "react-icons/lu";
 import { MdOutlineRestaurant } from "react-icons/md";
@@ -12,13 +12,15 @@ interface MenuItemRowProps {
     id: string;
     /** Cart reference: lib/cart productKey / offerKey. */
     itemKey: string;
-    /** Details page; the photo and name link there. */
+    /** Details page; the whole row links there. */
     href: string;
     name: string;
     /** Ingredients for a product, contents for an offer. */
     details: readonly string[];
     /** Dish photo on a transparent background (any ratio); a placeholder shows without it. */
     image?: string;
+    /** "photo": a full photo, shown as a rounded square. */
+    imageStyle?: ImageStyle;
     price: number;
     /** Small pill next to the name, e.g. "الأكثر طلباً". */
     badge?: string;
@@ -30,8 +32,17 @@ interface MenuItemRowProps {
     optionsLabel?: string;
 }
 
-// A compact horizontal row (photo, name, details, price, add) so several
-// items fit on a phone screen. Used for products and offers alike.
+// Photo | name, details, price | add. Then the size toggle across the row.
+// Empty areas (no details, no gift) collapse, since rows have no gap.
+// ItemPurchase fills `price`, `size` and `add` (it renders a fragment).
+const grid: CSSProperties = {
+    gridTemplateColumns: "auto minmax(0, 1fr) auto",
+    gridTemplateAreas: `"photo name add" "photo details add" "photo gift add" "photo price add" "size size size"`,
+};
+
+// A compact row so five or so items fit on a phone screen (owner). Used for
+// products and offers alike. The name's link stretches over the whole row;
+// the controls sit above it (relative z-10, in ItemPurchase).
 // Server Component; only ItemPurchase ships JS.
 const MenuItemRow = ({
     id,
@@ -40,6 +51,7 @@ const MenuItemRow = ({
     name,
     details,
     image,
+    imageStyle,
     price,
     badge,
     freeItem,
@@ -49,7 +61,8 @@ const MenuItemRow = ({
 }: MenuItemRowProps) => {
     return (
         <article
-            className={`flex items-center gap-12 rounded-[20px] border border-border bg-surface p-12 md:gap-18 md:rounded-3xl md:p-16 ${
+            style={grid}
+            className={`group relative grid items-center gap-x-10 rounded-2xl border border-border bg-surface p-10 transition-colors hover:border-primary/60 md:gap-x-14 md:rounded-3xl md:p-14 ${
                 isAvailable ? "" : "opacity-50"
             }`}
         >
@@ -57,16 +70,16 @@ const MenuItemRow = ({
                 PHOTO (or placeholder)
             ========================== */}
 
-            {/* Same target as the name: hidden from keyboard/screen readers to avoid a duplicate stop.
-                scroll={false}: the details open as a modal, so the menu keeps its place. */}
-            <Link
-                href={href}
-                scroll={false}
-                tabIndex={-1}
-                aria-hidden="true"
-                className="relative isolate flex size-92 shrink-0 items-center justify-center transition-transform hover:scale-105 motion-reduce:transition-none md:size-120"
-            >
-                {image ? (
+            <div className="relative isolate flex size-64 items-center justify-center self-center [grid-area:photo] md:size-96">
+                {image && imageStyle === "photo" ? (
+                    <Image
+                        src={image}
+                        alt=""
+                        fill
+                        sizes="(min-width: 768px) 96px, 64px"
+                        className="rounded-xl object-cover"
+                    />
+                ) : image ? (
                     <>
                         <span
                             aria-hidden="true"
@@ -78,67 +91,73 @@ const MenuItemRow = ({
                             src={image}
                             alt=""
                             fill
-                            sizes="(min-width: 768px) 120px, 92px"
-                            className="object-contain"
+                            sizes="(min-width: 768px) 96px, 64px"
+                            className="object-contain transition-transform group-hover:scale-105 motion-reduce:transition-none"
                         />
                     </>
                 ) : (
-                    <span className="flex size-[85%] items-center justify-center rounded-full border border-border bg-background text-4xl text-muted/50">
+                    <span className="flex size-[85%] items-center justify-center rounded-full border border-border bg-background text-2xl text-muted/50 md:text-3xl">
                         <MdOutlineRestaurant aria-hidden="true" />
                     </span>
                 )}
-            </Link>
+            </div>
 
             {/* =========================
-                DETAILS
+                NAME, DETAILS, GIFT
             ========================== */}
 
-            <div className="flex min-w-0 flex-1 flex-col gap-6">
-                <div className="flex flex-wrap items-center gap-6">
-                    <h3 className="text-lg font-extrabold md:text-xl">
-                        <Link href={href} scroll={false} className="transition-colors hover:text-primary">
-                            {name}
-                        </Link>
-                    </h3>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 [grid-area:name]">
+                <h3 className="text-base leading-snug font-extrabold md:text-lg">
+                    {/* Stretched link: the whole row opens the details (as a modal, so the
+                        menu keeps its place). One link, one tab stop. */}
+                    <Link
+                        href={href}
+                        scroll={false}
+                        className="transition-colors after:absolute after:inset-0 after:rounded-[inherit] hover:text-primary focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-primary"
+                    >
+                        {name}
+                    </Link>
+                </h3>
 
-                    {badge && (
-                        <span className="inline-flex items-center gap-2 rounded-full bg-primary/15 px-8 py-2 text-xs font-bold text-primary">
-                            <LuFlame aria-hidden="true" />
-                            {badge}
-                        </span>
-                    )}
-                </div>
-
-                <p className="line-clamp-2 text-sm leading-relaxed text-muted">
-                    {details.join("، ")}
-                </p>
-
-                {freeItem && (
-                    <p className="flex items-center gap-6 text-sm font-bold text-primary">
-                        <FiGift aria-hidden="true" className="shrink-0" />+ {freeItem} مجاناً
-                    </p>
-                )}
-
-                {/* Same target as the name: hidden from keyboard/screen readers */}
-                <Link href={href} scroll={false} tabIndex={-1} aria-hidden="true" className="group self-start">
-                    <DetailsHint>{freeItem ? "شو بالعرض؟" : undefined}</DetailsHint>
-                </Link>
-
-                {isAvailable ? (
-                    <ItemPurchase
-                        itemKey={itemKey}
-                        inputName={`option-${id}`}
-                        itemName={name}
-                        price={price}
-                        options={options}
-                        optionsLabel={optionsLabel}
-                    />
-                ) : (
-                    <span className="self-start rounded-full border border-dashed border-border px-10 py-4 text-sm font-bold text-muted">
-                        غير متوفر حالياً
+                {badge && (
+                    <span className="inline-flex items-center gap-2 rounded-full bg-primary/15 px-6 py-1 text-[11px] font-bold text-primary">
+                        <LuFlame aria-hidden="true" />
+                        {badge}
                     </span>
                 )}
             </div>
+
+            {/* Drinks and simple items have no details: the area collapses */}
+            {details.length > 0 && (
+                <p className="mt-2 truncate text-xs leading-relaxed text-muted [grid-area:details] md:text-sm">
+                    {details.join("، ")}
+                </p>
+            )}
+
+            {freeItem && (
+                <p className="mt-2 flex items-center gap-4 text-xs font-bold text-primary [grid-area:gift] md:text-sm">
+                    <FiGift aria-hidden="true" className="shrink-0" />+ {freeItem} مجاناً
+                </p>
+            )}
+
+            {/* =========================
+                PRICE, SIZE, ADD
+            ========================== */}
+
+            {isAvailable ? (
+                <ItemPurchase
+                    itemKey={itemKey}
+                    inputName={`option-${id}`}
+                    itemName={name}
+                    price={price}
+                    options={options}
+                    optionsLabel={optionsLabel}
+                />
+            ) : (
+                <span className="rounded-full border border-dashed border-border px-8 py-3 text-xs font-bold text-muted [grid-area:add]">
+                    غير متوفر
+                </span>
+            )}
         </article>
     );
 };
