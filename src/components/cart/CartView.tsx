@@ -3,7 +3,8 @@
 import CheckoutForm from "@/components/cart/CheckoutForm";
 import OrderSentPanel from "@/components/cart/OrderSentPanel";
 import QuantityStepper from "@/components/ui/QuantityStepper";
-import { cartActions, useCartLines, useIsHydrated, useOrderNote } from "@/hooks/useCart";
+import { cartActions, useCartLines, useOrderNote } from "@/hooks/useCart";
+import { useIsHydrated } from "@/hooks/useIsHydrated";
 import { useOrderSent } from "@/hooks/useOrderSent";
 import { cartTotals, MAX_NOTE_LENGTH, MAX_ORDER_NOTE_LENGTH, priceLines } from "@/lib/cart";
 import { formatPrice } from "@/lib/format-price";

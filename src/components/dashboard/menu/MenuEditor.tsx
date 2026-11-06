@@ -9,12 +9,29 @@ import { validatePrice, type ProductQuickChanges } from "@/lib/dashboard/validat
 import { formatPrice } from "@/lib/format-price";
 import type { DashboardData } from "@/types/dashboard";
 import type { Product } from "@/types/menu";
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { FiPlus } from "react-icons/fi";
 import ProductQuickRow from "./ProductQuickRow";
 
 interface MenuEditorProps {
     seed: DashboardData;
+    /** From ?category= (coming back from a product form keeps the tab). */
+    initialCategoryId?: string;
+    /** From ?done=&name=: what the product form just did, shown once as a toast. */
+    notice?: MenuNotice;
 }
+
+export interface MenuNotice {
+    done: "added" | "saved" | "deleted";
+    name: string;
+}
+
+const NOTICE_TEXT: Record<MenuNotice["done"], (name: string) => string> = {
+    added: (name) => `انضاف ${name}`,
+    saved: (name) => `انحفظ ${name}`,
+    deleted: (name) => `انحذف ${name}`,
+};
 
 /** What the toast says after a quick change. */
 function describeChange(name: string, changes: ProductQuickChanges): string {
@@ -32,12 +49,34 @@ function previousValues(product: Product, changes: ProductQuickChanges): Product
 
 // Products by category, with quick edits (price, available, best seller).
 // Every change saves at once through the repository; the toast offers "تراجع".
-const MenuEditor = ({ seed }: MenuEditorProps) => {
+const MenuEditor = ({ seed, initialCategoryId, notice }: MenuEditorProps) => {
     const data = useDashboardData(seed);
     const { toast, show, hide } = useToast();
     const categories = data.categories;
-    const [activeId, setActiveId] = useState(categories[0]?.id);
+    const [activeId, setActiveId] = useState(
+        categories.some((category) => category.id === initialCategoryId) ? initialCategoryId : categories[0]?.id
+    );
     const products = data.products.filter((product) => product.categoryId === activeId);
+
+    // Back from the product form: say what happened once, then drop it from the
+    // URL (a refresh shouldn't repeat it). Primitive deps: the object is new on every render.
+    const noticeDone = notice?.done;
+    const noticeName = notice?.name;
+    useEffect(() => {
+        if (!noticeDone || !noticeName) return;
+        show({ tone: "success", message: NOTICE_TEXT[noticeDone](noticeName) });
+        const url = new URL(window.location.href);
+        url.searchParams.delete("done");
+        url.searchParams.delete("name");
+        window.history.replaceState(null, "", url);
+    }, [noticeDone, noticeName, show]);
+
+    // The tab lives in the URL too, so "back" from a product form returns to it.
+    // Native replaceState: Next.js keeps its router in sync, no server round trip.
+    const selectCategory = (id: string) => {
+        setActiveId(id);
+        window.history.replaceState(null, "", `?category=${encodeURIComponent(id)}`);
+    };
 
     const undo = async (id: string, previous: ProductQuickChanges) => {
         const result = await repository.updateProduct(id, previous);
@@ -90,7 +129,7 @@ const MenuEditor = ({ seed }: MenuEditorProps) => {
                                 <button
                                     type="button"
                                     aria-pressed={isActive}
-                                    onClick={() => setActiveId(category.id)}
+                                    onClick={() => selectCategory(category.id)}
                                     className={`inline-flex h-40 items-center gap-6 rounded-full border px-16 text-sm font-bold transition-colors ${
                                         isActive
                                             ? "border-primary bg-primary text-background"
@@ -109,6 +148,17 @@ const MenuEditor = ({ seed }: MenuEditorProps) => {
             {/* =========================
                 PRODUCTS
             ========================== */}
+
+            <div className="mb-12 flex items-center justify-between gap-12">
+                <p className="text-sm text-muted">اكبس على اسم الصنف لتعدّل كل تفاصيله.</p>
+                <Link
+                    href={`/dashboard/menu/new${activeId ? `?category=${encodeURIComponent(activeId)}` : ""}`}
+                    className="inline-flex h-40 shrink-0 items-center gap-6 rounded-full bg-primary px-16 text-sm font-extrabold text-background transition-opacity hover:opacity-90"
+                >
+                    <FiPlus aria-hidden="true" />
+                    إضافة صنف
+                </Link>
+            </div>
 
             {products.length > 0 ? (
                 <ul className="grid gap-10 md:grid-cols-2">

@@ -1,6 +1,7 @@
 import ItemDetails from "@/components/menu/ItemDetails";
 import { restaurantConfig } from "@/config/restaurant";
 import { pageMetadata } from "@/lib/seo";
+import { itemShareText } from "@/lib/share";
 import { getMenuItem, getMenuItemIds } from "@/services/menu";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -55,7 +56,7 @@ const ItemPage = async ({ params }: ItemPageProps) => {
             </Link>
 
             <div className="min-h-0 flex-1">
-                <ItemDetails item={item} headingLevel="h1" preloadImage />
+                <ItemDetails item={item} headingLevel="h1" preloadImage shareText={itemShareText(item)} />
             </div>
         </main>
     );

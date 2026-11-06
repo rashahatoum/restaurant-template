@@ -1,34 +1,35 @@
-import MenuEditor from "@/components/dashboard/menu/MenuEditor";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import MenuEditor, { type MenuNotice } from "@/components/dashboard/menu/MenuEditor";
 import { getDashboardSeed } from "@/services/dashboard";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { FiArrowRight } from "react-icons/fi";
 
 export const metadata: Metadata = {
     title: "المنيو",
 };
 
-// Quick edits for every product. The full product form comes in D2.
-const DashboardMenuPage = async () => {
-    const seed = await getDashboardSeed();
+interface DashboardMenuPageProps {
+    searchParams: Promise<{ category?: string; done?: string; name?: string }>;
+}
+
+const DONE_VALUES: readonly MenuNotice["done"][] = ["added", "saved", "deleted"];
+
+// Quick edits for every product; each name opens the full form. The product
+// form comes back here with ?category=&done=&name= (validated before use).
+const DashboardMenuPage = async ({ searchParams }: DashboardMenuPageProps) => {
+    const [seed, { category, done, name }] = await Promise.all([getDashboardSeed(), searchParams]);
+    const notice = DONE_VALUES.find((value) => value === done) && name
+        ? { done: done as MenuNotice["done"], name }
+        : undefined;
 
     return (
         <div className="flex flex-col gap-20">
-            <div>
-                <Link
-                    href="/dashboard"
-                    className="mb-10 inline-flex items-center gap-6 text-sm font-bold text-primary hover:underline"
-                >
-                    <FiArrowRight aria-hidden="true" className="ltr:rotate-180" />
-                    الرئيسية
-                </Link>
-                <h1 className="font-display text-2xl font-bold md:text-3xl">المنيو</h1>
-                <p className="mt-6 text-sm text-muted">
-                    غيّر السعر، أو علّم الصنف «غير متوفر» لما يخلص. كل تعديل بينحفظ فوراً، وفيك تتراجع عنه.
-                </p>
-            </div>
+            <DashboardPageHeader
+                back={{ href: "/dashboard", label: "الرئيسية" }}
+                title="المنيو"
+                description="غيّر السعر، أو علّم الصنف «غير متوفر» لما يخلص. كل تعديل بينحفظ فوراً، وفيك تتراجع عنه."
+            />
 
-            <MenuEditor seed={seed} />
+            <MenuEditor seed={seed} initialCategoryId={category} notice={notice} />
         </div>
     );
 };

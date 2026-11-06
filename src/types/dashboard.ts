@@ -3,6 +3,9 @@
 
 import type { AboutContent, MenuBanner, OffersContent, ReviewsContent, SiteInfo } from "@/types/content";
 import type { Category, Product } from "@/types/menu";
+
+/** What the dashboard sends to create or save a product (the API payload later): everything but the id. */
+export type ProductInput = Omit<Product, "id">;
 import type { OrderingSettings } from "@/types/order";
 
 export interface DashboardData {

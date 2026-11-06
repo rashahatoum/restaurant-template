@@ -30,6 +30,8 @@ interface MenuItemRowProps {
     /** Single-choice, price-changing options shown as a toggle (e.g. size). */
     options?: readonly ProductOption[];
     optionsLabel?: string;
+    /** Dashboard preview: sizes switch, the cart is untouched (see ItemPurchase). */
+    preview?: boolean;
 }
 
 // Photo | name, details, price | add. Then the size toggle across the row.
@@ -58,6 +60,7 @@ const MenuItemRow = ({
     isAvailable,
     options,
     optionsLabel,
+    preview,
 }: MenuItemRowProps) => {
     return (
         <article
@@ -152,6 +155,7 @@ const MenuItemRow = ({
                     price={price}
                     options={options}
                     optionsLabel={optionsLabel}
+                    preview={preview}
                 />
             ) : (
                 <span className="rounded-full border border-dashed border-border px-8 py-3 text-xs font-bold text-muted [grid-area:add]">

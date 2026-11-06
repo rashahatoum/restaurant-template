@@ -2,8 +2,8 @@
 // fetch() with the same signatures, so callers don't change. Async on purpose.
 
 import { categories, products } from "@/data/mock/menu";
-import { offerKey, productKey } from "@/lib/cart";
-import { getSingleChoiceGroup } from "@/lib/menu";
+import { offerKey } from "@/lib/cart";
+import { toMenuItemDetails } from "@/lib/menu";
 import { getOffersContent } from "@/services/content";
 import type { Category, MenuItemDetails, MenuSection, Product } from "@/types/menu";
 
@@ -41,24 +41,7 @@ export async function getMenuItem(id: string): Promise<MenuItemDetails | null> {
         .flatMap((section) => section.products)
         .find((candidate) => candidate.id === id);
 
-    if (product) {
-        const sizeGroup = getSingleChoiceGroup(product);
-        return {
-            id: product.id,
-            kind: "product",
-            itemKey: productKey(product.id),
-            name: product.name,
-            description: product.description,
-            image: product.image,
-            imageStyle: product.imageStyle,
-            price: product.price,
-            parts: product.ingredients,
-            badge: product.isBestSeller ? "الأكثر طلباً" : undefined,
-            isAvailable: product.isAvailable,
-            options: sizeGroup?.options,
-            optionsLabel: sizeGroup?.name,
-        };
-    }
+    if (product) return toMenuItemDetails(product);
 
     const offer = (await getOffersContent())?.offers.find((candidate) => candidate.id === id);
     if (!offer) return null;
