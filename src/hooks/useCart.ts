@@ -82,17 +82,6 @@ export function useOrderNote(): string {
     );
 }
 
-const noopSubscribe = () => () => {};
-
-/** False on the server and during hydration: lets a page wait before showing "empty cart". */
-export function useIsHydrated(): boolean {
-    return useSyncExternalStore(
-        noopSubscribe,
-        () => true,
-        () => false
-    );
-}
-
 const lines = () => getState().lines;
 
 export const cartActions = {

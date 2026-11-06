@@ -1,5 +1,6 @@
 import ItemDetails from "@/components/menu/ItemDetails";
 import RouteModal from "@/components/ui/RouteModal";
+import { itemShareText } from "@/lib/share";
 import { getMenuItem, getMenuItemIds } from "@/services/menu";
 import { notFound } from "next/navigation";
 
@@ -24,7 +25,13 @@ const ItemModal = async ({ params }: ItemModalProps) => {
 
     return (
         <RouteModal labelledBy={headingId}>
-            <ItemDetails item={item} headingLevel="h2" headingId={headingId} variant="focus" />
+            <ItemDetails
+                item={item}
+                headingLevel="h2"
+                headingId={headingId}
+                variant="focus"
+                shareText={itemShareText(item)}
+            />
         </RouteModal>
     );
 };

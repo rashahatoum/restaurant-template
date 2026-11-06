@@ -3,7 +3,9 @@ import type { Result } from "@/lib/api/errors";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
 import type { Product } from "@/types/menu";
 import Image from "next/image";
+import Link from "next/link";
 import { FaRegStar, FaStar } from "react-icons/fa";
+import { FiChevronLeft } from "react-icons/fi";
 import { MdOutlineRestaurant } from "react-icons/md";
 import PriceEditor from "./PriceEditor";
 
@@ -43,7 +45,14 @@ const ProductQuickRow = ({ product, onChange, onPriceChange }: ProductQuickRowPr
 
             <div className="flex min-w-0 flex-1 flex-col gap-8">
                 <h3 className="flex flex-wrap items-baseline gap-x-6 text-base leading-snug font-extrabold">
-                    {name}
+                    {/* The full form: everything the quick controls don't cover */}
+                    <Link
+                        href={`/dashboard/menu/${product.id}`}
+                        className="inline-flex items-center gap-4 underline-offset-4 transition-colors hover:text-primary hover:underline"
+                    >
+                        {name}
+                        <FiChevronLeft aria-hidden="true" className="text-sm text-muted ltr:rotate-180" />
+                    </Link>
                     {hasSizes && <span className="text-xs font-bold text-muted">(إله أحجام)</span>}
                     {!isAvailable && <span className="text-xs font-bold text-danger">غير متوفر</span>}
                 </h3>

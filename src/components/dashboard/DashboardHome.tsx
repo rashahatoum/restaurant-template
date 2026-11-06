@@ -42,6 +42,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
         },
         {
             title: "الأقسام",
+            href: "/dashboard/categories",
             icon: FiLayers,
             summary: formatCount(count.categories, { one: "قسم واحد", two: "قسمين", few: "أقسام", many: "قسم" }),
         },

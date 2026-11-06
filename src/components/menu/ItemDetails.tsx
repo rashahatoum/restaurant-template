@@ -1,7 +1,5 @@
 import ItemPurchase from "@/components/menu/ItemPurchase";
 import ShareOnWhatsApp from "@/components/ui/ShareOnWhatsApp";
-import { restaurantConfig } from "@/config/restaurant";
-import { absoluteUrl } from "@/lib/site-url";
 import type { MenuItemDetails } from "@/types/menu";
 import Image from "next/image";
 import type { CSSProperties } from "react";
@@ -22,6 +20,10 @@ interface ItemDetailsProps {
      * "focus": photo, parts, size and add; name kept for screen readers (modal).
      */
     variant?: "full" | "focus";
+    /** WhatsApp share message (lib/share itemShareText). Without it there's no share button (dashboard preview). */
+    shareText?: string;
+    /** Dashboard preview: sizes switch, the cart is untouched (see ItemPurchase). */
+    preview?: boolean;
 }
 
 /* =========================
@@ -149,6 +151,8 @@ const ItemDetails = ({
     headingId,
     preloadImage,
     variant = "full",
+    shareText,
+    preview,
 }: ItemDetailsProps) => {
     const isFocus = variant === "focus";
     const isPhoto = item.imageStyle === "photo";
@@ -156,9 +160,8 @@ const ItemDetails = ({
         ...item.parts.map((label) => ({ label, isGift: false })),
         ...(item.freeItem ? [{ label: `${item.freeItem} مجاناً`, isGift: true }] : []),
     ];
-    const share = (
-        <ShareOnWhatsApp text={`شوف ${item.name} من ${restaurantConfig.name} 😋\n${absoluteUrl(`/menu/${item.id}`)}`} />
-    );
+    // Built by the page (server), so this component never imports the restaurant config
+    const share = shareText ? <ShareOnWhatsApp text={shareText} /> : null;
     const phoneStage = parts.length > 0 ? PHONE : withoutLabels(PHONE);
     const wideStage = parts.length > 0 ? WIDE : withoutLabels(WIDE);
     const phoneSpots = labelSpots(phoneStage, parts.length);
@@ -329,6 +332,7 @@ const ItemDetails = ({
                             layout="stacked"
                             // Right beside "أضف" (owner)
                             secondaryAction={share}
+                            preview={preview}
                         />
                     ) : (
                         // Unavailable items can still be shared

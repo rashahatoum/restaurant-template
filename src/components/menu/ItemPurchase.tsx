@@ -6,6 +6,7 @@ import { lineIdOf } from "@/lib/cart";
 import { formatPrice } from "@/lib/format-price";
 import type { ProductOption } from "@/types/menu";
 import { useState, type ReactNode } from "react";
+import { FiPlus } from "react-icons/fi";
 
 interface ItemPurchaseProps {
     /** Cart reference: lib/cart productKey / offerKey. */
@@ -28,6 +29,11 @@ interface ItemPurchaseProps {
      * "stacked": a large centered price, then the toggle, then the buttons (item details).
      */
     layout?: "row" | "stacked";
+    /**
+     * Dashboard preview: the size toggle works so the owner can check every
+     * price, but the cart is never read or written ("+" is only its look).
+     */
+    preview?: boolean;
 }
 
 // The interactive part of a menu row: option toggle, live price, add button.
@@ -41,19 +47,22 @@ const ItemPurchase = ({
     optionsLabel,
     secondaryAction,
     layout = "row",
+    preview = false,
 }: ItemPurchaseProps) => {
     const isStacked = layout === "stacked";
     const [selectedId, setSelectedId] = useState(options?.[0]?.id);
-    const selected = options?.find((option) => option.id === selectedId);
+    // Falls back to the first size if the picked one is gone (sizes edited in the preview)
+    const selected = options?.find((option) => option.id === selectedId) ?? options?.[0];
     const total = price + (selected?.priceDelta ?? 0);
 
-    // This item's lines, one per size
-    const itemLines = useCartLines().filter((candidate) => candidate.itemKey === itemKey);
+    // This item's lines, one per size (none in a preview: it never shows the real cart)
+    const cartLines = useCartLines();
+    const itemLines = preview ? [] : cartLines.filter((candidate) => candidate.itemKey === itemKey);
     const quantityOf = (optionId?: string) =>
         itemLines.find((candidate) => candidate.optionId === optionId)?.quantity ?? 0;
 
-    const lineId = lineIdOf({ itemKey, optionId: selectedId });
-    const quantity = quantityOf(selectedId);
+    const lineId = lineIdOf({ itemKey, optionId: selected?.id });
+    const quantity = quantityOf(selected?.id);
 
     const priceText = formatPrice(total);
     // relative z-10 (row): above the row's stretched link
@@ -61,14 +70,24 @@ const ItemPurchase = ({
         <div className={`flex items-center gap-8 ${isStacked ? "" : "relative z-10 [grid-area:add]"}`}>
             {secondaryAction}
 
-            {/* Shows the quantity of the selected size: switching size switches the count */}
-            <QuantityStepper
-                quantity={quantity}
-                onIncrement={() => cartActions.add(itemKey, selectedId)}
-                onDecrement={() => cartActions.setQuantity(lineId, quantity - 1)}
-                itemLabel={`${itemName}${selected ? ` ${selected.name}` : ""}`}
-                addText="أضف"
-            />
+            {preview ? (
+                // Same look as the "+" button, nothing to press
+                <span
+                    aria-hidden="true"
+                    className="flex size-36 items-center justify-center rounded-full bg-primary text-lg text-background shadow-md shadow-primary/30 md:size-40"
+                >
+                    <FiPlus />
+                </span>
+            ) : (
+                // Shows the quantity of the selected size: switching size switches the count
+                <QuantityStepper
+                    quantity={quantity}
+                    onIncrement={() => cartActions.add(itemKey, selected?.id)}
+                    onDecrement={() => cartActions.setQuantity(lineId, quantity - 1)}
+                    itemLabel={`${itemName}${selected ? ` ${selected.name}` : ""}`}
+                    addText="أضف"
+                />
+            )}
         </div>
     );
 
@@ -88,7 +107,7 @@ const ItemPurchase = ({
 
                     {/* Native radios: arrow keys and screen readers work out of the box */}
                     {options.map((option) => {
-                        const isSelected = option.id === selectedId;
+                        const isSelected = option.id === selected?.id;
                         const inCart = quantityOf(option.id);
 
                         return (
