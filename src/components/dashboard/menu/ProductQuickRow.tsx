@@ -1,12 +1,11 @@
+import DashboardImage from "@/components/dashboard/DashboardImage";
 import Switch from "@/components/dashboard/Switch";
 import type { Result } from "@/lib/api/errors";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
 import type { Product } from "@/types/menu";
-import Image from "next/image";
 import Link from "next/link";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiChevronLeft } from "react-icons/fi";
-import { MdOutlineRestaurant } from "react-icons/md";
 import PriceEditor from "./PriceEditor";
 
 interface ProductQuickRowProps {
@@ -29,18 +28,13 @@ const ProductQuickRow = ({ product, onChange, onPriceChange }: ProductQuickRowPr
                 isAvailable ? "" : "opacity-60"
             }`}
         >
-            <div className="relative flex size-56 shrink-0 items-center justify-center">
-                {image ? (
-                    <Image
-                        src={image}
-                        alt=""
-                        fill
-                        sizes="56px"
-                        className={imageStyle === "photo" ? "rounded-xl object-cover" : "object-contain"}
-                    />
-                ) : (
-                    <MdOutlineRestaurant aria-hidden="true" className="text-2xl text-muted/50" />
-                )}
+            {/* DashboardImage: the only client part here (photos added on this device live in IndexedDB) */}
+            <div className="relative size-56 shrink-0">
+                <DashboardImage
+                    src={image}
+                    sizes="56px"
+                    className={imageStyle === "photo" ? "rounded-xl object-cover" : "object-contain"}
+                />
             </div>
 
             <div className="flex min-w-0 flex-1 flex-col gap-8">

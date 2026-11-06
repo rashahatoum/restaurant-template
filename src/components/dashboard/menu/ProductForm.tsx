@@ -4,6 +4,7 @@ import ConfirmDialog from "@/components/dashboard/ConfirmDialog";
 import AppErrorAlert from "@/components/dashboard/feedback/AppErrorAlert";
 import ErrorState from "@/components/dashboard/feedback/ErrorState";
 import ChipsInput from "@/components/dashboard/form/ChipsInput";
+import ImagePicker from "@/components/dashboard/form/ImagePicker";
 import FieldShell, { describedBy } from "@/components/dashboard/form/FieldShell";
 import { inputClasses, textareaClasses } from "@/components/dashboard/form/field-styles";
 import SaveBar from "@/components/dashboard/form/SaveBar";
@@ -16,12 +17,10 @@ import { repository } from "@/lib/dashboard/repository";
 import { PRODUCT_LIMITS, sizeField } from "@/lib/dashboard/validation";
 import type { DashboardData } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { FiChevronLeft, FiTrash2 } from "react-icons/fi";
-import { MdOutlineRestaurant } from "react-icons/md";
 import ProductPreview from "./ProductPreview";
 import SizesEditor from "./SizesEditor";
 
@@ -266,26 +265,15 @@ const ProductEditor = ({ product, categories, startCategory, onLeave }: ProductE
                         />
                     </FieldShell>
 
-                    {/* Photo upload comes in D3; until then the current photo is kept */}
-                    <div className="flex items-center gap-12 rounded-2xl border border-border bg-surface p-12">
-                        <span className="relative flex size-64 shrink-0 items-center justify-center">
-                            {values.image ? (
-                                <Image
-                                    src={values.image}
-                                    alt=""
-                                    fill
-                                    sizes="64px"
-                                    className={values.imageStyle === "photo" ? "rounded-xl object-cover" : "object-contain"}
-                                />
-                            ) : (
-                                <MdOutlineRestaurant aria-hidden="true" className="text-3xl text-muted/50" />
-                            )}
-                        </span>
-                        <p className="text-sm text-muted">
-                            <span className="block font-bold text-foreground">الصورة</span>
-                            {values.image ? "الصورة الحالية بتضل متل ما هي." : "بدون صورة: بيطلع رسم بديل."} رفع الصور قريباً.
-                        </p>
-                    </div>
+                    <ImagePicker
+                        id="product-image"
+                        label="صورة الصنف"
+                        hint="مربعة. الأحسن صحن مقصوص على خلفية شفافة (PNG أو WebP)، أو صورة كاملة بتطلع بزوايا مدوّرة. بنصغّرها لحالنا."
+                        value={values.image}
+                        imageStyle={values.imageStyle}
+                        onChange={({ image, imageStyle }) => setValues((current) => ({ ...current, image, imageStyle }))}
+                        showStyle
+                    />
 
                     <div className="flex flex-col gap-10 rounded-2xl border border-border bg-surface p-12">
                         <Switch checked={values.isAvailable} onChange={(checked) => set("isAvailable", checked)} label="متوفر" />

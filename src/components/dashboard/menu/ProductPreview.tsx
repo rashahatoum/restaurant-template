@@ -2,6 +2,7 @@
 
 import ItemDetails from "@/components/menu/ItemDetails";
 import MenuItemRow from "@/components/menu/MenuItemRow";
+import { useImageSrc } from "@/hooks/useImageSrc";
 import { productKey } from "@/lib/cart";
 import { getSingleChoiceGroup, toMenuItemDetails } from "@/lib/menu";
 import type { Product } from "@/types/menu";
@@ -23,8 +24,11 @@ const stayOnForm = (event: MouseEvent<HTMLDivElement>) => {
 // (MenuItemRow, ItemDetails), updated as the owner types. The size toggle
 // works (`preview`), the cart is never touched, and links don't navigate.
 // The only state here is the chosen tab.
-const ProductPreview = ({ product }: { product: Product }) => {
+const ProductPreview = ({ product: input }: { product: Product }) => {
     const [tab, setTab] = useState<PreviewTab>("row");
+    // A photo added on this device is an IndexedDB reference: the site's
+    // components get its object URL (next/image serves blob: URLs as they are)
+    const product = { ...input, image: useImageSrc(input.image) };
     const sizeGroup = getSingleChoiceGroup(product);
 
     return (
