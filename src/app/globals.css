@@ -12,6 +12,10 @@
   --color-foreground: var(--theme-foreground);
   --color-muted: var(--theme-muted);
   --color-border: var(--theme-border);
+  /* Status colors (dashboard messages): per theme, so they stay readable on its background */
+  --color-danger: var(--theme-danger);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
   /* WhatsApp's own green: the same for every brand, so not a theme value */
   --color-whatsapp: #25d366;
 
@@ -39,6 +43,9 @@
   --theme-foreground: #f5f1e9;
   --theme-muted: #a1a1a1;
   --theme-border: #2a2a2a;
+  --theme-danger: #ff6b6b;
+  --theme-success: #3ecf8e;
+  --theme-warning: #ffc94d;
 }
 
 

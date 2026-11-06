@@ -8,7 +8,8 @@ A reusable restaurant website and digital menu built with Next.js (App Router), 
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
+cp .env.example .env.local   # then fill in the values (see Environment)
+npm run dev        # http://localhost:3000 (dashboard: /dashboard)
 ```
 
 | Script | Purpose |
@@ -20,13 +21,15 @@ npm run dev        # http://localhost:3000
 | `npm run typecheck` | TypeScript type-check (`tsc --noEmit`) |
 | `npm run qr -- https://your-domain` | Printable table QR sheets (one HTML per branch + a menu QR) in `qr-codes/` (git-ignored). Print only once the final domain is set |
 
-Development-only experiment: `/lab/rotation` (hero spit rotation in 3D, three.js). Returns 404 in production.
+Development-only pages (404 in production): `/lab/rotation` (hero spit rotation in 3D, three.js) and `/lab/errors` (every dashboard error message).
 
 ### Environment
 
 | Variable | Purpose |
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | The deployed site's origin, e.g. `https://example.com`. Used for `metadataBase` (link previews), canonical URLs, `sitemap.xml`, `robots.txt` and the Restaurant JSON-LD. **Set it before a production build**; without it those URLs point to `http://localhost:3000`. |
+| `DASHBOARD_USERNAME`, `DASHBOARD_PASSWORD` | The dashboard account until the Laravel API handles users. Server-only; never commit them. |
+| `SESSION_SECRET` | Signs the dashboard login cookie (7 days). At least 32 random characters; the command is in `.env.example`. |
 
 ## Project structure
 
