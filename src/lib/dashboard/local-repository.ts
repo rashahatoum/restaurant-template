@@ -4,6 +4,7 @@
 import { appError, fail, ok, type Result } from "@/lib/api/errors";
 import { clearDraft, currentData, saveDraft } from "@/lib/dashboard/draft-store";
 import { newId } from "@/lib/dashboard/ids";
+import { clearLocalImages, saveLocalImage } from "@/lib/dashboard/local-images";
 import type { DashboardRepository } from "@/lib/dashboard/repository";
 import { checkProductInput, checkProductQuickChanges, validateCategoryName } from "@/lib/dashboard/validation";
 import type { DashboardData } from "@/types/dashboard";
@@ -126,8 +127,32 @@ export const localRepository: DashboardRepository = {
         return commit({ ...data, categories }, null);
     },
 
+    async setCategoryImage(id, image) {
+        const data = currentData();
+        const category = data.categories.find((candidate) => candidate.id === id);
+        if (!category) return fail(appError("not_found"));
+
+        // undefined drops out when the draft is saved as JSON
+        const saved: Category = { ...category, image };
+        return commit(
+            { ...data, categories: data.categories.map((candidate) => (candidate.id === id ? saved : candidate)) },
+            saved
+        );
+    },
+
+    async uploadImage(image) {
+        try {
+            return ok({ src: await saveLocalImage(image.blob) });
+        } catch {
+            // Private browsing or storage full
+            return fail(appError("server", { message: "المتصفح ما سمح بحفظ الصورة. جرّب من نافذة عادية (مش خاصة)." }));
+        }
+    },
+
     async resetToOriginal() {
         clearDraft();
+        // The photos only the draft referred to
+        await clearLocalImages();
         return ok(null);
     },
 };

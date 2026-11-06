@@ -6,6 +6,7 @@
 // calling Server Actions → the API, swapped in here. Screens don't change.
 
 import type { Result } from "@/lib/api/errors";
+import type { PreparedImage } from "@/lib/dashboard/image-processing";
 import { localRepository } from "@/lib/dashboard/local-repository";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
 import type { ProductInput } from "@/types/dashboard";
@@ -26,6 +27,10 @@ export interface DashboardRepository {
     moveCategory(id: string, direction: "up" | "down"): Promise<Result<readonly Category[]>>;
     /** Refused (conflict) while it still has products. */
     deleteCategory(id: string): Promise<Result<null>>;
+    /** The category's card photo (full photo, cropped square); undefined removes it. */
+    setCategoryImage(id: string, image: string | undefined): Promise<Result<Category>>;
+    /** Stores a prepared photo; returns the src to save on the record (a URL with the API). */
+    uploadImage(image: PreparedImage): Promise<Result<{ src: string }>>;
     /** Drops every local edit (browser draft only; no-op with the API). */
     resetToOriginal(): Promise<Result<null>>;
 }

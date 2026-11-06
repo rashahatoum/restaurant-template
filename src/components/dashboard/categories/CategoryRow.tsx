@@ -1,3 +1,4 @@
+import ImagePicker from "@/components/dashboard/form/ImagePicker";
 import InlineEditor from "@/components/dashboard/form/InlineEditor";
 import { formatCount } from "@/lib/arabic-count";
 import type { Result } from "@/lib/api/errors";
@@ -16,6 +17,8 @@ interface CategoryRowProps {
     onMove: (direction: "up" | "down") => void;
     onRename: (name: string) => Promise<Result<unknown>>;
     onDelete: () => void;
+    /** Card photo picked (or removed with undefined). */
+    onImageChange: (image: string | undefined) => void;
 }
 
 const iconButton =
@@ -23,7 +26,7 @@ const iconButton =
 
 // One category: its place, name (editable in place), product count, and
 // move / delete. Hook-free; the only state (renaming) lives in InlineEditor.
-const CategoryRow = ({ category, count, index, total, onMove, onRename, onDelete }: CategoryRowProps) => {
+const CategoryRow = ({ category, count, index, total, onMove, onRename, onDelete, onImageChange }: CategoryRowProps) => {
     const { id, name } = category;
 
     return (
@@ -64,6 +67,18 @@ const CategoryRow = ({ category, count, index, total, onMove, onRename, onDelete
                             "فاضي: ما بيطلع للزبون لحد ما تضيف أصناف"
                         )}
                     </span>
+
+                    {/* Card photo on the menu; without one, the first product photo stands in */}
+                    <div className="mt-6">
+                        <ImagePicker
+                            id={`category-image-${id}`}
+                            label={`صورة كرت ${name}`}
+                            hint="صورة كاملة، بتنقص مربعة على الكرت. بدونها بيطلع أول صنف بالقسم."
+                            value={category.image}
+                            onChange={({ image }) => onImageChange(image)}
+                            compact
+                        />
+                    </div>
                 </div>
             </div>
 

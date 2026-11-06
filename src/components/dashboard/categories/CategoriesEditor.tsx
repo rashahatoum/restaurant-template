@@ -51,6 +51,15 @@ const CategoriesEditor = ({ seed }: { seed: DashboardData }) => {
         show({ tone: "success", message: `صار ${category.name} رقم ${place} بالمنيو` });
     };
 
+    const changeImage = async (category: Category, image: string | undefined) => {
+        const result = await repository.setCategoryImage(category.id, image);
+        show(
+            result.ok
+                ? { tone: "success", message: image ? `تغيّرت صورة ${category.name}` : `انشالت صورة ${category.name}، بيطلع أول صنف مكانها` }
+                : { tone: "error", message: result.error.message }
+        );
+    };
+
     // A category with products can't go: say why and offer the way there (no pointless "are you sure?")
     const askDelete = (category: Category) => {
         const count = countOf(category.id);
@@ -119,6 +128,7 @@ const CategoriesEditor = ({ seed }: { seed: DashboardData }) => {
                             onMove={(direction) => move(category, direction)}
                             onRename={(name) => rename(category, name)}
                             onDelete={() => askDelete(category)}
+                            onImageChange={(image) => changeImage(category, image)}
                         />
                     </li>
                 ))}
