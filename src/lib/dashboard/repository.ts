@@ -9,7 +9,7 @@ import type { Result } from "@/lib/api/errors";
 import { localRepository } from "@/lib/dashboard/local-repository";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
 import type { ProductInput } from "@/types/dashboard";
-import type { Product } from "@/types/menu";
+import type { Category, Product } from "@/types/menu";
 
 export interface DashboardRepository {
     /** Price, availability or best seller from the product list. Returns the saved product. */
@@ -19,6 +19,13 @@ export interface DashboardRepository {
     /** Whole product from the form. */
     saveProduct(id: string, input: ProductInput): Promise<Result<Product>>;
     deleteProduct(id: string): Promise<Result<null>>;
+    /** New category, last in the order. */
+    createCategory(name: string): Promise<Result<Category>>;
+    renameCategory(id: string, name: string): Promise<Result<Category>>;
+    /** One step up or down in the menu order. */
+    moveCategory(id: string, direction: "up" | "down"): Promise<Result<readonly Category[]>>;
+    /** Refused (conflict) while it still has products. */
+    deleteCategory(id: string): Promise<Result<null>>;
     /** Drops every local edit (browser draft only; no-op with the API). */
     resetToOriginal(): Promise<Result<null>>;
 }

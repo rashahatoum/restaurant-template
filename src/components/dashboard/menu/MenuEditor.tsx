@@ -11,7 +11,7 @@ import type { DashboardData } from "@/types/dashboard";
 import type { Product } from "@/types/menu";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FiPlus } from "react-icons/fi";
+import { FiLayers, FiPlus } from "react-icons/fi";
 import ProductQuickRow from "./ProductQuickRow";
 
 interface MenuEditorProps {
@@ -53,9 +53,9 @@ const MenuEditor = ({ seed, initialCategoryId, notice }: MenuEditorProps) => {
     const data = useDashboardData(seed);
     const { toast, show, hide } = useToast();
     const categories = data.categories;
-    const [activeId, setActiveId] = useState(
-        categories.some((category) => category.id === initialCategoryId) ? initialCategoryId : categories[0]?.id
-    );
+    const [selectedId, setActiveId] = useState(initialCategoryId);
+    // Falls back to the first category (none picked yet, or the picked one was deleted)
+    const activeId = categories.some((category) => category.id === selectedId) ? selectedId : categories[0]?.id;
     const products = data.products.filter((product) => product.categoryId === activeId);
 
     // Back from the product form: say what happened once, then drop it from the
@@ -142,6 +142,15 @@ const MenuEditor = ({ seed, initialCategoryId, notice }: MenuEditorProps) => {
                             </li>
                         );
                     })}
+                    <li>
+                        <Link
+                            href="/dashboard/categories"
+                            className="inline-flex h-40 items-center gap-6 rounded-full border border-dashed border-border px-16 text-sm font-bold text-muted transition-colors hover:border-primary hover:text-primary"
+                        >
+                            <FiLayers aria-hidden="true" />
+                            إدارة الأقسام
+                        </Link>
+                    </li>
                 </ul>
             </nav>
 

@@ -112,6 +112,30 @@ export function checkProductInput(
         : null;
 }
 
+/* =========================
+   CATEGORIES
+========================= */
+
+export const CATEGORY_NAME_MAX = 24;
+
+/** "  سندويشات " and "سندويشات" are the same name. */
+const sameName = (a: string, b: string) => a.trim().replace(/\s+/g, " ") === b.trim().replace(/\s+/g, " ");
+
+/** The trimmed name when it's fine (required, short, unique); `selfId` skips the category being renamed. */
+export function validateCategoryName(
+    name: string,
+    categories: readonly Pick<Category, "id" | "name">[],
+    selfId?: string
+): Result<string> {
+    const trimmed = name.trim().replace(/\s+/g, " ");
+    if (!trimmed) return fail(invalid("name", "اكتب اسم القسم"));
+    if (trimmed.length > CATEGORY_NAME_MAX) return fail(invalid("name", `الاسم لازم يكون ${CATEGORY_NAME_MAX} حرف أو أقل`));
+    if (categories.some((category) => category.id !== selfId && sameName(category.name, trimmed))) {
+        return fail(invalid("name", "في قسم بنفس الاسم"));
+    }
+    return ok(trimmed);
+}
+
 /** Changes the product list can make without opening the form. */
 export type ProductQuickChanges = Partial<Pick<Product, "price" | "isAvailable" | "isBestSeller">>;
 
