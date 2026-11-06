@@ -3,7 +3,6 @@
 import CheckoutForm from "@/components/cart/CheckoutForm";
 import OrderSentPanel from "@/components/cart/OrderSentPanel";
 import BottomSheet from "@/components/ui/BottomSheet";
-import { restaurantConfig } from "@/config/restaurant";
 import { useOrderSent } from "@/hooks/useOrderSent";
 import { formatPieces } from "@/lib/cart";
 import { formatPrice } from "@/lib/format-price";
@@ -39,7 +38,7 @@ const CheckoutSheet = ({ open, onClose, lines, itemCount, subtotal, orderNote, o
                 <OrderSentPanel
                     whatsAppHref={sent.whatsAppHref}
                     thankYou={fillTemplate(options.thankYou, {
-                        restaurant: restaurantConfig.name,
+                        restaurant: options.restaurantName,
                         name: sent.name,
                     })}
                     onRestore={restore}

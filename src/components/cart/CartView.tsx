@@ -3,7 +3,6 @@
 import CheckoutForm from "@/components/cart/CheckoutForm";
 import OrderSentPanel from "@/components/cart/OrderSentPanel";
 import QuantityStepper from "@/components/ui/QuantityStepper";
-import { restaurantConfig } from "@/config/restaurant";
 import { cartActions, useCartLines, useIsHydrated, useOrderNote } from "@/hooks/useCart";
 import { useOrderSent } from "@/hooks/useOrderSent";
 import { cartTotals, MAX_NOTE_LENGTH, MAX_ORDER_NOTE_LENGTH, priceLines } from "@/lib/cart";
@@ -49,7 +48,7 @@ const CartView = ({ catalog, orderingOptions, layout = "page" }: CartViewProps) 
             <OrderSentPanel
                 whatsAppHref={sent.whatsAppHref}
                 thankYou={fillTemplate(orderingOptions.thankYou, {
-                    restaurant: restaurantConfig.name,
+                    restaurant: orderingOptions.restaurantName,
                     name: sent.name,
                 })}
                 onRestore={restore}

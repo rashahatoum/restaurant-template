@@ -1,6 +1,5 @@
 "use client";
 
-import { restaurantConfig } from "@/config/restaurant";
 import { useTableSession } from "@/hooks/useTableSession";
 import { toWhatsAppHref } from "@/lib/contact";
 import { resolveTable } from "@/lib/table-session";
@@ -88,8 +87,8 @@ const CheckoutForm = ({ lines, itemCount, subtotal, orderNote, options, onSent }
         }
 
         const message = buildOrderMessage({
-            orderRef: createOrderRef(new Date(), restaurantConfig.timeZone),
-            restaurantName: restaurantConfig.name,
+            orderRef: createOrderRef(new Date(), options.timeZone),
+            restaurantName: options.restaurantName,
             template: options.message,
             details,
             lines,

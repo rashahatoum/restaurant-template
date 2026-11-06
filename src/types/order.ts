@@ -35,12 +35,20 @@ export interface OrderingSettings {
     thankYou: string;
 }
 
-/** What the checkout form needs: only enabled order types, branch names resolved. */
+/**
+ * What the checkout needs: only enabled order types, branch names resolved,
+ * plus the two restaurant settings it uses, so client components never
+ * import the whole restaurant config.
+ */
 export interface OrderingOptions {
     delivery: { fee: number; whatsApp: string } | null;
     dineInBranches: readonly { id: string; name: string; tableCount: number; whatsApp: string }[];
     message: OrderMessageTemplate;
     thankYou: string;
+    /** Fills {restaurant} in the message and the thank-you text. */
+    restaurantName: string;
+    /** IANA time zone for the order number (lib/order createOrderRef). */
+    timeZone: string;
 }
 
 export type OrderDetails =

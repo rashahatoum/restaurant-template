@@ -1,6 +1,7 @@
 // Ordering settings. Visibility rules live here: disabled order types and
 // branches are left out, and branch names come from the site info.
 
+import { restaurantConfig } from "@/config/restaurant";
 import { ordering } from "@/data/mock/ordering";
 import { getSiteInfo } from "@/services/content";
 import type { OrderingOptions } from "@/types/order";
@@ -30,5 +31,7 @@ export async function getOrderingOptions(): Promise<OrderingOptions> {
         dineInBranches,
         message,
         thankYou,
+        restaurantName: restaurantConfig.name,
+        timeZone: restaurantConfig.timeZone,
     };
 }

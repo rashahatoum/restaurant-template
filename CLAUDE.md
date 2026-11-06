@@ -46,7 +46,14 @@ After each feature, report:
 
 - **Frontend-first, Laravel backend.** The backend (Laravel + database) is built by a separate developer. Do not build a database, server persistence, or SaaS/multi-tenant infrastructure here. Public reads go through `src/services/*`; dashboard writes go through the dashboard repository (Server Actions → one API client). Until the API exists: mock data, and the dashboard saves in the browser. The dashboard login is the only auth here (env-var account now, Laravel later). Never put credentials in code or docs.
 - **Separate UI, models, and data access:** `types/` → `data/mock/` → `services/` → components. Components never import mock data directly. Pure business logic (totals, fees, the WhatsApp message) goes in `lib/`.
-- **Server Components by default.** Use client components only for real browser interaction, and keep them small. No `useEffect` without a real reason.
+- **Server Components by default; client at the smallest element (owner rule).** `"use client"` goes on the smallest piece that needs interaction (the button, the switch, the field), never on a page, section, card or layout because one part of it is interactive. How:
+  - Split the interactive leaf out (e.g. a `CartLink` with the badge), and keep the rest of the tree server-rendered.
+  - When a client component must wrap content (dialog, carousel, sheet), pass that content as `children` / props rendered on the server.
+  - Pass only the data the island needs (serializable props); don't import config or large modules into client files.
+  - `"use client"` marks a boundary. Keep it on files with hooks/state (so they still work if a server file imports them later); leave it off hook-free presentational components, so a server parent can render them.
+  - Prefer CSS or native HTML (`<details>`, `<dialog>` + `commandfor`, `:has()`, scroll-driven animations) when they do the job without JavaScript.
+  - Client is fine when the data itself lives in the browser (cart, dashboard draft); revisit when it moves to the server (Laravel API).
+- No `useEffect` without a real reason.
 - **Preserve working functionality.** Use incremental, reviewable changes. Don't do large rewrites or refactors without approval. Don't modify unrelated files.
 - **No new, upgraded, or removed dependencies** without explaining the need and getting approval. Don't add R3F, Drei, or GSAP until a specific motion justifies it.
 - No premature abstractions, types, or utilities. Wait for a second real use.

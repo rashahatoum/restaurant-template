@@ -1,5 +1,3 @@
-"use client";
-
 import type { ToastMessage } from "@/hooks/useToast";
 import Toast from "./Toast";
 

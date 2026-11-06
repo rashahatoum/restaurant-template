@@ -1,3 +1,4 @@
+import { currency } from "@/config/currency";
 import type { RestaurantConfig } from "@/types/config";
 
 export const restaurantConfig = {
@@ -65,10 +66,8 @@ export const restaurantConfig = {
 
     timeZone: "Asia/Damascus",
 
-    currency: {
-        code: "SYP",
-        label: "ل.س",
-    },
+    // Kept in config/currency.ts (client code formats prices without the whole config)
+    currency,
 
     theme: "fire",
 
