@@ -1,5 +1,3 @@
-"use client";
-
 import Switch from "@/components/dashboard/Switch";
 import type { Result } from "@/lib/api/errors";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
