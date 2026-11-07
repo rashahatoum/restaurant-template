@@ -48,6 +48,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
         },
         {
             title: "العروض",
+            href: "/dashboard/offers",
             icon: FiGift,
             summary: count.offersEnabled
                 ? formatCount(count.activeOffers, { one: "عرض واحد فعّال", two: "عرضين فعّالين", few: "عروض فعّالة", many: "عرض فعّال" })
@@ -119,7 +120,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
             <ConfirmDialog
                 open={isConfirming}
                 title="ترجع للبيانات الأصلية؟"
-                message="رح تنمسح كل التعديلات اللي عملتها على هالجهاز (الأسعار، المتوفر، الأكثر مبيعاً). ما فيك تتراجع عن هالخطوة."
+                message="رح تنمسح كل التعديلات اللي عملتها على هالجهاز (الأصناف، الأقسام، العروض، الصور). ما فيك تتراجع عن هالخطوة."
                 confirmLabel="إي، امسح تعديلاتي"
                 onConfirm={reset}
                 onCancel={() => setIsConfirming(false)}

@@ -3,7 +3,8 @@
 // Laravel will enforce the same rules on its side.
 
 import { appError, fail, ok, type AppError, type Result } from "@/lib/api/errors";
-import type { ProductInput } from "@/types/dashboard";
+import { toPlainText } from "@/lib/highlight";
+import type { OfferInput, OffersSettings, ProductInput } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
 export const MAX_PRICE = 10_000_000;
@@ -134,6 +135,70 @@ export function validateCategoryName(
         return fail(invalid("name", "في قسم بنفس الاسم"));
     }
     return ok(trimmed);
+}
+
+/* =========================
+   OFFERS
+========================= */
+
+export const OFFER_LIMITS = {
+    title: 30,
+    items: 6,
+    item: 40,
+    freeItem: 40,
+    badge: 20,
+} as const;
+
+export const SECTION_TEXT_LIMITS = {
+    eyebrow: 30,
+    /** Without the ** markers. */
+    title: 40,
+} as const;
+
+/** The rules a saved offer must follow; collects every problem at once (like checkProductInput). */
+export function checkOfferInput(input: OfferInput): AppError | null {
+    const errors: Record<string, string[]> = {};
+    const add = (field: string, message: string) => (errors[field] ??= []).push(message);
+
+    if (!input.title.trim()) add("title", "اكتب اسم العرض");
+    else if (input.title.length > OFFER_LIMITS.title) add("title", `الاسم لازم يكون ${OFFER_LIMITS.title} حرف أو أقل`);
+
+    if (input.items.length === 0) add("items", "اكتب شو بياخد الزبون، متل: 4 سندويشات شاورما");
+    else if (input.items.length > OFFER_LIMITS.items) add("items", `أقصى شي ${OFFER_LIMITS.items} أشياء`);
+    else if (input.items.some((item) => item.length > OFFER_LIMITS.item)) add("items", `كل شي لازم يكون ${OFFER_LIMITS.item} حرف أو أقل`);
+
+    if (!input.freeItem.trim()) add("freeItem", "اكتب شو بياخد مجاناً");
+    else if (input.freeItem.length > OFFER_LIMITS.freeItem) add("freeItem", `لازم يكون ${OFFER_LIMITS.freeItem} حرف أو أقل`);
+
+    const price = validatePrice(input.price);
+    if (!price.ok) add("price", price.error.fieldErrors?.price?.[0] ?? price.error.message);
+
+    // The offer card is built around the photo
+    if (!input.image) add("image", "العرض بدّه صورة");
+
+    if ((input.badge?.length ?? 0) > OFFER_LIMITS.badge) add("badge", `الشارة لازم تكون ${OFFER_LIMITS.badge} حرف أو أقل`);
+
+    return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
+}
+
+/** Eyebrow and title of a home section (offers now; reviews and about later). */
+export function checkSectionText(settings: Partial<Pick<OffersSettings, "eyebrow" | "title">>): AppError | null {
+    const errors: Record<string, string[]> = {};
+    const add = (field: string, message: string) => (errors[field] ??= []).push(message);
+
+    if (settings.eyebrow !== undefined) {
+        if (!settings.eyebrow.trim()) add("eyebrow", "اكتب العنوان الصغير");
+        else if (settings.eyebrow.length > SECTION_TEXT_LIMITS.eyebrow) add("eyebrow", `لازم يكون ${SECTION_TEXT_LIMITS.eyebrow} حرف أو أقل`);
+    }
+    if (settings.title !== undefined) {
+        const plain = toPlainText(settings.title);
+        if (!plain.trim()) add("title", "اكتب العنوان");
+        else if (plain.length > SECTION_TEXT_LIMITS.title) add("title", `العنوان لازم يكون ${SECTION_TEXT_LIMITS.title} حرف أو أقل`);
+        // An odd number of ** would show the stars to customers
+        else if ((settings.title.match(/\*\*/g)?.length ?? 0) % 2 !== 0) add("title", "في رمز ** زيادة، شيله");
+    }
+
+    return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
 }
 
 /** Changes the product list can make without opening the form. */

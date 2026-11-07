@@ -60,6 +60,7 @@ const MenuPage = async () => {
                     details={offer.items}
                     freeItem={offer.freeItem}
                     image={offer.image}
+                    imageStyle={offer.imageStyle}
                     price={offer.price}
                     badge={offer.badge}
                     isAvailable

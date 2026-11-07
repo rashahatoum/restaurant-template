@@ -1,5 +1,6 @@
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
-import MenuEditor, { type MenuNotice } from "@/components/dashboard/menu/MenuEditor";
+import MenuEditor from "@/components/dashboard/menu/MenuEditor";
+import { readNotice } from "@/lib/dashboard/notice";
 import { getDashboardSeed } from "@/services/dashboard";
 import type { Metadata } from "next";
 
@@ -11,15 +12,11 @@ interface DashboardMenuPageProps {
     searchParams: Promise<{ category?: string; done?: string; name?: string }>;
 }
 
-const DONE_VALUES: readonly MenuNotice["done"][] = ["added", "saved", "deleted"];
-
 // Quick edits for every product; each name opens the full form. The product
 // form comes back here with ?category=&done=&name= (validated before use).
 const DashboardMenuPage = async ({ searchParams }: DashboardMenuPageProps) => {
     const [seed, { category, done, name }] = await Promise.all([getDashboardSeed(), searchParams]);
-    const notice = DONE_VALUES.find((value) => value === done) && name
-        ? { done: done as MenuNotice["done"], name }
-        : undefined;
+    const notice = readNotice(done, name);
 
     return (
         <div className="flex flex-col gap-20">

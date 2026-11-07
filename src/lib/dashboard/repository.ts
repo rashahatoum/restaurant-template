@@ -9,7 +9,8 @@ import type { Result } from "@/lib/api/errors";
 import type { PreparedImage } from "@/lib/dashboard/image-processing";
 import { localRepository } from "@/lib/dashboard/local-repository";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
-import type { ProductInput } from "@/types/dashboard";
+import type { Offer } from "@/types/content";
+import type { OfferInput, OffersSettings, ProductInput } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
 export interface DashboardRepository {
@@ -29,6 +30,17 @@ export interface DashboardRepository {
     deleteCategory(id: string): Promise<Result<null>>;
     /** The category's card photo (full photo, cropped square); undefined removes it. */
     setCategoryImage(id: string, image: string | undefined): Promise<Result<Category>>;
+    /** The offers section's switch, texts or menu card photo (only the fields passed change). */
+    updateOffersSettings(changes: Partial<OffersSettings>): Promise<Result<OffersSettings>>;
+    /** New offer, last in the order. */
+    createOffer(input: OfferInput): Promise<Result<Offer>>;
+    /** Whole offer from the form. */
+    saveOffer(id: string, input: OfferInput): Promise<Result<Offer>>;
+    /** On / off from the list, without the form. */
+    setOfferActive(id: string, isActive: boolean): Promise<Result<Offer>>;
+    /** One step up or down in the slider and the menu. */
+    moveOffer(id: string, direction: "up" | "down"): Promise<Result<readonly Offer[]>>;
+    deleteOffer(id: string): Promise<Result<null>>;
     /** Stores a prepared photo; returns the src to save on the record (a URL with the API). */
     uploadImage(image: PreparedImage): Promise<Result<{ src: string }>>;
     /** Drops every local edit (browser draft only; no-op with the API). */

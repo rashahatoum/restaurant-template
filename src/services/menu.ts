@@ -52,6 +52,7 @@ export async function getMenuItem(id: string): Promise<MenuItemDetails | null> {
         itemKey: offerKey(offer.id),
         name: offer.title,
         image: offer.image,
+        imageStyle: offer.imageStyle,
         price: offer.price,
         parts: offer.items,
         freeItem: offer.freeItem,
