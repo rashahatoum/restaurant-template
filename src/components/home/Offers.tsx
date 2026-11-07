@@ -42,6 +42,7 @@ const Offers = async () => {
                         freeItem={offer.freeItem}
                         price={offer.price}
                         image={offer.image}
+                        imageStyle={offer.imageStyle}
                         badge={offer.badge}
                         href="/menu#category-offers"
                         detailsHref={`/menu/${offer.id}`}

@@ -2,15 +2,17 @@
 
 import ToastViewport from "@/components/dashboard/feedback/ToastViewport";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDoneNotice } from "@/hooks/useDoneNotice";
 import { useToast } from "@/hooks/useToast";
 import type { Result } from "@/lib/api/errors";
+import type { DoneNotice } from "@/lib/dashboard/notice";
 import { repository } from "@/lib/dashboard/repository";
 import { validatePrice, type ProductQuickChanges } from "@/lib/dashboard/validation";
 import { formatPrice } from "@/lib/format-price";
 import type { DashboardData } from "@/types/dashboard";
 import type { Product } from "@/types/menu";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FiLayers, FiPlus } from "react-icons/fi";
 import ProductQuickRow from "./ProductQuickRow";
 
@@ -19,19 +21,8 @@ interface MenuEditorProps {
     /** From ?category= (coming back from a product form keeps the tab). */
     initialCategoryId?: string;
     /** From ?done=&name=: what the product form just did, shown once as a toast. */
-    notice?: MenuNotice;
+    notice?: DoneNotice;
 }
-
-export interface MenuNotice {
-    done: "added" | "saved" | "deleted";
-    name: string;
-}
-
-const NOTICE_TEXT: Record<MenuNotice["done"], (name: string) => string> = {
-    added: (name) => `انضاف ${name}`,
-    saved: (name) => `انحفظ ${name}`,
-    deleted: (name) => `انحذف ${name}`,
-};
 
 /** What the toast says after a quick change. */
 function describeChange(name: string, changes: ProductQuickChanges): string {
@@ -58,18 +49,7 @@ const MenuEditor = ({ seed, initialCategoryId, notice }: MenuEditorProps) => {
     const activeId = categories.some((category) => category.id === selectedId) ? selectedId : categories[0]?.id;
     const products = data.products.filter((product) => product.categoryId === activeId);
 
-    // Back from the product form: say what happened once, then drop it from the
-    // URL (a refresh shouldn't repeat it). Primitive deps: the object is new on every render.
-    const noticeDone = notice?.done;
-    const noticeName = notice?.name;
-    useEffect(() => {
-        if (!noticeDone || !noticeName) return;
-        show({ tone: "success", message: NOTICE_TEXT[noticeDone](noticeName) });
-        const url = new URL(window.location.href);
-        url.searchParams.delete("done");
-        url.searchParams.delete("name");
-        window.history.replaceState(null, "", url);
-    }, [noticeDone, noticeName, show]);
+    useDoneNotice(notice, show);
 
     // The tab lives in the URL too, so "back" from a product form returns to it.
     // Native replaceState: Next.js keeps its router in sync, no server round trip.

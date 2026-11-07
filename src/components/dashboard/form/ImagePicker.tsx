@@ -23,28 +23,23 @@ interface ImagePickerProps {
     value?: string;
     imageStyle?: ImageStyle;
     onChange: (next: PickedImage) => void;
-    /** Products: let the owner switch cut-out / full photo (preselected from the photo). */
-    showStyle?: boolean;
     /** A small row (category cards) instead of a full field. */
     compact?: boolean;
+    /** Category cards: always a full photo cropped square, whatever was detected. */
+    fullPhoto?: boolean;
 }
-
-const STYLES: { value: ImageStyle; label: string }[] = [
-    { value: "cutout", label: "صحن مقصوص (خلفية شفافة)" },
-    { value: "photo", label: "صورة كاملة (بزوايا مدوّرة)" },
-];
 
 const buttonClasses =
     "inline-flex h-40 cursor-pointer items-center gap-6 rounded-full border border-border bg-background px-14 text-sm font-bold transition-colors hover:border-primary hover:text-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary";
 
 // Pick a photo from the phone: it's resized and compressed in the browser,
 // stored through the repository (IndexedDB now, the Laravel upload later),
-// and its type is guessed from transparency. Opening the file chooser needs
-// no JS: a real file input (visually hidden) with a <label> styled as a button.
-const ImagePicker = ({ id, label, hint, value, imageStyle, onChange, showStyle = false, compact = false }: ImagePickerProps) => {
+// and its type (cut-out or full photo) is detected from transparency and
+// returned with it, with nothing to choose (owner). Opening the file chooser
+// needs no JS: a real file input (visually hidden) with a <label> styled as a button.
+const ImagePicker = ({ id, label, hint, value, imageStyle, onChange, compact = false, fullPhoto = false }: ImagePickerProps) => {
     const [isBusy, setIsBusy] = useState(false);
     const [error, setError] = useState<AppError>();
-    const [detected, setDetected] = useState<ImageStyle>();
 
     const pick = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -59,14 +54,13 @@ const ImagePicker = ({ id, label, hint, value, imageStyle, onChange, showStyle =
         setIsBusy(false);
 
         if (!stored.ok) return setError(stored.error);
-        const style = prepared.ok ? prepared.data.suggestedStyle : undefined;
-        setDetected(style);
-        onChange({ image: stored.data.src, imageStyle: style });
+        onChange({ image: stored.data.src, imageStyle: prepared.ok ? prepared.data.suggestedStyle : undefined });
     };
 
     const message = error ? (fieldError(error, "image") ?? error.message) : undefined;
     const errorId = `${id}-error`;
-    const isPhoto = imageStyle === "photo" || !showStyle;
+    // Thumbnail like the site shows it (no style saved = cut-out, the data's default)
+    const isPhoto = fullPhoto || imageStyle === "photo";
 
     const thumbnail = (
         <span className={`relative shrink-0 overflow-hidden rounded-xl bg-background ${compact ? "size-48" : "size-96"}`}>
@@ -139,33 +133,6 @@ const ImagePicker = ({ id, label, hint, value, imageStyle, onChange, showStyle =
                 {hint}
             </p>
             <FieldError id={errorId} message={message} />
-
-            {showStyle && value && (
-                <div role="radiogroup" aria-label="نوع الصورة" className="flex flex-col gap-6">
-                    {detected && (
-                        <p className="text-xs text-muted">
-                            {detected === "cutout" ? "شكلها صحن مقصوص على خلفية شفافة." : "شكلها صورة كاملة بخلفيتها."} فيك تغيّر إذا لزم.
-                        </p>
-                    )}
-                    <div className="flex flex-wrap gap-8">
-                        {STYLES.map((style) => (
-                            <label key={style.value} className="cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name={`${id}-style`}
-                                    value={style.value}
-                                    checked={(imageStyle ?? "cutout") === style.value}
-                                    onChange={() => onChange({ image: value, imageStyle: style.value })}
-                                    className="peer sr-only"
-                                />
-                                <span className="inline-flex h-36 items-center rounded-full border border-border px-12 text-xs font-bold text-muted transition-colors peer-checked:border-primary peer-checked:bg-primary/15 peer-checked:text-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary">
-                                    {style.label}
-                                </span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-            )}
         </fieldset>
     );
 };

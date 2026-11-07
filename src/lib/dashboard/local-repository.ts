@@ -6,13 +6,34 @@ import { clearDraft, currentData, saveDraft } from "@/lib/dashboard/draft-store"
 import { newId } from "@/lib/dashboard/ids";
 import { clearLocalImages, saveLocalImage } from "@/lib/dashboard/local-images";
 import type { DashboardRepository } from "@/lib/dashboard/repository";
-import { checkProductInput, checkProductQuickChanges, validateCategoryName } from "@/lib/dashboard/validation";
+import {
+    checkOfferInput,
+    checkProductInput,
+    checkProductQuickChanges,
+    checkSectionText,
+    validateCategoryName,
+} from "@/lib/dashboard/validation";
+import type { Offer } from "@/types/content";
 import type { DashboardData } from "@/types/dashboard";
 import type { Category } from "@/types/menu";
 
 /** Order 1…n in list order (no gaps after a move or a delete). */
 const renumber = (categories: readonly Category[]) =>
     categories.map((category, index) => ({ ...category, order: index + 1 }));
+
+/** The list with the item at `from` one step up or down (unchanged at either end). */
+function moveStep<T>(list: readonly T[], from: number, direction: "up" | "down"): readonly T[] {
+    const to = direction === "up" ? from - 1 : from + 1;
+    if (to < 0 || to >= list.length) return list;
+    const next = [...list];
+    [next[from], next[to]] = [next[to], next[from]];
+    return next;
+}
+
+const withOffers = (data: DashboardData, offers: readonly Offer[]): DashboardData => ({
+    ...data,
+    offers: { ...data.offers, offers },
+});
 
 /** Saves the draft; the change shows on screen either way, but say so if it won't survive a reload. */
 function commit<T>(next: DashboardData, data: T): Result<T> {
@@ -138,6 +159,63 @@ export const localRepository: DashboardRepository = {
             { ...data, categories: data.categories.map((candidate) => (candidate.id === id ? saved : candidate)) },
             saved
         );
+    },
+
+    async updateOffersSettings(changes) {
+        const data = currentData();
+        const error = checkSectionText(changes);
+        if (error) return fail(error);
+
+        // A key passed as undefined (menuCardImage) drops out when the draft is saved as JSON
+        const offers = { ...data.offers, ...changes };
+        const { isEnabled, eyebrow, title, menuCardImage } = offers;
+        return commit({ ...data, offers }, { isEnabled, eyebrow, title, menuCardImage });
+    },
+
+    async createOffer(input) {
+        const data = currentData();
+        const error = checkOfferInput(input);
+        if (error) return fail(error);
+
+        // Products and offers share /menu/<id>, so the id must be free in both
+        const taken = new Set([...data.products.map((product) => product.id), ...data.offers.offers.map((offer) => offer.id)]);
+        const created: Offer = { ...input, id: newId("offer", taken) };
+        return commit({ ...data, offers: { ...data.offers, offers: [...data.offers.offers, created] } }, created);
+    },
+
+    async saveOffer(id, input) {
+        const data = currentData();
+        if (!data.offers.offers.some((offer) => offer.id === id)) return fail(appError("not_found"));
+
+        const error = checkOfferInput(input);
+        if (error) return fail(error);
+
+        const saved: Offer = { ...input, id };
+        return commit(withOffers(data, data.offers.offers.map((offer) => (offer.id === id ? saved : offer))), saved);
+    },
+
+    async setOfferActive(id, isActive) {
+        const data = currentData();
+        const offer = data.offers.offers.find((candidate) => candidate.id === id);
+        if (!offer) return fail(appError("not_found"));
+
+        const saved = { ...offer, isActive };
+        return commit(withOffers(data, data.offers.offers.map((candidate) => (candidate.id === id ? saved : candidate))), saved);
+    },
+
+    async moveOffer(id, direction) {
+        const data = currentData();
+        const from = data.offers.offers.findIndex((offer) => offer.id === id);
+        if (from === -1) return fail(appError("not_found"));
+
+        const offers = moveStep(data.offers.offers, from, direction);
+        return commit(withOffers(data, offers), offers);
+    },
+
+    async deleteOffer(id) {
+        const data = currentData();
+        if (!data.offers.offers.some((offer) => offer.id === id)) return fail(appError("not_found"));
+        return commit(withOffers(data, data.offers.offers.filter((offer) => offer.id !== id)), null);
     },
 
     async uploadImage(image) {

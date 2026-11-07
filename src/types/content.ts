@@ -2,6 +2,8 @@
 // fixed per deployment, this comes through services/ like the menu.
 // Text fields may use **markers** for highlights (see lib/highlight.ts).
 
+import type { ImageStyle } from "@/types/menu";
+
 export interface ContentImage {
     src: string;
     alt: string;
@@ -45,8 +47,10 @@ export interface Offer {
     freeItem: string;
     /** Total paid, in the restaurant currency. */
     price: number;
-    /** 4:3 photo on a transparent background. */
+    /** 4:3 photo, best on a transparent background. */
     image: string;
+    /** "photo": a full photo, shown with rounded corners. Defaults to "cutout". */
+    imageStyle?: ImageStyle;
     /** Optional label, e.g. "الأكثر طلباً". */
     badge?: string;
     isActive: boolean;

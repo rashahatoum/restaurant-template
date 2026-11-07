@@ -10,8 +10,10 @@ import { inputClasses, textareaClasses } from "@/components/dashboard/form/field
 import SaveBar from "@/components/dashboard/form/SaveBar";
 import Switch from "@/components/dashboard/Switch";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useFormGuards } from "@/hooks/useFormGuards";
 import { useIsHydrated } from "@/hooks/useIsHydrated";
 import { fieldError, type AppError } from "@/lib/api/errors";
+import { withNotice, type DoneAction } from "@/lib/dashboard/notice";
 import { isSameForm, parseProductForm, previewProduct, toFormValues, type ProductFormValues } from "@/lib/dashboard/product-form";
 import { repository } from "@/lib/dashboard/repository";
 import { PRODUCT_LIMITS, sizeField } from "@/lib/dashboard/validation";
@@ -19,7 +21,7 @@ import type { DashboardData } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { FiChevronLeft, FiTrash2 } from "react-icons/fi";
 import ProductPreview from "./ProductPreview";
 import SizesEditor from "./SizesEditor";
@@ -33,8 +35,8 @@ interface ProductFormProps {
 }
 
 /** Back to the product's tab in the list, with the toast to show there (see MenuEditor). */
-const listUrl = (categoryId: string, done: "added" | "saved" | "deleted", name: string) =>
-    `/dashboard/menu?category=${encodeURIComponent(categoryId)}&done=${done}&name=${encodeURIComponent(name)}`;
+const listUrl = (categoryId: string, done: DoneAction, name: string) =>
+    withNotice(`/dashboard/menu?category=${encodeURIComponent(categoryId)}`, done, name);
 
 // Waits for the browser draft before building the form: initial values are
 // taken once (useState), so they must come from the draft, not the server
@@ -102,19 +104,7 @@ const ProductEditor = ({ product, categories, startCategory, onLeave }: ProductE
     const [isSaving, setIsSaving] = useState(false);
     const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
     const isDirty = !isSameForm(values, initial);
-
-    // Focus the first marked field after a failed save (keyboard and screen readers land on it)
-    useEffect(() => {
-        if (error?.fieldErrors) formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
-    }, [error]);
-
-    // Unsaved changes: the browser asks before leaving or reloading the page
-    useEffect(() => {
-        if (!isDirty) return;
-        const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-        window.addEventListener("beforeunload", warn);
-        return () => window.removeEventListener("beforeunload", warn);
-    }, [isDirty]);
+    useFormGuards(formRef, error, isDirty);
 
     const set = <K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) =>
         setValues((current) => ({ ...current, [key]: value }));
@@ -272,7 +262,6 @@ const ProductEditor = ({ product, categories, startCategory, onLeave }: ProductE
                         value={values.image}
                         imageStyle={values.imageStyle}
                         onChange={({ image, imageStyle }) => setValues((current) => ({ ...current, image, imageStyle }))}
-                        showStyle
                     />
 
                     <div className="flex flex-col gap-10 rounded-2xl border border-border bg-surface p-12">

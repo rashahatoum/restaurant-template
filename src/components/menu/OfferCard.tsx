@@ -1,6 +1,7 @@
 import Badge from "@/components/ui/Badge";
 import DetailsHint from "@/components/ui/DetailsHint";
 import { formatPrice } from "@/lib/format-price";
+import type { ImageStyle } from "@/types/menu";
 import Image from "next/image";
 import Link from "next/link";
 import { FiArrowLeft, FiGift } from "react-icons/fi";
@@ -12,8 +13,10 @@ interface OfferCardProps {
     /** What they get for free. */
     freeItem: string;
     price: number;
-    /** 4:3 photo on a transparent background; it pops out of the card top. */
+    /** 4:3 photo; it pops out of the card top. Best on a transparent background. */
     image: string;
+    /** "photo": a full photo, cropped 4:3 with rounded corners (cut-outs keep their shape). */
+    imageStyle?: ImageStyle;
     badge?: string;
     /** The action button's target. */
     href: string;
@@ -30,11 +33,13 @@ const OfferCard = ({
     freeItem,
     price,
     image,
+    imageStyle,
     badge,
     href,
     actionLabel = "اطلب العرض",
     detailsHref,
 }: OfferCardProps) => {
+    const isPhoto = imageStyle === "photo";
     const photo = (
         <Image
             src={image}
@@ -42,7 +47,12 @@ const OfferCard = ({
             width={800}
             height={600}
             sizes="(min-width: 768px) 30vw, 75vw"
-            className="h-auto w-full drop-shadow-[0_16px_24px_rgb(0_0_0/0.5)] transition-transform duration-500 group-hover:-translate-y-6 motion-reduce:transition-none"
+            // h-auto: the height attribute would otherwise win over aspect-ratio
+            className={`h-auto w-full transition-transform duration-500 group-hover:-translate-y-6 motion-reduce:transition-none ${
+                isPhoto
+                    ? "aspect-4/3 rounded-3xl object-cover shadow-[0_16px_32px_-8px_rgb(0_0_0/0.6)]"
+                    : "drop-shadow-[0_16px_24px_rgb(0_0_0/0.5)]"
+            }`}
         />
     );
 
