@@ -9,8 +9,8 @@ import type { Result } from "@/lib/api/errors";
 import type { PreparedImage } from "@/lib/dashboard/image-processing";
 import { localRepository } from "@/lib/dashboard/local-repository";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
-import type { Offer } from "@/types/content";
-import type { OfferInput, OffersSettings, ProductInput } from "@/types/dashboard";
+import type { MenuBanner, Offer } from "@/types/content";
+import type { BannerInput, OfferInput, OffersSettings, ProductInput } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
 export interface DashboardRepository {
@@ -41,6 +41,15 @@ export interface DashboardRepository {
     /** One step up or down in the slider and the menu. */
     moveOffer(id: string, direction: "up" | "down"): Promise<Result<readonly Offer[]>>;
     deleteOffer(id: string): Promise<Result<null>>;
+    /** New menu banner slide, last in the order. */
+    createBanner(input: BannerInput): Promise<Result<MenuBanner>>;
+    /** Whole slide from the form. */
+    saveBanner(id: string, input: BannerInput): Promise<Result<MenuBanner>>;
+    /** On / off from the list, without the form. */
+    setBannerActive(id: string, isActive: boolean): Promise<Result<MenuBanner>>;
+    /** One step earlier or later in the carousel. */
+    moveBanner(id: string, direction: "up" | "down"): Promise<Result<readonly MenuBanner[]>>;
+    deleteBanner(id: string): Promise<Result<null>>;
     /** Stores a prepared photo; returns the src to save on the record (a URL with the API). */
     uploadImage(image: PreparedImage): Promise<Result<{ src: string }>>;
     /** Drops every local edit (browser draft only; no-op with the API). */

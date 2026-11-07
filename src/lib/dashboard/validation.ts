@@ -4,7 +4,7 @@
 
 import { appError, fail, ok, type AppError, type Result } from "@/lib/api/errors";
 import { toPlainText } from "@/lib/highlight";
-import type { OfferInput, OffersSettings, ProductInput } from "@/types/dashboard";
+import type { BannerInput, OfferInput, OffersSettings, ProductInput } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
 export const MAX_PRICE = 10_000_000;
@@ -196,6 +196,52 @@ export function checkSectionText(settings: Partial<Pick<OffersSettings, "eyebrow
         else if (plain.length > SECTION_TEXT_LIMITS.title) add("title", `العنوان لازم يكون ${SECTION_TEXT_LIMITS.title} حرف أو أقل`);
         // An odd number of ** would show the stars to customers
         else if ((settings.title.match(/\*\*/g)?.length ?? 0) % 2 !== 0) add("title", "في رمز ** زيادة، شيله");
+    }
+
+    return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
+}
+
+/* =========================
+   MENU BANNER
+========================= */
+
+export const BANNER_LIMITS = {
+    eyebrow: 24,
+    /** Per line: the slide's text column is narrow on phones. */
+    titleLine: 22,
+    titleLines: 2,
+    actionLabel: 16,
+} as const;
+
+/** The rules a saved slide must follow; collects every problem at once. */
+export function checkBannerInput(
+    input: BannerInput,
+    refs: { categories: readonly Pick<Category, "id">[]; products: readonly Pick<Product, "id">[] }
+): AppError | null {
+    const errors: Record<string, string[]> = {};
+    const add = (field: string, message: string) => (errors[field] ??= []).push(message);
+
+    if ((input.eyebrow?.length ?? 0) > BANNER_LIMITS.eyebrow) add("eyebrow", `لازم يكون ${BANNER_LIMITS.eyebrow} حرف أو أقل`);
+
+    const lines = input.title.split("\n");
+    if (!input.title.trim()) add("title", "اكتب العنوان");
+    else if (lines.length > BANNER_LIMITS.titleLines) add("title", "العنوان سطرين بالكتير");
+    else if (lines.some((line) => line.length > BANNER_LIMITS.titleLine)) {
+        add("title", `كل سطر ${BANNER_LIMITS.titleLine} حرف أو أقل، لحتى يبيّن على الموبايل`);
+    }
+
+    if (!input.image.src) add("image", "الشريحة بدها صورة");
+
+    if (input.action) {
+        const { label, target } = input.action;
+        if (!label.trim()) add("action.label", "اكتب شو مكتوب على الزر");
+        else if (label.length > BANNER_LIMITS.actionLabel) add("action.label", `نص الزر ${BANNER_LIMITS.actionLabel} حرف أو أقل`);
+
+        if (target.kind === "category" && !refs.categories.some((category) => category.id === target.categoryId)) {
+            add("action.target", "اختار القسم");
+        } else if (target.kind === "product" && !refs.products.some((product) => product.id === target.productId)) {
+            add("action.target", "اختار الصنف");
+        }
     }
 
     return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;

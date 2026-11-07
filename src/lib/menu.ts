@@ -1,6 +1,12 @@
 import { productKey } from "@/lib/cart";
 import type { MenuItemDetails, Product, ProductOptionGroup } from "@/types/menu";
 
+/** Section id for a category on /menu (the section dropdown and banner buttons jump to it). */
+export const categoryAnchor = (categoryId: string) => `category-${categoryId}`;
+
+/** The offers section id on /menu: banner buttons and home offer cards link here. */
+export const OFFERS_ANCHOR = categoryAnchor("offers");
+
 /**
  * The price-changing single choice shown on the menu (today: size).
  * Products have at most one such group.

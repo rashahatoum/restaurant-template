@@ -3,6 +3,7 @@
 import ConfirmDialog from "@/components/dashboard/ConfirmDialog";
 import FieldError from "@/components/dashboard/feedback/FieldError";
 import ToastViewport from "@/components/dashboard/feedback/ToastViewport";
+import ReorderList from "@/components/dashboard/ReorderList";
 import { inputClasses } from "@/components/dashboard/form/field-styles";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useToast } from "@/hooks/useToast";
@@ -44,11 +45,10 @@ const CategoriesEditor = ({ seed }: { seed: DashboardData }) => {
         return result;
     };
 
+    // The list glides to the new order (ReorderList): a toast only when it fails (owner)
     const move = async (category: Category, direction: "up" | "down") => {
         const result = await repository.moveCategory(category.id, direction);
-        if (!result.ok) return show({ tone: "error", message: result.error.message });
-        const place = result.data.findIndex((candidate) => candidate.id === category.id) + 1;
-        show({ tone: "success", message: `صار ${category.name} رقم ${place} بالمنيو` });
+        if (!result.ok) show({ tone: "error", message: result.error.message });
     };
 
     const changeImage = async (category: Category, image: string | undefined) => {
@@ -117,9 +117,9 @@ const CategoriesEditor = ({ seed }: { seed: DashboardData }) => {
                 LIST (menu order)
             ========================== */}
 
-            <ol className="flex flex-col gap-10">
+            <ReorderList className="flex flex-col gap-10">
                 {categories.map((category, index) => (
-                    <li key={category.id}>
+                    <li key={category.id} data-flip-id={category.id}>
                         <CategoryRow
                             category={category}
                             count={countOf(category.id)}
@@ -132,7 +132,7 @@ const CategoriesEditor = ({ seed }: { seed: DashboardData }) => {
                         />
                     </li>
                 ))}
-            </ol>
+            </ReorderList>
 
             <ConfirmDialog
                 open={Boolean(toDelete)}

@@ -7,13 +7,14 @@ import { newId } from "@/lib/dashboard/ids";
 import { clearLocalImages, saveLocalImage } from "@/lib/dashboard/local-images";
 import type { DashboardRepository } from "@/lib/dashboard/repository";
 import {
+    checkBannerInput,
     checkOfferInput,
     checkProductInput,
     checkProductQuickChanges,
     checkSectionText,
     validateCategoryName,
 } from "@/lib/dashboard/validation";
-import type { Offer } from "@/types/content";
+import type { MenuBanner, Offer } from "@/types/content";
 import type { DashboardData } from "@/types/dashboard";
 import type { Category } from "@/types/menu";
 
@@ -216,6 +217,50 @@ export const localRepository: DashboardRepository = {
         const data = currentData();
         if (!data.offers.offers.some((offer) => offer.id === id)) return fail(appError("not_found"));
         return commit(withOffers(data, data.offers.offers.filter((offer) => offer.id !== id)), null);
+    },
+
+    async createBanner(input) {
+        const data = currentData();
+        const error = checkBannerInput(input, data);
+        if (error) return fail(error);
+
+        const created: MenuBanner = { ...input, id: newId("banner", new Set(data.banners.map((banner) => banner.id))) };
+        return commit({ ...data, banners: [...data.banners, created] }, created);
+    },
+
+    async saveBanner(id, input) {
+        const data = currentData();
+        if (!data.banners.some((banner) => banner.id === id)) return fail(appError("not_found"));
+
+        const error = checkBannerInput(input, data);
+        if (error) return fail(error);
+
+        const saved: MenuBanner = { ...input, id };
+        return commit({ ...data, banners: data.banners.map((banner) => (banner.id === id ? saved : banner)) }, saved);
+    },
+
+    async setBannerActive(id, isActive) {
+        const data = currentData();
+        const banner = data.banners.find((candidate) => candidate.id === id);
+        if (!banner) return fail(appError("not_found"));
+
+        const saved = { ...banner, isActive };
+        return commit({ ...data, banners: data.banners.map((candidate) => (candidate.id === id ? saved : candidate)) }, saved);
+    },
+
+    async moveBanner(id, direction) {
+        const data = currentData();
+        const from = data.banners.findIndex((banner) => banner.id === id);
+        if (from === -1) return fail(appError("not_found"));
+
+        const banners = moveStep(data.banners, from, direction);
+        return commit({ ...data, banners }, banners);
+    },
+
+    async deleteBanner(id) {
+        const data = currentData();
+        if (!data.banners.some((banner) => banner.id === id)) return fail(appError("not_found"));
+        return commit({ ...data, banners: data.banners.filter((banner) => banner.id !== id) }, null);
     },
 
     async uploadImage(image) {

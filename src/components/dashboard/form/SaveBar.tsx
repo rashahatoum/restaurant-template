@@ -21,7 +21,8 @@ const SaveBar = ({ isDirty, isSaving, submitLabel, onDiscard }: SaveBarProps) =>
                     type="button"
                     onClick={onDiscard}
                     disabled={isSaving}
-                    className="h-46 flex-1 rounded-full border border-border font-bold transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
+                    // Smaller text on phones: "تجاهل التعديلات" overflowed the narrow button
+                    className="h-46 flex-1 whitespace-nowrap rounded-full border border-border px-10 text-sm font-bold transition-colors hover:border-primary hover:text-primary disabled:opacity-50 md:text-base"
                 >
                     تجاهل التعديلات
                 </button>

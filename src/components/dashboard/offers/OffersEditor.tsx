@@ -2,6 +2,7 @@
 
 import ConfirmDialog from "@/components/dashboard/ConfirmDialog";
 import ToastViewport from "@/components/dashboard/feedback/ToastViewport";
+import ReorderList from "@/components/dashboard/ReorderList";
 import ImagePicker from "@/components/dashboard/form/ImagePicker";
 import Switch from "@/components/dashboard/Switch";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -154,9 +155,9 @@ const OffersEditor = ({ seed, notice }: OffersEditorProps) => {
 
             {offers.length > 0 ? (
                 // Faded while the whole section is off: none of these reach customers
-                <ol className={`flex flex-col gap-10 transition-opacity ${section.isEnabled ? "" : "opacity-50"}`}>
+                <ReorderList className={`flex flex-col gap-10 transition-opacity ${section.isEnabled ? "" : "opacity-50"}`}>
                     {offers.map((offer, index) => (
-                        <li key={offer.id}>
+                        <li key={offer.id} data-flip-id={offer.id}>
                             <OfferRow
                                 offer={offer}
                                 index={index}
@@ -167,7 +168,7 @@ const OffersEditor = ({ seed, notice }: OffersEditorProps) => {
                             />
                         </li>
                     ))}
-                </ol>
+                </ReorderList>
             ) : (
                 <p className="rounded-2xl border border-dashed border-border px-16 py-40 text-center text-muted">
                     ما في عروض لسا. ضيف أول عرض.

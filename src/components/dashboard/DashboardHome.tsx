@@ -56,6 +56,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
         },
         {
             title: "البانر",
+            href: "/dashboard/banner",
             icon: FiImage,
             summary: formatCount(count.activeBanners, { one: "شريحة وحدة", two: "شريحتين", few: "شرائح", many: "شريحة" }),
         },

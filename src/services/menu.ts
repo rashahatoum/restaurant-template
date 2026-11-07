@@ -2,9 +2,12 @@
 // fetch() with the same signatures, so callers don't change. Async on purpose.
 
 import { categories, products } from "@/data/mock/menu";
+import { menuBanners } from "@/data/mock/menu-banners";
+import { bannerHref } from "@/lib/banner";
 import { offerKey } from "@/lib/cart";
 import { toMenuItemDetails } from "@/lib/menu";
 import { getOffersContent } from "@/services/content";
+import type { MenuBannerSlideData } from "@/types/content";
 import type { Category, MenuItemDetails, MenuSection, Product } from "@/types/menu";
 
 /** A product that has a photo (required where the image is the focus, e.g. best sellers). */
@@ -68,6 +71,27 @@ export async function getMenuItemIds(): Promise<string[]> {
         ...sections.flatMap((section) => section.products.map((product) => product.id)),
         ...(offers?.offers.map((offer) => offer.id) ?? []),
     ];
+}
+
+/**
+ * Active menu banner slides, in order, each button resolved to a link (may be
+ * empty: the page then hides the banner). A button whose target is gone
+ * (offers off, category empty or deleted, product gone) is dropped; the slide stays.
+ */
+export async function getMenuBanners(): Promise<readonly MenuBannerSlideData[]> {
+    const [sections, offers] = await Promise.all([getMenu(), getOffersContent()]);
+    const targets = {
+        hasOffers: offers !== null,
+        categoryIds: new Set(sections.map((section) => section.category.id)),
+        productIds: new Set(sections.flatMap((section) => section.products.map((product) => product.id))),
+    };
+
+    return menuBanners
+        .filter((banner) => banner.isActive)
+        .map(({ action, ...banner }) => {
+            const href = action && bannerHref(action.target, targets);
+            return action && href ? { ...banner, action: { label: action.label, href } } : banner;
+        });
 }
 
 /** Available best sellers that have a photo (the slider shows the dish). */

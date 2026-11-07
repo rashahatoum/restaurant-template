@@ -4,7 +4,8 @@
 
 import type { DashboardData } from "@/types/dashboard";
 
-export const DRAFT_VERSION = 1;
+/** Bumped when the stored shape changes; an older draft falls back to the original data. 2: banner buttons store a target, not a link. */
+export const DRAFT_VERSION = 2;
 
 export interface StoredDraft {
     version: typeof DRAFT_VERSION;
