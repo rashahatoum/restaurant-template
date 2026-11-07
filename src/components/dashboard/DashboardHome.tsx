@@ -35,8 +35,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
         },
         {
             title: "الأكثر مبيعاً",
-            // Marked with the star in the product list
-            href: "/dashboard/menu",
+            href: "/dashboard/best-sellers",
             icon: FiStar,
             summary: items(count.bestSellers),
         },

@@ -14,9 +14,10 @@ import {
     checkSectionText,
     validateCategoryName,
 } from "@/lib/dashboard/validation";
+import { numberBestSellers, sortBestSellers } from "@/lib/menu";
 import type { MenuBanner, Offer } from "@/types/content";
 import type { DashboardData } from "@/types/dashboard";
-import type { Category } from "@/types/menu";
+import type { Category, Product } from "@/types/menu";
 
 /** Order 1…n in list order (no gaps after a move or a delete). */
 const renumber = (categories: readonly Category[]) =>
@@ -29,6 +30,18 @@ function moveStep<T>(list: readonly T[], from: number, direction: "up" | "down")
     const next = [...list];
     [next[from], next[to]] = [next[to], next[from]];
     return next;
+}
+
+/** A product that just became a best seller goes last in the slider (unless a place was given, e.g. by undo). */
+function placeNewBestSeller(previous: Product | undefined, next: Product): Product {
+    const isNew = next.isBestSeller && !previous?.isBestSeller;
+    return isNew && next.bestSellerOrder === undefined ? { ...next, bestSellerOrder: Number.MAX_SAFE_INTEGER } : next;
+}
+
+/** Saves the products with best sellers renumbered 1…n; returns the saved one as stored. */
+function commitProducts(data: DashboardData, products: readonly Product[], id: string): Result<Product> {
+    const numbered = numberBestSellers(products);
+    return commit({ ...data, products: numbered }, numbered.find((product) => product.id === id) as Product);
 }
 
 const withOffers = (data: DashboardData, offers: readonly Offer[]): DashboardData => ({
@@ -52,11 +65,8 @@ export const localRepository: DashboardRepository = {
         const error = checkProductQuickChanges(product, changes);
         if (error) return fail(error);
 
-        const saved = { ...product, ...changes };
-        return commit(
-            { ...data, products: data.products.map((candidate) => (candidate.id === id ? saved : candidate)) },
-            saved
-        );
+        const saved = placeNewBestSeller(product, { ...product, ...changes });
+        return commitProducts(data, data.products.map((candidate) => (candidate.id === id ? saved : candidate)), id);
     },
 
     async createProduct(input) {
@@ -66,28 +76,41 @@ export const localRepository: DashboardRepository = {
 
         // Products and offers share /menu/<id>, so the id must be free in both
         const taken = new Set([...data.products.map((product) => product.id), ...data.offers.offers.map((offer) => offer.id)]);
-        const created = { ...input, id: newId("item", taken) };
-        return commit({ ...data, products: [...data.products, created] }, created);
+        const created = placeNewBestSeller(undefined, { ...input, id: newId("item", taken) });
+        return commitProducts(data, [...data.products, created], created.id);
     },
 
     async saveProduct(id, input) {
         const data = currentData();
-        if (!data.products.some((product) => product.id === id)) return fail(appError("not_found"));
+        const previous = data.products.find((product) => product.id === id);
+        if (!previous) return fail(appError("not_found"));
 
         const error = checkProductInput(input, data.categories);
         if (error) return fail(error);
 
-        const saved = { ...input, id };
-        return commit(
-            { ...data, products: data.products.map((product) => (product.id === id ? saved : product)) },
-            saved
-        );
+        // The form doesn't hold the slider place: keep it
+        const saved = placeNewBestSeller(previous, { ...input, id, bestSellerOrder: previous.bestSellerOrder });
+        return commitProducts(data, data.products.map((product) => (product.id === id ? saved : product)), id);
     },
 
     async deleteProduct(id) {
         const data = currentData();
         if (!data.products.some((product) => product.id === id)) return fail(appError("not_found"));
-        return commit({ ...data, products: data.products.filter((product) => product.id !== id) }, null);
+        return commit({ ...data, products: numberBestSellers(data.products.filter((product) => product.id !== id)) }, null);
+    },
+
+    async moveBestSeller(id, direction) {
+        const data = currentData();
+        const ordered = sortBestSellers(data.products);
+        const from = ordered.findIndex((product) => product.id === id);
+        if (from === -1) return fail(appError("conflict", { message: "هالصنف مش بالأكثر مبيعاً. حدّث الصفحة." }));
+
+        const places = new Map(moveStep(ordered, from, direction).map((product, index) => [product.id, index + 1]));
+        const products = data.products.map((product) => {
+            const place = places.get(product.id);
+            return place ? { ...product, bestSellerOrder: place } : product;
+        });
+        return commit({ ...data, products }, sortBestSellers(products));
     },
 
     async createCategory(name) {

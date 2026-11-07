@@ -248,7 +248,17 @@ export function checkBannerInput(
 }
 
 /** Changes the product list can make without opening the form. */
-export type ProductQuickChanges = Partial<Pick<Product, "price" | "isAvailable" | "isBestSeller">>;
+export type ProductQuickChanges = Partial<Pick<Product, "price" | "isAvailable" | "isBestSeller" | "bestSellerOrder">>;
+
+/**
+ * Undoing "شيل من الأكثر مبيعاً" puts the product back in its old place: just
+ * before whoever moved up into it (the repository renumbers 1…n after).
+ */
+export function undoBestSellerPlace(product: Product, changes: ProductQuickChanges): ProductQuickChanges {
+    return changes.isBestSeller === false && product.bestSellerOrder !== undefined
+        ? { bestSellerOrder: product.bestSellerOrder - 0.5 }
+        : {};
+}
 
 /** Null when the changes are fine for this product. */
 export function checkProductQuickChanges(product: Product, changes: ProductQuickChanges): AppError | null {

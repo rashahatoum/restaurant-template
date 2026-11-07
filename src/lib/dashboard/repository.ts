@@ -21,6 +21,8 @@ export interface DashboardRepository {
     /** Whole product from the form. */
     saveProduct(id: string, input: ProductInput): Promise<Result<Product>>;
     deleteProduct(id: string): Promise<Result<null>>;
+    /** One step earlier or later in the home "الأكثر مبيعاً" slider. Returns the best sellers in order. */
+    moveBestSeller(id: string, direction: "up" | "down"): Promise<Result<readonly Product[]>>;
     /** New category, last in the order. */
     createCategory(name: string): Promise<Result<Category>>;
     renameCategory(id: string, name: string): Promise<Result<Category>>;
