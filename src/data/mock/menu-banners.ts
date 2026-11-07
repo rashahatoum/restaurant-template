@@ -1,7 +1,7 @@
 // Mock menu page banner slides. Only src/services/ may import this file.
-// Reuses the offer and dish photos; the owner will manage slides from the dashboard.
-// "#category-offers" only exists while the offers section is on: turn off
-// slides that point to it when offers are disabled.
+// Reuses the offer and dish photos; the owner manages slides from the dashboard.
+// Buttons point at a target (offers / category / product), resolved to a
+// link by services/menu getMenuBanners; a target that's gone hides the button.
 
 import type { MenuBanner } from "@/types/content";
 
@@ -14,7 +14,7 @@ export const menuBanners: readonly MenuBanner[] = [
             src: "/assets/imgs/offers/shawarma-4-plus-1.webp",
             alt: "سندويشات شاورما",
         },
-        action: { label: "شوف العروض", href: "#category-offers" },
+        action: { label: "شوف العروض", target: { kind: "offers" } },
         isActive: true,
     },
     {
@@ -25,7 +25,7 @@ export const menuBanners: readonly MenuBanner[] = [
             src: "/assets/imgs/menu/grilled-chicken.webp",
             alt: "فروج مشوي",
         },
-        action: { label: "اطلب الآن", href: "#category-chicken" },
+        action: { label: "اطلب الآن", target: { kind: "category", categoryId: "chicken" } },
         isActive: true,
     },
     {
@@ -36,7 +36,7 @@ export const menuBanners: readonly MenuBanner[] = [
             src: "/assets/imgs/offers/chicken-cola.webp",
             alt: "فروج مشوي مع مشروب",
         },
-        action: { label: "شوف العروض", href: "#category-offers" },
+        action: { label: "شوف العروض", target: { kind: "offers" } },
         isActive: true,
     },
 ];

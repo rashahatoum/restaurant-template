@@ -92,20 +92,35 @@ export interface ReviewsContent {
 }
 
 /**
- * One slide of the menu page banner. The text is real HTML over the photo
- * (editable, sharp on every screen), not baked into the image.
+ * Where a banner button goes: picked from a list in the dashboard, never a
+ * typed link. Stored as ids, so a deleted category or product can't leave a
+ * broken link (the button just hides; see lib/banner).
+ */
+export type BannerTarget =
+    | { kind: "offers" }
+    | { kind: "category"; categoryId: string }
+    | { kind: "product"; productId: string };
+
+/**
+ * One slide of the menu page banner, as stored. The text is real HTML over
+ * the photo (editable, sharp on every screen), not baked into the image.
  */
 export interface MenuBanner {
     id: string;
     /** Small label above the title, e.g. "عرض الأسبوع". */
     eyebrow?: string;
-    /** Short; typed line breaks are kept. */
+    /** Short, at most two lines; typed line breaks are kept. */
     title: string;
     /** Dish photo on a transparent background (like offer images). */
     image: ContentImage;
-    action?: { label: string; href: string };
+    action?: { label: string; target: BannerTarget };
     isActive: boolean;
 }
+
+/** A slide ready to show: the button's link resolved, or no button when its target is gone. */
+export type MenuBannerSlideData = Omit<MenuBanner, "action"> & {
+    action?: { label: string; href: string };
+};
 
 export interface AboutContent {
     eyebrow: string;

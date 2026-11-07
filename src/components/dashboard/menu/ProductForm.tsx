@@ -12,6 +12,7 @@ import Switch from "@/components/dashboard/Switch";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useFormGuards } from "@/hooks/useFormGuards";
 import { useIsHydrated } from "@/hooks/useIsHydrated";
+import { useSingleSubmit } from "@/hooks/useSingleSubmit";
 import { fieldError, type AppError } from "@/lib/api/errors";
 import { withNotice, type DoneAction } from "@/lib/dashboard/notice";
 import { isSameForm, parseProductForm, previewProduct, toFormValues, type ProductFormValues } from "@/lib/dashboard/product-form";
@@ -101,7 +102,7 @@ const ProductEditor = ({ product, categories, startCategory, onLeave }: ProductE
     const [initial] = useState(() => toFormValues(product, startCategory));
     const [values, setValues] = useState(initial);
     const [error, setError] = useState<AppError>();
-    const [isSaving, setIsSaving] = useState(false);
+    const { isSaving, run } = useSingleSubmit();
     const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
     const isDirty = !isSameForm(values, initial);
     useFormGuards(formRef, error, isDirty);
@@ -123,12 +124,9 @@ const ProductEditor = ({ product, categories, startCategory, onLeave }: ProductE
         const parsed = parseProductForm(values);
         if (!parsed.ok) return setError(parsed.error);
 
-        setIsSaving(true);
-        const result = product
-            ? await repository.saveProduct(product.id, parsed.data)
-            : await repository.createProduct(parsed.data);
-        setIsSaving(false);
-
+        const input = parsed.data;
+        const result = await run(() => (product ? repository.saveProduct(product.id, input) : repository.createProduct(input)));
+        if (!result) return; // a second tap while saving
         if (!result.ok) return setError(result.error);
         // Back to the product's tab in the list, which shows what happened (owner)
         router.push(listUrl(result.data.categoryId, product ? "saved" : "added", result.data.name));
