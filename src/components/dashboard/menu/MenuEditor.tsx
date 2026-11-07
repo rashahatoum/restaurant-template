@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/useToast";
 import type { Result } from "@/lib/api/errors";
 import type { DoneNotice } from "@/lib/dashboard/notice";
 import { repository } from "@/lib/dashboard/repository";
-import { validatePrice, type ProductQuickChanges } from "@/lib/dashboard/validation";
+import { undoBestSellerPlace, validatePrice, type ProductQuickChanges } from "@/lib/dashboard/validation";
 import { formatPrice } from "@/lib/format-price";
 import type { DashboardData } from "@/types/dashboard";
 import type { Product } from "@/types/menu";
@@ -33,9 +33,12 @@ function describeChange(name: string, changes: ProductQuickChanges): string {
 
 /** The product's current values for the changed fields (what "تراجع" puts back). */
 function previousValues(product: Product, changes: ProductQuickChanges): ProductQuickChanges {
-    return Object.fromEntries(
-        Object.keys(changes).map((key) => [key, product[key as keyof ProductQuickChanges]])
-    ) as ProductQuickChanges;
+    return {
+        ...(Object.fromEntries(
+            Object.keys(changes).map((key) => [key, product[key as keyof ProductQuickChanges]])
+        ) as ProductQuickChanges),
+        ...undoBestSellerPlace(product, changes),
+    };
 }
 
 // Products by category, with quick edits (price, available, best seller).

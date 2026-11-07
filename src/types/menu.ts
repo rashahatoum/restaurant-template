@@ -53,6 +53,8 @@ export interface Product {
     /** See ImageStyle. Defaults to "cutout". */
     imageStyle?: ImageStyle;
     isBestSeller: boolean;
+    /** Place in the home "الأكثر مبيعاً" slider (1 = first). Best sellers only; see lib/menu sortBestSellers. */
+    bestSellerOrder?: number;
     isAvailable: boolean;
     optionGroups?: readonly ProductOptionGroup[];
 }

@@ -5,7 +5,7 @@ import { categories, products } from "@/data/mock/menu";
 import { menuBanners } from "@/data/mock/menu-banners";
 import { bannerHref } from "@/lib/banner";
 import { offerKey } from "@/lib/cart";
-import { toMenuItemDetails } from "@/lib/menu";
+import { sortBestSellers, toMenuItemDetails } from "@/lib/menu";
 import { getOffersContent } from "@/services/content";
 import type { MenuBannerSlideData } from "@/types/content";
 import type { Category, MenuItemDetails, MenuSection, Product } from "@/types/menu";
@@ -94,9 +94,9 @@ export async function getMenuBanners(): Promise<readonly MenuBannerSlideData[]> 
         });
 }
 
-/** Available best sellers that have a photo (the slider shows the dish). */
+/** Available best sellers that have a photo (the slider shows the dish), in the owner's order. */
 export async function getBestSellers(): Promise<readonly ProductWithImage[]> {
-    return products.filter(
+    return sortBestSellers(products).filter(
         (product): product is ProductWithImage =>
             product.isBestSeller &&
             product.isAvailable &&
