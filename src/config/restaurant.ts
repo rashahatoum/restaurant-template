@@ -75,22 +75,12 @@ export const restaurantConfig = {
         chatWallpaper: "/assets/imgs/reviews/chat-pattern.webp",
     },
 
+    // Texts (badge, headline, button labels, features): data/mock/hero.ts, edited in the dashboard
     hero: {
-        badge: "من قلب السويداء",
-
         background: "/assets/imgs/fire-heroBg.webp",
 
-        headline: "شاورما بطعم أصيل",
-
-        primaryAction: {
-            label: "اطلب الآن",
-            href: "/menu",
-        },
-
-        secondaryAction: {
-            label: "من نحن",
-            href: "/#about",
-        },
+        primaryHref: "/menu",
+        secondaryHref: "/#about",
 
         backdrop: {
             desktop: { src: "/assets/imgs/hero/hero-bg.webp", width: 1672, height: 941 },
@@ -107,20 +97,5 @@ export const restaurantConfig = {
             // Tuned with the owner in /lab/rotation.
             motion: { speed: 30, easeIn: 1, hold: 4, easeOut: 2.5 },
         },
-
-        features: [
-            {
-                label: "مكونات طازجة يوميًا",
-                icon: "fresh",
-            },
-            {
-                label: "على الطريقة الشرقية الأصيلة",
-                icon: "fire",
-            },
-            {
-                label: "جودة عالية وسر المذاق",
-                icon: "quality",
-            },
-        ],
     },
 } as const satisfies RestaurantConfig;

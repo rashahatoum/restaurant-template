@@ -5,6 +5,7 @@ import "server-only";
 // with the same return type.
 
 import { about } from "@/data/mock/about";
+import { hero } from "@/data/mock/hero";
 import { menuBanners } from "@/data/mock/menu-banners";
 import { categories, products } from "@/data/mock/menu";
 import { offers } from "@/data/mock/offers";
@@ -22,6 +23,7 @@ export async function getDashboardSeed(): Promise<DashboardData> {
         offers,
         banners: menuBanners,
         reviews,
+        hero,
         about,
         siteInfo,
         ordering,

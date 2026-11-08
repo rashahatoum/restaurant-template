@@ -122,6 +122,25 @@ export type MenuBannerSlideData = Omit<MenuBanner, "action"> & {
     action?: { label: string; href: string };
 };
 
+/** Keys of the hero feature icons (components/ui/feature-icons); the dashboard picks from these. */
+export type FeatureIconKey = "fresh" | "fire" | "quality" | "delivery" | "fast" | "heart";
+
+/**
+ * The hero's texts. The links, photos and the turning spit stay in
+ * restaurantConfig (per deployment).
+ */
+export interface HeroContent {
+    /** Small pill above the name, e.g. the city. Optional. */
+    badge?: string;
+    headline: string;
+    /** Goes to the menu. */
+    primaryActionLabel: string;
+    /** Goes to «من نحن». */
+    secondaryActionLabel: string;
+    /** Always three (the glass card is a 3-column grid). */
+    features: readonly { label: string; icon: FeatureIconKey }[];
+}
+
 export interface AboutContent {
     eyebrow: string;
     /** The **marked** part gets the brand underline. */

@@ -4,6 +4,7 @@
 
 import { appError, fail, ok, type AppError, type Result } from "@/lib/api/errors";
 import { toPlainText } from "@/lib/highlight";
+import type { AboutContent, FeatureIconKey, HeroContent } from "@/types/content";
 import type { BannerInput, OfferInput, OffersSettings, ProductInput } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
@@ -181,22 +182,121 @@ export function checkOfferInput(input: OfferInput): AppError | null {
     return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
 }
 
-/** Eyebrow and title of a home section (offers now; reviews and about later). */
-export function checkSectionText(settings: Partial<Pick<OffersSettings, "eyebrow" | "title">>): AppError | null {
+/** An odd number of ** would show the stars to customers. */
+const hasStrayMarkers = (text: string) => (text.match(/\*\*/g)?.length ?? 0) % 2 !== 0;
+const STRAY_MARKERS = "في رمز ** زيادة، شيله";
+
+/** Eyebrow and title of a home section (offers, reviews, about); `limits` when a section allows longer ones. */
+export function checkSectionText(
+    settings: Partial<Pick<OffersSettings, "eyebrow" | "title">>,
+    limits: { eyebrow: number; title: number } = SECTION_TEXT_LIMITS
+): AppError | null {
     const errors: Record<string, string[]> = {};
     const add = (field: string, message: string) => (errors[field] ??= []).push(message);
 
     if (settings.eyebrow !== undefined) {
         if (!settings.eyebrow.trim()) add("eyebrow", "اكتب العنوان الصغير");
-        else if (settings.eyebrow.length > SECTION_TEXT_LIMITS.eyebrow) add("eyebrow", `لازم يكون ${SECTION_TEXT_LIMITS.eyebrow} حرف أو أقل`);
+        else if (settings.eyebrow.length > limits.eyebrow) add("eyebrow", `لازم يكون ${limits.eyebrow} حرف أو أقل`);
     }
     if (settings.title !== undefined) {
         const plain = toPlainText(settings.title);
         if (!plain.trim()) add("title", "اكتب العنوان");
-        else if (plain.length > SECTION_TEXT_LIMITS.title) add("title", `العنوان لازم يكون ${SECTION_TEXT_LIMITS.title} حرف أو أقل`);
-        // An odd number of ** would show the stars to customers
-        else if ((settings.title.match(/\*\*/g)?.length ?? 0) % 2 !== 0) add("title", "في رمز ** زيادة، شيله");
+        else if (plain.length > limits.title) add("title", `العنوان لازم يكون ${limits.title} حرف أو أقل`);
+        else if (hasStrayMarkers(settings.title)) add("title", STRAY_MARKERS);
     }
+
+    return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
+}
+
+/* =========================
+   HERO
+========================= */
+
+/** Every FeatureIconKey (the type fails to compile if one is missing); the rules stay free of UI imports. */
+const FEATURE_ICON_KEYS = {
+    fresh: true,
+    fire: true,
+    quality: true,
+    delivery: true,
+    fast: true,
+    heart: true,
+} as const satisfies Record<FeatureIconKey, true>;
+
+export const HERO_LIMITS = {
+    badge: 24,
+    /** Phones give it two thirds of the width, beside the turning spit. */
+    headline: 32,
+    actionLabel: 14,
+    features: 3,
+    featureLabel: 28,
+} as const;
+
+/** The rules saved hero texts must follow; collects every problem at once. */
+export function checkHeroInput(input: HeroContent): AppError | null {
+    const errors: Record<string, string[]> = {};
+    const add = (field: string, message: string) => (errors[field] ??= []).push(message);
+
+    if ((input.badge?.length ?? 0) > HERO_LIMITS.badge) add("badge", `الشارة ${HERO_LIMITS.badge} حرف أو أقل`);
+
+    if (!input.headline.trim()) add("headline", "اكتب الجملة الرئيسية");
+    else if (input.headline.length > HERO_LIMITS.headline) add("headline", `لازم تكون ${HERO_LIMITS.headline} حرف أو أقل`);
+
+    for (const field of ["primaryActionLabel", "secondaryActionLabel"] as const) {
+        if (!input[field].trim()) add(field, "اكتب شو مكتوب على الزر");
+        else if (input[field].length > HERO_LIMITS.actionLabel) add(field, `نص الزر ${HERO_LIMITS.actionLabel} حرف أو أقل`);
+    }
+
+    if (input.features.length !== HERO_LIMITS.features) add("features", "الميزات لازم تكون تلاتة");
+    input.features.forEach((feature, index) => {
+        if (!feature.label.trim()) add(`features.${index}.label`, "اكتب الميزة");
+        else if (feature.label.length > HERO_LIMITS.featureLabel) add(`features.${index}.label`, `${HERO_LIMITS.featureLabel} حرف أو أقل`);
+        if (!Object.hasOwn(FEATURE_ICON_KEYS, feature.icon)) add(`features.${index}.icon`, "اختار أيقونة");
+    });
+
+    return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
+}
+
+/* =========================
+   ABOUT
+========================= */
+
+export const ABOUT_LIMITS = {
+    eyebrow: 40,
+    /** Without the ** markers. */
+    title: 40,
+    paragraphs: 4,
+    paragraph: 320,
+    closing: 120,
+    badge: 24,
+} as const;
+
+/** Field key of one paragraph, as Laravel would name it in a 422. */
+export const paragraphField = (index: number) => `paragraphs.${index}`;
+
+/** The rules a saved «من نحن» must follow; collects every problem at once. */
+export function checkAboutInput(input: AboutContent): AppError | null {
+    const errors: Record<string, string[]> = {};
+    const add = (field: string, message: string) => (errors[field] ??= []).push(message);
+
+    const section = checkSectionText(input, ABOUT_LIMITS);
+    Object.entries(section?.fieldErrors ?? {}).forEach(([field, messages]) => messages.forEach((message) => add(field, message)));
+
+    if (input.paragraphs.length === 0) add("paragraphs", "اكتب فقرة وحدة على الأقل");
+    else if (input.paragraphs.length > ABOUT_LIMITS.paragraphs) add("paragraphs", `أقصى شي ${ABOUT_LIMITS.paragraphs} فقرات`);
+    input.paragraphs.forEach((paragraph, index) => {
+        const plain = toPlainText(paragraph);
+        if (!plain.trim()) add(paragraphField(index), "الفقرة فاضية، اكتبها أو احذفها");
+        else if (plain.length > ABOUT_LIMITS.paragraph) add(paragraphField(index), `الفقرة ${ABOUT_LIMITS.paragraph} حرف أو أقل`);
+        else if (hasStrayMarkers(paragraph)) add(paragraphField(index), STRAY_MARKERS);
+    });
+
+    const closing = toPlainText(input.closing);
+    if (!closing.trim()) add("closing", "اكتب الجملة الأخيرة");
+    else if (closing.length > ABOUT_LIMITS.closing) add("closing", `لازم تكون ${ABOUT_LIMITS.closing} حرف أو أقل`);
+    else if (hasStrayMarkers(input.closing)) add("closing", STRAY_MARKERS);
+
+    if (!input.image.src) add("image", "«من نحن» بدّه صورة");
+    if ((input.badge?.length ?? 0) > ABOUT_LIMITS.badge) add("badge", `الشارة ${ABOUT_LIMITS.badge} حرف أو أقل`);
 
     return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
 }

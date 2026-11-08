@@ -3,9 +3,6 @@
 /** Must match a [data-theme="…"] block in globals.css. */
 export type ThemeName = "fire";
 
-/** Keys mapped to icon components in Hero (featureIcons). */
-export type FeatureIconKey = "fresh" | "fire" | "quality";
-
 export interface Action {
     label: string;
     href: string;
@@ -60,14 +57,13 @@ export interface RestaurantConfig {
         chatWallpaper?: string;
     };
 
+    /** The hero's texts are editable content (HeroContent, services/content); only these stay per deployment. */
     hero: {
-        /** Small pill above the name, e.g. the city. Optional. */
-        badge?: string;
         /** Fire texture behind the menu banner slides (the hero itself uses `backdrop`). */
         background: string;
-        headline: string;
-        primaryAction: Action;
-        secondaryAction: Action;
+        /** Where the two buttons go (their labels are content). */
+        primaryHref: string;
+        secondaryHref: string;
 
         /**
          * Hero backdrop, one photo per orientation (art direction: the browser
@@ -85,10 +81,5 @@ export interface RestaurantConfig {
             /** One spin session (on load, hover, tap). Speed in °/s, times in seconds. */
             motion: { speed: number; easeIn: number; hold: number; easeOut: number };
         };
-
-        features: readonly {
-            label: string;
-            icon: FeatureIconKey;
-        }[];
     };
 }

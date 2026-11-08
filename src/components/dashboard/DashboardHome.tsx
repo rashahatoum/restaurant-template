@@ -66,7 +66,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
                 ? formatCount(count.visibleReviews, { one: "تقييم واحد ظاهر", two: "تقييمين ظاهرين", few: "تقييمات ظاهرة", many: "تقييم ظاهر" })
                 : "القسم مطفي",
         },
-        { title: "الواجهة و«من نحن»", icon: FiHome, summary: "نصوص الصفحة الرئيسية" },
+        { title: "الواجهة و«من نحن»", href: "/dashboard/home-content", icon: FiHome, summary: "نصوص الصفحة الرئيسية" },
         {
             title: "الطلب والتوصيل",
             icon: FiShoppingBag,
