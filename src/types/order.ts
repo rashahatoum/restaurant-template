@@ -16,18 +16,17 @@ export interface OrderingSettings {
         isEnabled: boolean;
         /** Added to the order total, in the restaurant currency. */
         fee: number;
-        /** International format, receives delivery orders. */
-        whatsApp: string;
+        /** The restaurant phone (SiteInfo.phones id, with WhatsApp) that receives delivery orders. */
+        phoneId: string;
     };
     dineIn: {
         isEnabled: boolean;
+        /** Table orders go to the branch's own WhatsApp phone (ContactPhone.branchId). */
         branches: readonly {
             branchId: Branch["id"];
             isEnabled: boolean;
             /** Tables are numbered 1…tableCount. */
             tableCount: number;
-            /** Receives this branch's table orders. */
-            whatsApp: string;
         }[];
     };
     message: OrderMessageTemplate;

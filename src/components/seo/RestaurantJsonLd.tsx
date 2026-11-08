@@ -1,4 +1,5 @@
 import { restaurantConfig } from "@/config/restaurant";
+import { publicPhones } from "@/lib/site-info";
 import { absoluteUrl } from "@/lib/site-url";
 import { getSiteInfo } from "@/services/content";
 
@@ -19,7 +20,7 @@ const RestaurantJsonLd = async () => {
         logo: absoluteUrl(logo),
         image: absoluteUrl(seo.shareImage.src),
         description: seo.description,
-        telephone: info.phones[0]?.number,
+        telephone: publicPhones(info.phones)[0]?.number,
         address: {
             "@type": "PostalAddress",
             streetAddress: branch.address,

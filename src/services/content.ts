@@ -6,6 +6,7 @@ import { hero } from "@/data/mock/hero";
 import { offers } from "@/data/mock/offers";
 import { reviews } from "@/data/mock/reviews";
 import { siteInfo } from "@/data/mock/site-info";
+import { publicPhones } from "@/lib/site-info";
 import type {
     AboutContent,
     HeroContent,
@@ -28,7 +29,8 @@ export async function getNavContact(): Promise<{
     phoneNumber?: string;
     openingHours?: string;
 }> {
-    const { phones, openingHours } = await getSiteInfo();
+    const { phones: allPhones, openingHours } = await getSiteInfo();
+    const phones = publicPhones(allPhones);
     return {
         whatsAppNumber: phones.find((phone) => phone.hasWhatsApp)?.number,
         phoneNumber: phones[0]?.number,

@@ -78,6 +78,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
         },
         {
             title: "معلومات المطعم",
+            href: "/dashboard/info",
             icon: FiInfo,
             summary: `${formatCount(count.phones, { one: "رقم واحد", two: "رقمين", few: "أرقام", many: "رقم" })} · ${branches(count.branches)}`,
         },

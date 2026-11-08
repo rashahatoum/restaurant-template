@@ -3,25 +3,19 @@
 // Laravel will enforce the same rules on its side.
 
 import { appError, fail, ok, type AppError, type Result } from "@/lib/api/errors";
+import { normalizePhone } from "@/lib/contact";
+import { toWesternDigits } from "@/lib/digits";
 import { toPlainText } from "@/lib/highlight";
-import type { AboutContent, FeatureIconKey, HeroContent } from "@/types/content";
+import { normalizeSocialUrl, parseHoursSchema, socialName } from "@/lib/site-info";
+import type { AboutContent, FeatureIconKey, HeroContent, SiteInfo } from "@/types/content";
 import type { BannerInput, OfferInput, OffersSettings, ProductInput, ReviewInput, ReviewsSettings } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
 export const MAX_PRICE = 10_000_000;
 
-/** Arabic-Indic (٠ U+0660…) and Persian (۰ U+06F0…) digits, as typed on Arabic keyboards. */
-const EASTERN_DIGITS = /[٠-٩۰-۹]/g;
-
-const toWesternDigit = (digit: string) => {
-    const code = digit.charCodeAt(0);
-    return String(code - (code >= 0x06f0 ? 0x06f0 : 0x0660));
-};
-
 /** "٢٥٠", "1,250", "250 ل.س" → 250. Null if it isn't a whole number. */
 export function parsePriceInput(text: string): number | null {
-    const normalized = text
-        .replace(EASTERN_DIGITS, toWesternDigit)
+    const normalized = toWesternDigits(text)
         .replace(/[\s,،٬]/g, "")
         .replace(/ل\.?س\.?$/, "");
     return /^\d+$/.test(normalized) ? Number(normalized) : null;
@@ -251,6 +245,67 @@ export function checkReviewInput(input: ReviewInput): AppError | null {
     else if (hasStrayMarkers(input.answer)) add("answer", STRAY_MARKERS);
 
     if ((input.time?.length ?? 0) > REVIEW_LIMITS.time) add("time", "الوقت مش مفهوم، اختاره من الساعة");
+
+    return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
+}
+
+/* =========================
+   RESTAURANT INFO
+========================= */
+
+export const SITE_INFO_LIMITS = {
+    tagline: 120,
+    taglineLines: 3,
+    /** The restaurant's and the branches' together. */
+    phones: 10,
+    branches: 6,
+    branchName: 30,
+    branchAddress: 80,
+} as const;
+
+/** The rules saved restaurant info must follow; collects every problem at once. */
+export function checkSiteInfoInput(input: SiteInfo): AppError | null {
+    const errors: Record<string, string[]> = {};
+    const add = (field: string, message: string) => (errors[field] ??= []).push(message);
+
+    if (!input.tagline.trim()) add("tagline", "اكتب جملة تعريف قصيرة");
+    else if (input.tagline.length > SITE_INFO_LIMITS.tagline) add("tagline", `التعريف ${SITE_INFO_LIMITS.tagline} حرف أو أقل`);
+    else if (input.tagline.split("\n").length > SITE_INFO_LIMITS.taglineLines) add("tagline", `${SITE_INFO_LIMITS.taglineLines} أسطر بالكتير`);
+
+    if (!input.phones.some((phone) => !phone.branchId)) add("phones", "ضيف رقم واحد للمطعم على الأقل، ليقدر الزبون يتواصل معكن");
+    else if (input.phones.length > SITE_INFO_LIMITS.phones) add("phones", `أقصى شي ${SITE_INFO_LIMITS.phones} أرقام`);
+    // The same number may serve the restaurant and a branch, but not twice in one of them
+    const seen = new Set<string>();
+    input.phones.forEach((phone, index) => {
+        const field = `phones.${index}.number`;
+        const key = `${phone.branchId ?? ""}|${phone.number}`;
+        if (normalizePhone(phone.number) !== phone.number) add(field, "الرقم مش مفهوم. اكتبه متل 0930 123 456");
+        else if (seen.has(key)) add(field, phone.branchId ? "هالرقم مكتوب مرتين لنفس الفرع" : "هالرقم مكتوب مرتين");
+        seen.add(key);
+    });
+
+    if (input.branches.length === 0) add("branches", "ضيف فرع واحد على الأقل");
+    else if (input.branches.length > SITE_INFO_LIMITS.branches) add("branches", `أقصى شي ${SITE_INFO_LIMITS.branches} فروع`);
+    input.branches.forEach((branch, index) => {
+        if (!branch.name.trim()) add(`branches.${index}.name`, "اكتب اسم الفرع");
+        else if (branch.name.length > SITE_INFO_LIMITS.branchName) add(`branches.${index}.name`, `${SITE_INFO_LIMITS.branchName} حرف أو أقل`);
+        if (!branch.address.trim()) add(`branches.${index}.address`, "اكتب العنوان");
+        else if (branch.address.length > SITE_INFO_LIMITS.branchAddress) add(`branches.${index}.address`, `${SITE_INFO_LIMITS.branchAddress} حرف أو أقل`);
+        if (branch.mapUrl !== undefined && !/^https:\/\/\S+$/.test(branch.mapUrl)) {
+            add(`branches.${index}.mapUrl`, "انسخ الرابط من Google Maps (زر «مشاركة»)");
+        }
+    });
+
+    // Text and schema come from the same two clock times
+    if (Boolean(input.openingHours) !== Boolean(parseHoursSchema(input.openingHoursSchema))) {
+        add("openingHours", "اختار ساعة الفتح وساعة السكّر، أو فضّي التنين");
+    }
+
+    input.socialLinks?.forEach((link, index) => {
+        if (normalizeSocialUrl(link.platform, link.url) !== link.url) {
+            add(`socialLinks.${index}.url`, `هالرابط مش لصفحة على ${socialName(link.platform)}`);
+        }
+    });
 
     return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
 }

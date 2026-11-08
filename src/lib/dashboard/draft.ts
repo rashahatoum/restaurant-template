@@ -6,9 +6,10 @@ import type { DashboardData } from "@/types/dashboard";
 
 /**
  * Bumped when the stored shape changes; an older draft falls back to the original data.
- * 2: banner buttons store a target, not a link. 3: hero texts added.
+ * 2: banner buttons store a target, not a link. 3: hero texts added. 4: phones have ids.
+ * 5: phones may belong to a branch; ordering points at phones (delivery id, branch phones for tables).
  */
-export const DRAFT_VERSION = 3;
+export const DRAFT_VERSION = 5;
 
 export interface StoredDraft {
     version: typeof DRAFT_VERSION;

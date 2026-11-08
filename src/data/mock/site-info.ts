@@ -8,8 +8,11 @@ export const siteInfo: SiteInfo = {
     tagline:
         "شاورما بطعم أصيل من قلب السويداء،\nبخبرة شيفنا وكرم أهل الجبل.",
     phones: [
-        { number: "+963930539614", hasWhatsApp: true },
-        { number: "+963980785608", hasWhatsApp: true },
+        { id: "phone-1", number: "+963930539614", hasWhatsApp: true },
+        { id: "phone-2", number: "+963980785608", hasWhatsApp: true },
+        // Floor staff per branch (table orders). Placeholders: the owner will send the real numbers.
+        { id: "phone-qanawat", number: "+963930539614", hasWhatsApp: true, branchId: "qanawat-road" },
+        { id: "phone-mehwari", number: "+963980785608", hasWhatsApp: true, branchId: "al-mehwari" },
     ],
     branches: [
         {
