@@ -1,5 +1,21 @@
 // Phone helpers. Numbers are stored in international format ("+963930539614").
 
+import { toWesternDigits } from "@/lib/digits";
+
+/**
+ * A Syrian number as typed ("0930 539 614", "+963 930…", "00963…", Arabic
+ * digits) → "+963930539614". Null when it isn't one (mobile: 9 digits after
+ * 963; landline: area code + number, 8 digits).
+ */
+export function normalizePhone(text: string): string | null {
+    let digits = toWesternDigits(text).replace(/[\s\-().]/g, "");
+    if (digits.startsWith("+")) digits = digits.slice(1);
+    else if (digits.startsWith("00")) digits = digits.slice(2);
+    else if (digits.startsWith("0")) digits = `963${digits.slice(1)}`;
+    else if (/^9\d{8}$/.test(digits)) digits = `963${digits}`;
+    return /^963\d{8,9}$/.test(digits) ? `+${digits}` : null;
+}
+
 export function toTelHref(number: string): string {
     return `tel:${number}`;
 }

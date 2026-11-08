@@ -4,6 +4,7 @@
 import { appError, fail, ok, type Result } from "@/lib/api/errors";
 import { clearDraft, currentData, saveDraft } from "@/lib/dashboard/draft-store";
 import { newId } from "@/lib/dashboard/ids";
+import { orderingConflicts, syncOrdering } from "@/lib/dashboard/site-info";
 import { clearLocalImages, saveLocalImage } from "@/lib/dashboard/local-images";
 import type { DashboardRepository } from "@/lib/dashboard/repository";
 import {
@@ -16,10 +17,11 @@ import {
     checkReviewInput,
     checkReviewsSettings,
     checkSectionText,
+    checkSiteInfoInput,
     validateCategoryName,
 } from "@/lib/dashboard/validation";
 import { numberBestSellers, sortBestSellers } from "@/lib/menu";
-import type { MenuBanner, Offer, Review } from "@/types/content";
+import type { MenuBanner, Offer, Review, SiteInfo } from "@/types/content";
 import type { DashboardData } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
@@ -347,6 +349,33 @@ export const localRepository: DashboardRepository = {
         const data = currentData();
         if (!data.reviews.reviews.some((review) => review.id === id)) return fail(appError("not_found"));
         return commit(withReviews(data, data.reviews.reviews.filter((review) => review.id !== id)), null);
+    },
+
+    async saveSiteInfo(sent) {
+        const data = currentData();
+        const error = checkSiteInfoInput(sent);
+        if (error) return fail(error);
+
+        // New phones and branches come without an id (empty); give them one, as the API will
+        const phoneIds = new Set(sent.phones.map((phone) => phone.id).filter(Boolean));
+        const branchIds = new Set(sent.branches.map((branch) => branch.id).filter(Boolean));
+        const branches = sent.branches.map((branch) => (branch.id ? branch : { ...branch, id: newId("branch", branchIds) }));
+        const kept = new Set(branches.map((branch) => branch.id));
+        const input: SiteInfo = {
+            ...sent,
+            branches,
+            phones: sent.phones
+                // A deleted branch's staff numbers go with it (they were never public)
+                .filter((phone) => !phone.branchId || kept.has(phone.branchId))
+                .map((phone) => (phone.id ? phone : { ...phone, id: newId("phone", phoneIds) })),
+        };
+
+        // Same answer the API will give (409): orders must keep a WhatsApp number to go to
+        const conflicts = orderingConflicts(data.ordering, input);
+        if (conflicts.length > 0) return fail(appError("conflict", { message: conflicts.join(" ") }));
+
+        const ordering = syncOrdering(data.ordering, input);
+        return commit({ ...data, siteInfo: input, ordering }, input);
     },
 
     async saveHero(input) {

@@ -1,6 +1,6 @@
 // Ordering settings for Ahl Al Karam. Only src/services/ may import this file.
-// Numbers and the delivery fee come from the owner; table counts are a
-// placeholder (10 per branch) until the owner sets the real ones.
+// The delivery fee comes from the owner; table counts are a placeholder (10
+// per branch) until the owner sets the real ones. Numbers live in site-info.ts.
 
 import type { OrderingSettings } from "@/types/order";
 
@@ -8,13 +8,13 @@ export const ordering: OrderingSettings = {
     delivery: {
         isEnabled: true,
         fee: 150,
-        whatsApp: "+963930539614",
+        phoneId: "phone-1",
     },
     dineIn: {
         isEnabled: true,
         branches: [
-            { branchId: "qanawat-road", isEnabled: true, tableCount: 10, whatsApp: "+963980785608" },
-            { branchId: "al-mehwari", isEnabled: true, tableCount: 10, whatsApp: "+963980785608" },
+            { branchId: "qanawat-road", isEnabled: true, tableCount: 10 },
+            { branchId: "al-mehwari", isEnabled: true, tableCount: 10 },
         ],
     },
     message: {

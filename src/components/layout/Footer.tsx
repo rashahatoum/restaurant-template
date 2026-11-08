@@ -1,19 +1,15 @@
+import { SOCIAL_ICONS } from "@/components/ui/social-icons";
 import { platformConfig } from "@/config/platform";
 import { restaurantConfig } from "@/config/restaurant";
 import { formatPhone, toTelHref, toWhatsAppHref } from "@/lib/contact";
+import { publicPhones, SOCIAL_PLATFORMS, socialName } from "@/lib/site-info";
 import { getSiteInfo } from "@/services/content";
-import type { SocialPlatform } from "@/types/content";
 import Image from "next/image";
 import Link from "next/link";
-import type { IconType } from "react-icons";
-import { FaFacebookF, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp } from "react-icons/fa";
 import { FiClock, FiMapPin, FiPhone } from "react-icons/fi";
 
-const socialIcons: Record<SocialPlatform, IconType> = {
-    facebook: FaFacebookF,
-    instagram: FaInstagram,
-    tiktok: FaTiktok,
-};
+const platformOrder = SOCIAL_PLATFORMS.map((option) => option.platform);
 
 const headingClasses = "font-display text-xl font-bold text-foreground";
 const linkClasses = "transition-colors hover:text-primary";
@@ -22,6 +18,10 @@ const linkClasses = "transition-colors hover:text-primary";
 // Brand settings come from config; phones/branches/hours from content (dashboard).
 const Footer = async () => {
     const info = await getSiteInfo();
+    // Always in the same order (Instagram first), whatever order they were saved in
+    const socialLinks = [...(info.socialLinks ?? [])].sort(
+        (a, b) => platformOrder.indexOf(a.platform) - platformOrder.indexOf(b.platform)
+    );
     // Evaluated at build time for static pages, refreshed on every deploy.
     const year = new Date().getFullYear();
 
@@ -63,6 +63,28 @@ const Footer = async () => {
 
                     {/* pre-line: line breaks typed in the dashboard are kept */}
                     <p className="whitespace-pre-line leading-relaxed">{info.tagline}</p>
+
+                    {/* Only the platforms with a link (set in the dashboard) */}
+                    {socialLinks.length > 0 && (
+                        <ul aria-label="تابعنا" className="flex gap-10">
+                            {socialLinks.map((social) => {
+                                const Icon = SOCIAL_ICONS[social.platform];
+                                return (
+                                    <li key={social.platform}>
+                                        <a
+                                            href={social.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            aria-label={`${restaurantConfig.name} على ${socialName(social.platform)}`}
+                                            className="flex size-40 items-center justify-center rounded-full border border-border text-lg text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-background"
+                                        >
+                                            <Icon aria-hidden="true" />
+                                        </a>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
                 </div>
 
                 {/* =========================
@@ -94,11 +116,12 @@ const Footer = async () => {
 
                     <ul className="flex flex-col gap-12">
                         {/* One action per number: WhatsApp when available, otherwise a call */}
-                        {info.phones.map((phone) => {
+                        {/* Branch staff numbers stay off the site (table orders only) */}
+                        {publicPhones(info.phones).map((phone) => {
                             const Icon = phone.hasWhatsApp ? FaWhatsapp : FiPhone;
 
                             return (
-                                <li key={phone.number}>
+                                <li key={phone.id}>
                                     <a
                                         href={
                                             phone.hasWhatsApp
@@ -122,27 +145,6 @@ const Footer = async () => {
                             );
                         })}
                     </ul>
-
-                    {info.socialLinks && info.socialLinks.length > 0 && (
-                        <ul className="flex gap-12">
-                            {info.socialLinks.map((social) => {
-                                const Icon = socialIcons[social.platform];
-                                return (
-                                    <li key={social.platform}>
-                                        <a
-                                            href={social.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            aria-label={social.platform}
-                                            className="flex size-36 items-center justify-center rounded-full border border-border transition-colors hover:border-primary hover:text-primary"
-                                        >
-                                            <Icon aria-hidden="true" />
-                                        </a>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    )}
                 </div>
 
                 {/* =========================

@@ -10,9 +10,17 @@ export interface ContentImage {
 }
 
 export interface ContactPhone {
+    /** Stable while the number is edited, so ordering settings follow the change. */
+    id: string;
     /** International format, no spaces: "+963930539614". */
     number: string;
     hasWhatsApp: boolean;
+    /**
+     * A branch's own number (the floor staff): receives that branch's table
+     * orders and isn't shown on the site. Without it: the restaurant's number,
+     * shown in the footer.
+     */
+    branchId?: Branch["id"];
 }
 
 export interface Branch {
@@ -23,7 +31,7 @@ export interface Branch {
     mapUrl?: string;
 }
 
-export type SocialPlatform = "facebook" | "instagram" | "tiktok";
+export type SocialPlatform = "instagram" | "facebook" | "threads" | "tiktok";
 
 /** Restaurant contact & location info, shown in the footer (and used for orders later). */
 export interface SiteInfo {
@@ -32,7 +40,7 @@ export interface SiteInfo {
     branches: readonly Branch[];
     openingHours?: string;
     /** The same hours for Google (schema.org format), e.g. ["Mo-Su 09:00-24:00"].
-        Not shown on the site; keep it in step with openingHours. */
+        Not shown on the site; the dashboard writes both from the same two clock times. */
     openingHoursSchema?: readonly string[];
     socialLinks?: readonly { platform: SocialPlatform; url: string }[];
 }
