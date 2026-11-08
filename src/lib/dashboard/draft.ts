@@ -4,8 +4,11 @@
 
 import type { DashboardData } from "@/types/dashboard";
 
-/** Bumped when the stored shape changes; an older draft falls back to the original data. 2: banner buttons store a target, not a link. */
-export const DRAFT_VERSION = 2;
+/**
+ * Bumped when the stored shape changes; an older draft falls back to the original data.
+ * 2: banner buttons store a target, not a link. 3: hero texts added.
+ */
+export const DRAFT_VERSION = 3;
 
 export interface StoredDraft {
     version: typeof DRAFT_VERSION;
@@ -35,6 +38,7 @@ export function parseDraft(value: unknown): DashboardData | null {
         Array.isArray(data.banners) &&
         isObject(data.offers) &&
         isObject(data.reviews) &&
+        isObject(data.hero) &&
         isObject(data.about) &&
         isObject(data.siteInfo) &&
         isObject(data.ordering);

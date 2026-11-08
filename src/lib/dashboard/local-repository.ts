@@ -7,7 +7,9 @@ import { newId } from "@/lib/dashboard/ids";
 import { clearLocalImages, saveLocalImage } from "@/lib/dashboard/local-images";
 import type { DashboardRepository } from "@/lib/dashboard/repository";
 import {
+    checkAboutInput,
     checkBannerInput,
+    checkHeroInput,
     checkOfferInput,
     checkProductInput,
     checkProductQuickChanges,
@@ -284,6 +286,20 @@ export const localRepository: DashboardRepository = {
         const data = currentData();
         if (!data.banners.some((banner) => banner.id === id)) return fail(appError("not_found"));
         return commit({ ...data, banners: data.banners.filter((banner) => banner.id !== id) }, null);
+    },
+
+    async saveHero(input) {
+        const data = currentData();
+        const error = checkHeroInput(input);
+        if (error) return fail(error);
+        return commit({ ...data, hero: input }, input);
+    },
+
+    async saveAbout(input) {
+        const data = currentData();
+        const error = checkAboutInput(input);
+        if (error) return fail(error);
+        return commit({ ...data, about: input }, input);
     },
 
     async uploadImage(image) {

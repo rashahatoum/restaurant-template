@@ -2,15 +2,21 @@
 // mock data, later the dashboard/API behind the same signatures.
 
 import { about } from "@/data/mock/about";
+import { hero } from "@/data/mock/hero";
 import { offers } from "@/data/mock/offers";
 import { reviews } from "@/data/mock/reviews";
 import { siteInfo } from "@/data/mock/site-info";
 import type {
     AboutContent,
+    HeroContent,
     OffersContent,
     ReviewsContent,
     SiteInfo,
 } from "@/types/content";
+
+export async function getHeroContent(): Promise<HeroContent> {
+    return hero;
+}
 
 export async function getSiteInfo(): Promise<SiteInfo> {
     return siteInfo;

@@ -1,26 +1,14 @@
 import { restaurantConfig } from "@/config/restaurant";
-import type { FeatureIconKey } from "@/types/config";
+import { getHeroContent } from "@/services/content";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 
-import type { IconType } from "react-icons";
-import { FiArrowLeft, FiAward, FiMapPin, FiUser } from "react-icons/fi";
-import { LuFlame } from "react-icons/lu";
-import { TiFeather } from "react-icons/ti";
+import { FiArrowLeft, FiMapPin, FiUser } from "react-icons/fi";
 
 import HeroSpit from "@/components/motion/HeroSpit";
 import Badge from "@/components/ui/Badge";
+import { featureIcon } from "@/components/ui/feature-icons";
 import Underline from "@/components/ui/Underline";
-
-/* =========================
-   FEATURE ICONS
-========================= */
-
-const featureIcons: Record<FeatureIconKey, IconType> = {
-    fresh: TiFeather,
-    fire: LuFlame,
-    quality: FiAward,
-};
 
 // Shared by both hero CTAs; each adds its own colors (incl. border color,
 // so both buttons are the same height).
@@ -64,7 +52,10 @@ const {
     props: { srcSet: mobileSrcSet, ...backdropProps },
 } = getImageProps({ ...backdropCommon, ...mobile });
 
-const Hero = () => {
+// Server Component. Texts from services (editable); photos, links and motion from config.
+const Hero = async () => {
+    const hero = await getHeroContent();
+
     return (
         <section
             aria-labelledby="hero-title"
@@ -130,9 +121,9 @@ const Hero = () => {
                         BADGE (e.g. the city)
                     ========================== */}
 
-                    {restaurantConfig.hero.badge && (
+                    {hero.badge && (
                         <div>
-                            <Badge icon={FiMapPin}>{restaurantConfig.hero.badge}</Badge>
+                            <Badge icon={FiMapPin}>{hero.badge}</Badge>
                         </div>
                     )}
 
@@ -182,7 +173,7 @@ const Hero = () => {
                             lg:text-5xl
                         "
                     >
-                        {restaurantConfig.hero.headline}
+                        {hero.headline}
                     </h2>
 
                     {/* =========================
@@ -208,11 +199,11 @@ const Hero = () => {
                     >
                         {/* Primary Action */}
                         <Link
-                            href={restaurantConfig.hero.primaryAction.href}
+                            href={restaurantConfig.hero.primaryHref}
                             className={`${actionClasses} border-primary bg-primary text-background hover:brightness-110`}
                         >
                             <span>
-                                {restaurantConfig.hero.primaryAction.label}
+                                {hero.primaryActionLabel}
                             </span>
 
                             <FiArrowLeft className={actionIconClasses} />
@@ -220,11 +211,11 @@ const Hero = () => {
 
                         {/* Secondary Action */}
                         <Link
-                            href={restaurantConfig.hero.secondaryAction.href}
+                            href={restaurantConfig.hero.secondaryHref}
                             className={`${actionClasses} border-2 border-foreground text-foreground hover:bg-foreground/10`}
                         >
                             <span>
-                                {restaurantConfig.hero.secondaryAction.label}
+                                {hero.secondaryActionLabel}
                             </span>
 
                             <FiUser className={actionIconClasses} />
@@ -264,12 +255,13 @@ const Hero = () => {
                             lg:short:mt-8
                         "
                     >
-                        {restaurantConfig.hero.features.map((feature) => {
-                            const Icon = featureIcons[feature.icon];
+                        {hero.features.map((feature, index) => {
+                            const Icon = featureIcon(feature.icon);
 
                             return (
                                 <li
-                                    key={feature.label}
+                                    // Labels may repeat while being edited
+                                    key={index}
                                     className="
                                         flex
                                         min-w-0
