@@ -15,8 +15,8 @@ import type { DashboardData } from "@/types/dashboard";
 import Link from "next/link";
 import { useState } from "react";
 import { FiInfo, FiPlus } from "react-icons/fi";
+import SectionTexts, { type SectionTextValues } from "@/components/dashboard/form/SectionTexts";
 import OfferRow from "./OfferRow";
-import OffersSectionTexts from "./OffersSectionTexts";
 
 interface OffersEditorProps {
     seed: DashboardData;
@@ -58,8 +58,8 @@ const OffersEditor = ({ seed, notice }: OffersEditorProps) => {
         );
     };
 
-    const saveTexts = async (texts: { eyebrow: string; title: string }) => {
-        const result = await repository.updateOffersSettings(texts);
+    const saveTexts = async ({ eyebrow, title }: SectionTextValues) => {
+        const result = await repository.updateOffersSettings({ eyebrow, title });
         if (result.ok) show({ tone: "success", message: "انحفظت العناوين" });
         return result;
     };
@@ -119,11 +119,13 @@ const OffersEditor = ({ seed, notice }: OffersEditorProps) => {
                     </p>
                 )}
 
-                <OffersSectionTexts
+                <SectionTexts
                     // Fresh values after a save or a reset
                     key={`${section.eyebrow}|${section.title}`}
+                    idPrefix="offers"
                     eyebrow={section.eyebrow}
                     title={section.title}
+                    placeholders={{ eyebrow: "متل: عروض أهل الكرم", title: "متل: الكرم بالعروض" }}
                     onSave={saveTexts}
                 />
 

@@ -9,8 +9,8 @@ import type { Result } from "@/lib/api/errors";
 import type { PreparedImage } from "@/lib/dashboard/image-processing";
 import { localRepository } from "@/lib/dashboard/local-repository";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
-import type { AboutContent, HeroContent, MenuBanner, Offer } from "@/types/content";
-import type { BannerInput, OfferInput, OffersSettings, ProductInput } from "@/types/dashboard";
+import type { AboutContent, HeroContent, MenuBanner, Offer, Review } from "@/types/content";
+import type { BannerInput, OfferInput, OffersSettings, ProductInput, ReviewInput, ReviewsSettings } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
 export interface DashboardRepository {
@@ -52,6 +52,17 @@ export interface DashboardRepository {
     /** One step earlier or later in the carousel. */
     moveBanner(id: string, direction: "up" | "down"): Promise<Result<readonly MenuBanner[]>>;
     deleteBanner(id: string): Promise<Result<null>>;
+    /** The reviews section's switch or texts (only the fields passed change). */
+    updateReviewsSettings(changes: Partial<ReviewsSettings>): Promise<Result<ReviewsSettings>>;
+    /** New review, last in the slider. */
+    createReview(input: ReviewInput): Promise<Result<Review>>;
+    /** Whole review from the form. */
+    saveReview(id: string, input: ReviewInput): Promise<Result<Review>>;
+    /** Shown / hidden from the list, without the form. */
+    setReviewVisible(id: string, isVisible: boolean): Promise<Result<Review>>;
+    /** One step earlier or later in the slider. */
+    moveReview(id: string, direction: "up" | "down"): Promise<Result<readonly Review[]>>;
+    deleteReview(id: string): Promise<Result<null>>;
     /** The hero's texts, all together (one form). */
     saveHero(input: HeroContent): Promise<Result<HeroContent>>;
     /** «من نحن», all together (one form). */

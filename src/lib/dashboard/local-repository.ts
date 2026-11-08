@@ -13,11 +13,13 @@ import {
     checkOfferInput,
     checkProductInput,
     checkProductQuickChanges,
+    checkReviewInput,
+    checkReviewsSettings,
     checkSectionText,
     validateCategoryName,
 } from "@/lib/dashboard/validation";
 import { numberBestSellers, sortBestSellers } from "@/lib/menu";
-import type { MenuBanner, Offer } from "@/types/content";
+import type { MenuBanner, Offer, Review } from "@/types/content";
 import type { DashboardData } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
@@ -49,6 +51,11 @@ function commitProducts(data: DashboardData, products: readonly Product[], id: s
 const withOffers = (data: DashboardData, offers: readonly Offer[]): DashboardData => ({
     ...data,
     offers: { ...data.offers, offers },
+});
+
+const withReviews = (data: DashboardData, reviews: readonly Review[]): DashboardData => ({
+    ...data,
+    reviews: { ...data.reviews, reviews },
 });
 
 /** Saves the draft; the change shows on screen either way, but say so if it won't survive a reload. */
@@ -286,6 +293,60 @@ export const localRepository: DashboardRepository = {
         const data = currentData();
         if (!data.banners.some((banner) => banner.id === id)) return fail(appError("not_found"));
         return commit({ ...data, banners: data.banners.filter((banner) => banner.id !== id) }, null);
+    },
+
+    async updateReviewsSettings(changes) {
+        const data = currentData();
+        const error = checkReviewsSettings(changes);
+        if (error) return fail(error);
+
+        const reviews = { ...data.reviews, ...changes };
+        const { isEnabled, eyebrow, title, defaultQuestion } = reviews;
+        return commit({ ...data, reviews }, { isEnabled, eyebrow, title, defaultQuestion });
+    },
+
+    async createReview(input) {
+        const data = currentData();
+        const error = checkReviewInput(input);
+        if (error) return fail(error);
+
+        const created: Review = { ...input, id: newId("review", new Set(data.reviews.reviews.map((review) => review.id))) };
+        return commit(withReviews(data, [...data.reviews.reviews, created]), created);
+    },
+
+    async saveReview(id, input) {
+        const data = currentData();
+        if (!data.reviews.reviews.some((review) => review.id === id)) return fail(appError("not_found"));
+
+        const error = checkReviewInput(input);
+        if (error) return fail(error);
+
+        const saved: Review = { ...input, id };
+        return commit(withReviews(data, data.reviews.reviews.map((review) => (review.id === id ? saved : review))), saved);
+    },
+
+    async setReviewVisible(id, isVisible) {
+        const data = currentData();
+        const review = data.reviews.reviews.find((candidate) => candidate.id === id);
+        if (!review) return fail(appError("not_found"));
+
+        const saved = { ...review, isVisible };
+        return commit(withReviews(data, data.reviews.reviews.map((candidate) => (candidate.id === id ? saved : candidate))), saved);
+    },
+
+    async moveReview(id, direction) {
+        const data = currentData();
+        const from = data.reviews.reviews.findIndex((review) => review.id === id);
+        if (from === -1) return fail(appError("not_found"));
+
+        const reviews = moveStep(data.reviews.reviews, from, direction);
+        return commit(withReviews(data, reviews), reviews);
+    },
+
+    async deleteReview(id) {
+        const data = currentData();
+        if (!data.reviews.reviews.some((review) => review.id === id)) return fail(appError("not_found"));
+        return commit(withReviews(data, data.reviews.reviews.filter((review) => review.id !== id)), null);
     },
 
     async saveHero(input) {
