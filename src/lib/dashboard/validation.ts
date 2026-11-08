@@ -5,7 +5,7 @@
 import { appError, fail, ok, type AppError, type Result } from "@/lib/api/errors";
 import { toPlainText } from "@/lib/highlight";
 import type { AboutContent, FeatureIconKey, HeroContent } from "@/types/content";
-import type { BannerInput, OfferInput, OffersSettings, ProductInput } from "@/types/dashboard";
+import type { BannerInput, OfferInput, OffersSettings, ProductInput, ReviewInput, ReviewsSettings } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
 export const MAX_PRICE = 10_000_000;
@@ -204,6 +204,53 @@ export function checkSectionText(
         else if (plain.length > limits.title) add("title", `العنوان لازم يكون ${limits.title} حرف أو أقل`);
         else if (hasStrayMarkers(settings.title)) add("title", STRAY_MARKERS);
     }
+
+    return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
+}
+
+/* =========================
+   REVIEWS
+========================= */
+
+export const REVIEW_LIMITS = {
+    /** First name only (privacy). */
+    customerName: 20,
+    question: 120,
+    /** Without the ** markers; the card clamps longer replies. */
+    answer: 220,
+    /** Display text, e.g. "11:02 م". */
+    time: 12,
+} as const;
+
+/** The reviews section's texts: eyebrow, title (checkSectionText) and the default question. */
+export function checkReviewsSettings(settings: Partial<Pick<ReviewsSettings, "eyebrow" | "title" | "defaultQuestion">>): AppError | null {
+    const errors: Record<string, string[]> = { ...(checkSectionText(settings)?.fieldErrors ?? {}) };
+
+    if (settings.defaultQuestion !== undefined) {
+        const question = settings.defaultQuestion;
+        if (!question.trim()) errors.defaultQuestion = ["اكتب السؤال اللي بيطلع فوق كل رأي"];
+        else if (question.length > REVIEW_LIMITS.question) errors.defaultQuestion = [`السؤال ${REVIEW_LIMITS.question} حرف أو أقل`];
+    }
+
+    return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
+}
+
+/** The rules a saved review must follow; collects every problem at once. */
+export function checkReviewInput(input: ReviewInput): AppError | null {
+    const errors: Record<string, string[]> = {};
+    const add = (field: string, message: string) => (errors[field] ??= []).push(message);
+
+    if (!input.customerName.trim()) add("customerName", "اكتب اسم الزبون");
+    else if (input.customerName.length > REVIEW_LIMITS.customerName) add("customerName", `الاسم ${REVIEW_LIMITS.customerName} حرف أو أقل`);
+
+    if ((input.question?.length ?? 0) > REVIEW_LIMITS.question) add("question", `السؤال ${REVIEW_LIMITS.question} حرف أو أقل`);
+
+    const answer = toPlainText(input.answer);
+    if (!answer.trim()) add("answer", "اكتب شو قال الزبون");
+    else if (answer.length > REVIEW_LIMITS.answer) add("answer", `الرد ${REVIEW_LIMITS.answer} حرف أو أقل، لحتى يبيّن كامل بالكرت`);
+    else if (hasStrayMarkers(input.answer)) add("answer", STRAY_MARKERS);
+
+    if ((input.time?.length ?? 0) > REVIEW_LIMITS.time) add("time", "الوقت مش مفهوم، اختاره من الساعة");
 
     return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
 }

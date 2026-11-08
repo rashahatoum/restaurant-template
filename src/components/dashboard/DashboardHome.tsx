@@ -60,10 +60,11 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
             summary: formatCount(count.activeBanners, { one: "شريحة وحدة", two: "شريحتين", few: "شرائح", many: "شريحة" }),
         },
         {
-            title: "التقييمات",
+            title: "الآراء",
+            href: "/dashboard/reviews",
             icon: FiMessageCircle,
             summary: count.reviewsEnabled
-                ? formatCount(count.visibleReviews, { one: "تقييم واحد ظاهر", two: "تقييمين ظاهرين", few: "تقييمات ظاهرة", many: "تقييم ظاهر" })
+                ? formatCount(count.visibleReviews, { one: "رأي واحد ظاهر", two: "رأيين ظاهرين", few: "آراء ظاهرة", many: "رأي ظاهر" })
                 : "القسم مطفي",
         },
         { title: "الواجهة و«من نحن»", href: "/dashboard/home-content", icon: FiHome, summary: "نصوص الصفحة الرئيسية" },
