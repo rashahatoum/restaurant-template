@@ -16,8 +16,9 @@ Restaurant website, digital menu, and WhatsApp ordering, built frontend-first an
 | Approved and pending cleanup items | `.local-docs/CLEANUP_PLAN.md` |
 | Why things are the way they are | `.local-docs/DECISIONS.md` |
 | Backend integration notes | `.local-docs/API-CONTRACT.md` |
+| What the Laravel developer needs (his starting point) | `.local-docs/BACKEND_REQUIREMENTS.md` |
 
-`.local-docs/` is git-ignored (local only). `archive/` holds superseded docs; don't treat it as current.
+`.local-docs/` is in git (shared with the backend developer since 2026-11-11): never put credentials, private numbers or personal data in it. `archive/` holds superseded docs; don't treat it as current.
 
 ## Next.js 16 warning
 
@@ -89,7 +90,7 @@ Then check manually at 360px and on desktop, in RTL, with the keyboard, and with
 ## Git
 
 - Never `commit`, `push`, or `merge` unless explicitly asked.
-- `.local-docs/` and `AGENTS.md` stay untracked until the owner decides otherwise.
+- `AGENTS.md` stays untracked. `.local-docs/` is tracked (owner, 2026-11-11), so doc updates go into commits with the code they describe.
 
 ## Communication & Language Preferences
 

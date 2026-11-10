@@ -42,9 +42,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local Codex instructions and project memory
+# local Codex instructions (next dev may regenerate it)
 AGENTS.md
-.local-docs/
 
-# Generated table QR sheets (npm run qr)
+# Old QR sheets from the removed npm run qr script (local files)
 /qr-codes/
