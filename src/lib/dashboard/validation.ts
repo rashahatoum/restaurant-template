@@ -7,6 +7,7 @@ import { normalizePhone } from "@/lib/contact";
 import { toWesternDigits } from "@/lib/digits";
 import { toPlainText } from "@/lib/highlight";
 import { branchWhatsApp, normalizeSocialUrl, parseHoursSchema, socialName } from "@/lib/site-info";
+import { MAX_TABLES } from "@/lib/table-session";
 import type { AboutContent, FeatureIconKey, HeroContent, SiteInfo } from "@/types/content";
 import type { BannerInput, OfferInput, OffersSettings, ProductInput, ReviewInput, ReviewsSettings } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
@@ -316,7 +317,7 @@ export function checkSiteInfoInput(input: SiteInfo): AppError | null {
 ========================= */
 
 export const ORDERING_LIMITS = {
-    maxTables: 99,
+    maxTables: MAX_TABLES,
     greeting: 120,
     closing: 200,
     thankYou: 240,

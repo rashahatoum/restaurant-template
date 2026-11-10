@@ -1,6 +1,8 @@
 // Table QR codes: /menu?branch=<branchId>&table=<n> tells the site which
-// table the customer sits at, so checkout can pre-fill it. Pure helpers;
-// the browser store lives in hooks/useTableSession.
+// table the customer sits at, so checkout can pre-fill it. The printed codes
+// hold a short link (/t/<branchId>/<n>) that next.config redirects there, so
+// the menu link can change without reprinting. Pure helpers; the browser
+// store lives in hooks/useTableSession.
 
 import type { OrderingOptions } from "@/types/order";
 
@@ -17,10 +19,13 @@ export interface TableSession {
 export const BRANCH_PARAM = "branch";
 export const TABLE_PARAM = "table";
 
-/** The link printed in a table's QR code. */
-export function tableMenuPath(branchId: string, table: number): string {
-    return `/menu?${BRANCH_PARAM}=${encodeURIComponent(branchId)}&${TABLE_PARAM}=${table}`;
+/** The link printed in a table's QR code (redirects to the menu with the table). */
+export function tableShortPath(branchId: string, table: number): string {
+    return `/t/${encodeURIComponent(branchId)}/${table}`;
 }
+
+/** The most tables a branch can have (dashboard rule and print range). */
+export const MAX_TABLES = 99;
 
 /** The branch and table a session points to, or null if they no longer exist. */
 export function resolveTable(

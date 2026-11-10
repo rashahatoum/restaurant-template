@@ -16,7 +16,8 @@ const ProtectedLayout = async ({ children }: { children: ReactNode }) => {
 
     return (
         <div className="flex min-h-dvh flex-col">
-            <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-sm">
+            {/* Only the page content prints (the QR sheets) */}
+            <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-sm print:hidden">
                 <div className="mx-auto flex h-76 max-w-960 items-center justify-between gap-12 px-16">
                     {/* The product's logo leads; it's the dashboard home */}
                     <Link href="/dashboard" aria-label={`${platformConfig.name}: لوحة التحكم`} className="shrink-0">
@@ -46,12 +47,12 @@ const ProtectedLayout = async ({ children }: { children: ReactNode }) => {
             </header>
 
             {/* Honest about where edits go until the Laravel API is connected */}
-            <p className="flex items-center justify-center gap-6 border-b border-border bg-warning/10 px-16 py-8 text-center text-xs font-bold text-warning">
+            <p className="flex items-center justify-center gap-6 border-b border-border bg-warning/10 px-16 py-8 text-center text-xs font-bold text-warning print:hidden">
                 <FiInfo aria-hidden="true" className="shrink-0" />
                 نسخة تجريبية: التعديلات بتنحفظ على هالجهاز بس، وما بتوصل للزباين.
             </p>
 
-            <main className="mx-auto w-full max-w-960 flex-1 px-16 py-24 md:py-32">{children}</main>
+            <main className="mx-auto w-full max-w-960 flex-1 px-16 py-24 md:py-32 print:max-w-none print:p-0">{children}</main>
         </div>
     );
 };

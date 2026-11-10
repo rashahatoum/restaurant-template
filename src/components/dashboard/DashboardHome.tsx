@@ -12,7 +12,7 @@ import { formatPrice } from "@/lib/format-price";
 import type { DashboardData } from "@/types/dashboard";
 import { useState } from "react";
 import { FiGift, FiHome, FiImage, FiInfo, FiLayers, FiMessageCircle, FiRotateCcw, FiShoppingBag, FiStar } from "react-icons/fi";
-import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { MdOutlineRestaurantMenu, MdQrCode2 } from "react-icons/md";
 
 const items = (n: number) => formatCount(n, { one: "صنف واحد", two: "صنفين", few: "أصناف", many: "صنف" });
 const branches = (n: number) => formatCount(n, { one: "فرع واحد", two: "فرعين", few: "فروع", many: "فرع" });
@@ -76,6 +76,12 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
                 count.deliveryFee !== null ? `توصيل ${formatPrice(count.deliveryFee)}` : "التوصيل مطفي",
                 count.dineInBranches > 0 ? `طاولات: ${branches(count.dineInBranches)}` : "الطاولات مطفية",
             ].join(" · "),
+        },
+        {
+            title: "أكواد QR",
+            href: "/dashboard/qr",
+            icon: MdQrCode2,
+            summary: count.dineInBranches > 0 ? `أكواد الطاولات لـ ${branches(count.dineInBranches)} · كود المنيو` : "كود المنيو",
         },
         {
             title: "معلومات المطعم",
