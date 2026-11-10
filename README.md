@@ -2,7 +2,9 @@
 
 A reusable restaurant website and digital menu built with Next.js (App Router), React, TypeScript, and Tailwind CSS. The interface is Arabic (RTL) and mobile-first. The first brand is **Ahl Al Karam (أهل الكرم)**, a shawarma restaurant.
 
-> **Status:** the public site is MVP-complete: home page (3D hero, best sellers, offers, about, reviews), digital menu with item details, cart and WhatsApp checkout (delivery or table), table QR codes, sharing, and SEO. Live at https://restaurant-template-ecru.vercel.app. A browser-only dashboard prototype is next. There is no backend: the project is frontend-first with typed mock data behind `src/services/`.
+> **Status:** the public site is MVP-complete: home page (3D hero, best sellers, offers, about, reviews), digital menu with item details, cart and WhatsApp checkout (delivery or table), table QR codes, sharing, and SEO. Live at https://restaurant-template-ecru.vercel.app. The dashboard (`/dashboard`) edits everything, saving in the browser until the **Laravel API** (separate developer) is connected; public pages read typed mock data behind `src/services/`.
+>
+> **Backend developer:** start with [.local-docs/BACKEND_REQUIREMENTS.md](.local-docs/BACKEND_REQUIREMENTS.md), then [.local-docs/API-CONTRACT.md](.local-docs/API-CONTRACT.md).
 
 ## Getting started
 
@@ -19,7 +21,8 @@ npm run dev        # http://localhost:3000 (dashboard: /dashboard)
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript type-check (`tsc --noEmit`) |
-| `npm run qr -- https://your-domain` | Printable table QR sheets (one HTML per branch + a menu QR) in `qr-codes/` (git-ignored). Print only once the final domain is set |
+
+Table QR codes are printed from the dashboard (`/dashboard/qr`). Print only once the final domain is set: the URL is inside the codes.
 
 Development-only pages (404 in production): `/lab/rotation` (hero spit rotation in 3D, three.js) and `/lab/errors` (every dashboard error message).
 
