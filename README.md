@@ -27,7 +27,7 @@ Development-only pages (404 in production): `/lab/rotation` (hero spit rotation 
 
 | Variable | Purpose |
 |---|---|
-| `NEXT_PUBLIC_SITE_URL` | The deployed site's origin, e.g. `https://example.com`. Used for `metadataBase` (link previews), canonical URLs, `sitemap.xml`, `robots.txt` and the Restaurant JSON-LD. **Set it before a production build**; without it those URLs point to `http://localhost:3000`. |
+| `NEXT_PUBLIC_SITE_URL` | The deployed site's origin, e.g. `https://example.com`. Used for `metadataBase` (link previews), canonical URLs, `sitemap.xml`, `robots.txt` and the Restaurant JSON-LD, and inside the table QR codes printed from the dashboard (`/dashboard/qr`). **Set it before a production build**; without it those URLs point to `http://localhost:3000`. |
 | `DASHBOARD_USERNAME`, `DASHBOARD_PASSWORD` | The dashboard account until the Laravel API handles users. Server-only; never commit them. |
 | `SESSION_SECRET` | Signs the dashboard login cookie (7 days). At least 32 random characters; the command is in `.env.example`. |
 
@@ -43,7 +43,6 @@ src/
 ├── services/       # Data access: the future API boundary
 ├── hooks/          # Browser stores: cart, sent order, table session
 └── lib/            # Pure logic: cart, order message, SEO, search, table links…
-scripts/            # table-qr.mjs (npm run qr)
 public/assets/      # Logo, hero, menu photos, share image
 ```
 
