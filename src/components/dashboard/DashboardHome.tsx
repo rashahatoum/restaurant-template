@@ -70,6 +70,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
         { title: "الواجهة و«من نحن»", href: "/dashboard/home-content", icon: FiHome, summary: "نصوص الصفحة الرئيسية" },
         {
             title: "الطلب والتوصيل",
+            href: "/dashboard/ordering",
             icon: FiShoppingBag,
             summary: [
                 count.deliveryFee !== null ? `توصيل ${formatPrice(count.deliveryFee)}` : "التوصيل مطفي",

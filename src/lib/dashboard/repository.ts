@@ -12,6 +12,7 @@ import type { ProductQuickChanges } from "@/lib/dashboard/validation";
 import type { AboutContent, HeroContent, MenuBanner, Offer, Review, SiteInfo } from "@/types/content";
 import type { BannerInput, OfferInput, OffersSettings, ProductInput, ReviewInput, ReviewsSettings } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
+import type { OrderingSettings } from "@/types/order";
 
 export interface DashboardRepository {
     /** Price, availability or best seller from the product list. Returns the saved product. */
@@ -69,6 +70,11 @@ export interface DashboardRepository {
      * would be left without a WhatsApp number.
      */
     saveSiteInfo(input: SiteInfo): Promise<Result<SiteInfo>>;
+    /**
+     * Delivery, tables and message texts, all together (one form). Checked
+     * against the saved restaurant info: what's on needs a WhatsApp number.
+     */
+    saveOrdering(input: OrderingSettings): Promise<Result<OrderingSettings>>;
     /** The hero's texts, all together (one form). */
     saveHero(input: HeroContent): Promise<Result<HeroContent>>;
     /** «من نحن», all together (one form). */

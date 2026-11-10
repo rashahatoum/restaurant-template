@@ -12,6 +12,7 @@ import {
     checkBannerInput,
     checkHeroInput,
     checkOfferInput,
+    checkOrderingInput,
     checkProductInput,
     checkProductQuickChanges,
     checkReviewInput,
@@ -376,6 +377,13 @@ export const localRepository: DashboardRepository = {
 
         const ordering = syncOrdering(data.ordering, input);
         return commit({ ...data, siteInfo: input, ordering }, input);
+    },
+
+    async saveOrdering(input) {
+        const data = currentData();
+        const error = checkOrderingInput(input, data.siteInfo);
+        if (error) return fail(error);
+        return commit({ ...data, ordering: input }, input);
     },
 
     async saveHero(input) {

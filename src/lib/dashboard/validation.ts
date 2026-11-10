@@ -6,10 +6,11 @@ import { appError, fail, ok, type AppError, type Result } from "@/lib/api/errors
 import { normalizePhone } from "@/lib/contact";
 import { toWesternDigits } from "@/lib/digits";
 import { toPlainText } from "@/lib/highlight";
-import { normalizeSocialUrl, parseHoursSchema, socialName } from "@/lib/site-info";
+import { branchWhatsApp, normalizeSocialUrl, parseHoursSchema, socialName } from "@/lib/site-info";
 import type { AboutContent, FeatureIconKey, HeroContent, SiteInfo } from "@/types/content";
 import type { BannerInput, OfferInput, OffersSettings, ProductInput, ReviewInput, ReviewsSettings } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
+import type { OrderingSettings } from "@/types/order";
 
 export const MAX_PRICE = 10_000_000;
 
@@ -306,6 +307,67 @@ export function checkSiteInfoInput(input: SiteInfo): AppError | null {
             add(`socialLinks.${index}.url`, `هالرابط مش لصفحة على ${socialName(link.platform)}`);
         }
     });
+
+    return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
+}
+
+/* =========================
+   ORDERING
+========================= */
+
+export const ORDERING_LIMITS = {
+    maxTables: 99,
+    greeting: 120,
+    closing: 200,
+    thankYou: 240,
+} as const;
+
+/** The only {…} the message texts may use (lib/order fillTemplate). */
+const unknownPlaceholder = (text: string) => (text.match(/\{[^{}]*\}/g) ?? []).some((token) => token !== "{restaurant}" && token !== "{name}");
+
+/**
+ * The rules saved ordering settings must follow, against the restaurant info
+ * they point at; collects every problem at once. Orders go out on WhatsApp,
+ * so what's switched on needs a WhatsApp number to go to.
+ */
+export function checkOrderingInput(input: OrderingSettings, info: Pick<SiteInfo, "phones" | "branches">): AppError | null {
+    const errors: Record<string, string[]> = {};
+    const add = (field: string, message: string) => (errors[field] ??= []).push(message);
+
+    const { delivery, dineIn } = input;
+    if (!Number.isInteger(delivery.fee) || delivery.fee < 0) add("delivery.fee", "اكتب رسوم التوصيل رقم، متل 150 (أو 0 إذا مجاني)");
+    else if (delivery.fee > MAX_PRICE) add("delivery.fee", "الرسوم كبيرة كتير، تأكد منها");
+    const deliveryPhone = info.phones.find((phone) => phone.id === delivery.phoneId && !phone.branchId);
+    if (delivery.isEnabled && !deliveryPhone?.hasWhatsApp) add("delivery.phoneId", "اختار رقم عليه واتساب لتوصل عليه طلبات التوصيل");
+
+    const seen = new Set<string>();
+    dineIn.branches.forEach((setting, index) => {
+        const field = `dineIn.branches.${index}`;
+        if (!info.branches.some((branch) => branch.id === setting.branchId) || seen.has(setting.branchId)) {
+            add("dineIn", "في فرع مش موجود، حدّث الصفحة");
+        }
+        seen.add(setting.branchId);
+        if (!Number.isInteger(setting.tableCount) || setting.tableCount < 0 || setting.tableCount > ORDERING_LIMITS.maxTables) {
+            add(`${field}.tableCount`, `عدد الطاولات من 1 لـ ${ORDERING_LIMITS.maxTables}`);
+        } else if (setting.isEnabled && setting.tableCount === 0) {
+            add(`${field}.tableCount`, "اكتب كم طاولة بالفرع");
+        }
+        if (setting.isEnabled && !branchWhatsApp(info.phones, setting.branchId)) {
+            add(`${field}.isEnabled`, "هالفرع ما إلو رقم واتساب. ضيفه من «معلومات المطعم» أول");
+        }
+    });
+    if (dineIn.isEnabled && !dineIn.branches.some((setting) => setting.isEnabled)) add("dineIn", "شغّل طاولات فرع واحد على الأقل، أو طفّي طلبات الطاولات");
+
+    const texts = [
+        ["message.greeting", input.message.greeting, ORDERING_LIMITS.greeting, true],
+        ["message.closing", input.message.closing, ORDERING_LIMITS.closing, false],
+        ["thankYou", input.thankYou, ORDERING_LIMITS.thankYou, true],
+    ] as const;
+    for (const [field, text, limit, isRequired] of texts) {
+        if (isRequired && !text.trim()) add(field, "هالنص ما بيصير يكون فاضي");
+        else if (text.length > limit) add(field, `${limit} حرف أو أقل`);
+        else if (unknownPlaceholder(text)) add(field, "استعمل زرّي «اسم المطعم» و«اسم الزبون» بدل ما تكتب أقواس { }");
+    }
 
     return Object.keys(errors).length > 0 ? appError("validation", { fieldErrors: errors }) : null;
 }
