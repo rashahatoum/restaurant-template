@@ -83,7 +83,7 @@ Rules that span several records (easy to miss):
 Ids are public in two places that can't be updated once they're out:
 
 - **Printed QR codes** hold the branch id: `https://<domain>/t/qanawat-road/5`. If a branch id changes, the printed codes for that branch stop working. **Keep the two current branch ids: `qanawat-road` and `al-mehwari`.**
-- **Shared links and Google** use the product / offer id as the URL: `/menu/chicken-shawarma`. Keep them stable, and give new ones a Latin, kebab-case slug (**agreed:** the backend suggests one from the Arabic name, the owner can edit it; API-CONTRACT §2).
+- **Shared links and Google** use the product / offer id as the URL: `/menu/chicken-shawarma`. Keep them stable, and give new ones a Latin, kebab-case slug (**agreed, amended 2026-11-11:** a neutral id like `item-xxxxxxxx` unless the owner sets one in «رابط الصفحة»; automatic transliteration was rejected; API-CONTRACT §2).
 - **Ids inside saved lists** (sizes, phones, branches) are kept too: lists are saved by id, never recreated (API-CONTRACT §4.1). Each cart line in a customer's browser stores its size's id.
 - Category ids are used in menu anchors (`#category-<id>`): stable and Latin too.
 

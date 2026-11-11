@@ -5,6 +5,19 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
+## 2026-11-11 — Contract amendments from the backend build — Proposed (backend developer; awaiting owner review)
+What Laravel Phases 1, 3 and 4 (database, auth, menu + uploads) settled while building; API-CONTRACT is amended to match. No frontend code changes now; the tasks are in API-CONTRACT §7.
+- **Slugs: optional `slug` in the bodies, neutral id when empty** (`cat-` / `item-` / `offer-` / `branch-xxxxxxxx`; kept on update). Supersedes "suggested from the Arabic name" in the entry below: transliteration on the real menu gave `shaorma-gag` and `frog`.
+- **Sizes, phones, banners and reviews get database ids** (`"12"`); mock ids don't survive seeding. Slugged records keep their ids, so URLs and QR codes don't change.
+- **`PUT` = whole record, `PATCH` = partial.** The forms drop `undefined` keys when serializing, so a whole-record save must treat a missing field as cleared; a quick change must leave it alone. Products now (`saveProduct` → `PUT`, `updateProduct` → `PATCH`), offers / banners / reviews later.
+- **Creates answer `201`.** Standard REST; the body is still the saved record.
+- **Image fields accept only our own upload URLs** («الصورة مش من الصور المرفوعة، ارفعها من جديد»): no links to other hosts, and the daily cleanup knows which files are used. Uploads checked by content, ≤ 4000 px, never SVG (it can carry scripts).
+- **Login limit per browser:** `X-Client-IP` + `X-Frontend-Key` (secret `FRONTEND_API_KEY`), because every dashboard login reaches the API from Vercel's IP. Only failed tries count. Logout must call `POST /auth/logout`, or the token stays valid 7 days. Admin account via `php artisan admin:create`; a password change logs out every device.
+- **Category `PATCH`** takes `name?`, `slug?`, `image?` (one endpoint for rename and photo); Arabic texts for duplicate name and the `409` on delete copied from the dashboard.
+- **Products:** `PATCH` accepts `bestSellerOrder` (the undo's fractional place, renumbered 1…n); `POST` accepts it, `PUT` keeps the current place. New rule: a quick price change can't make a size cost ≤ 0. The size group is always `id: "size"`, required, one choice.
+- **Nested ids that don't belong to the parent are refused** (`422`, «هالحجم مش تابع لهالصنف، حدّث الصفحة»), so a stale tab can't move another product's size; phones and branches will follow.
+- **Gone references come back as `""`** in admin GETs (banner target, delivery phone), so the dashboard shows "target gone". `GET /admin/ordering` lists every branch, as `toOrderingFormValues` already merges.
+
 ## 2026-11-11 — API contract agreed with the backend developer — Accepted (owner + backend developer)
 - **Separate repo for Laravel**, not a folder here: no code is shared across the HTTP line, the two deploy to different hosts, and this repo's rules keep backend code out. The contract docs stay here (`API-CONTRACT.md` is the agreed version; changes by PR). Working rules: BACKEND_REQUIREMENTS §11.
 - **Hosting: Hostinger web hosting (shared)**, EU data centre, on `api.<domain>`; the site stays on Vercel. Shared hosting is enough because Next.js caches almost every read. Consequences: set the Vercel function region near it; the build reads the API, so preview deployments keep `API_BASE_URL` unset until staging is stable (API-CONTRACT §6).
