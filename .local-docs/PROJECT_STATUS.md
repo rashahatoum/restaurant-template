@@ -2,7 +2,7 @@
 
 > Snapshot of what actually exists, measured against [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md). Keep this file short and current. It replaces the former `CURRENT-STATE.md` (archived).
 
-**Last updated:** 2026-11-11 · **Branch:** `main` up to PR #36 (dashboard D6c table QR codes); `docs/backend-handoff`: docs shared in git + backend requirements. Next: D7 API readiness
+**Last updated:** 2026-11-11 · **Branch:** `main` up to PR #37 (docs shared with the backend developer); `docs/backend-contract-response`: API contract agreed with the backend developer. Next: D7 API readiness, one area at a time as the Laravel API reaches staging
 
 ## Validation snapshot (2026-11-03, `main` at PR #24)
 
@@ -94,7 +94,8 @@ Legend: ✅ done · 🟡 partial · ❌ missing
 
 1. Owner's real-phone check of the latest features (compact menu, order number in WhatsApp, cart popup, checkout sheet, share, table QR).
 2. Dashboard prototype (Phase 7): owner review of [DASHBOARD_PLAN.md](DASHBOARD_PLAN.md) and its open decisions, then build phase by phase.
-3. When available: domain, real table counts, branch map links, Instagram / Facebook / Threads links (the footer icons show once they're in the data), offer images and real prices.
+3. Backend (separate Laravel repo, Hostinger): contract agreed 2026-11-11 ([API-CONTRACT.md](API-CONTRACT.md)). Next from the frontend: export the mock data as JSON for the seeders; then switch each area once it works on staging (API-CONTRACT §7).
+4. When available: domain (also decides `api.<domain>`), real table counts, branch map links, Instagram / Facebook / Threads links (the footer icons show once they're in the data), offer images and real prices.
 
 ## Open questions (need the owner's decision)
 
@@ -103,4 +104,4 @@ Legend: ✅ done · 🟡 partial · ❌ missing
 3. **Meal contents:** do meals include a drink? Meal ingredients and meal/size prices are placeholders.
 4. **Domain:** which one, and when (blocks printing the QR codes).
 
-Answered since the last update: docs in git (yes, 2026-11-11, shared with the backend developer), currency/fee (SYP, fixed 150), WhatsApp numbers, spit motion (B), hero layout, QR approach (dev script, `qrcode`), product details UX.
+Answered since the last update: API contract with the backend (agreed 2026-11-11: DECISIONS), docs in git (yes, 2026-11-11, shared with the backend developer), currency/fee (SYP, fixed 150), WhatsApp numbers, spit motion (B), hero layout, QR approach (dev script, `qrcode`), product details UX.

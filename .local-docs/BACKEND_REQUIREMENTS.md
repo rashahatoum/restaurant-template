@@ -1,7 +1,7 @@
 # Backend Requirements — for the Laravel developer
 
 > **Start here.** This is what the frontend needs from the Laravel backend, in one place. The endpoint-by-endpoint draft (paths, field limits, error keys) is in [API-CONTRACT.md](API-CONTRACT.md); this file explains the product, the data, and the rules around it.
-> Status: 2026-11-11, written by the frontend. Everything marked **Proposal** is open for you to change; tell us and we adapt on our side.
+> Status: 2026-11-11, written by the frontend; the backend's answers were **agreed the same day** (API-CONTRACT is now the agreed version, [DECISIONS](DECISIONS.md) 2026-11-11). Further changes go through a PR on [API-CONTRACT.md](API-CONTRACT.md) (§11).
 
 ## 1. The product in two minutes
 
@@ -26,9 +26,9 @@ The frontend is **Next.js 16** on Vercel. Today all data is mock files and the d
 ## 2. How the frontend talks to you
 
 - **Server to server only.** The browser never calls Laravel. Next.js calls your API from its server (public pages and dashboard actions). **No CORS needed.**
-- **Auth (Proposal):** Sanctum personal access tokens, `Authorization: Bearer …`. Next.js keeps the token in an httpOnly cookie on its side. The dashboard session lasts 7 days today.
-- **Every request** sends `Accept: application/json` and `Accept-Language: ar`.
-- **Base URL (Proposal):** `/api/v1`. JSON keys in camelCase to match our types (snake_case is fine: we map it in one file, just tell us).
+- **Auth (agreed):** Sanctum personal access tokens, `Authorization: Bearer …`, valid 7 days (same as the dashboard session). Next.js keeps the token in an httpOnly cookie on its side.
+- **Every request** sends `Accept: application/json` (required, so Laravel answers errors in JSON) and `Accept-Language: ar`.
+- **Base URL (agreed):** `https://api.<domain>/api/v1`. JSON keys in **camelCase**, matching our types; responses not wrapped in `data` (API-CONTRACT §2).
 - **Caching:** public pages cache your responses; after a dashboard save, Next.js refreshes the affected pages itself. **No webhook needed.**
 - **Writes return the saved record**, so the dashboard shows exactly what was stored.
 
@@ -83,7 +83,8 @@ Rules that span several records (easy to miss):
 Ids are public in two places that can't be updated once they're out:
 
 - **Printed QR codes** hold the branch id: `https://<domain>/t/qanawat-road/5`. If a branch id changes, the printed codes for that branch stop working. **Keep the two current branch ids: `qanawat-road` and `al-mehwari`.**
-- **Shared links and Google** use the product / offer id as the URL: `/menu/chicken-shawarma`. Keep them stable, and give new ones a Latin, kebab-case slug (**open question:** generated from the Arabic name, or typed by the owner?).
+- **Shared links and Google** use the product / offer id as the URL: `/menu/chicken-shawarma`. Keep them stable, and give new ones a Latin, kebab-case slug (**agreed:** the backend suggests one from the Arabic name, the owner can edit it; API-CONTRACT §2).
+- **Ids inside saved lists** (sizes, phones, branches) are kept too: lists are saved by id, never recreated (API-CONTRACT §4.1). Each cart line in a customer's browser stores its size's id.
 - Category ids are used in menu anchors (`#category-<id>`): stable and Latin too.
 
 Numeric database ids are fine internally, as long as the API exposes these slugs as `id` (or as a separate `slug` we can use).
@@ -113,11 +114,11 @@ Use Laravel's default JSON. The frontend maps each status to a designed Arabic m
 
 ## 9. What we need back from you
 
-1. **Answers** to the open questions (API-CONTRACT §7): auth tokens, camelCase or snake_case, slugs, image host, Arabic messages, delivery order.
+1. ~~**Answers** to the open questions~~: **done 2026-11-11** (API-CONTRACT §9).
 2. **A staging URL** and a test admin account (sent privately, never in the repo).
-3. **The image host** (domain), so we allow it in Next.js.
-4. **Changes to the contract** as you build: tell us and we update `API-CONTRACT.md`, so it stays the agreed version.
-5. **Suggested order of delivery:** auth + menu (categories, products, images) first, then offers, banners, reviews, home texts, site info, ordering.
+3. **The image host**: `api.<domain>` (agreed), once the domain is known.
+4. **Changes to the contract** as you build: a PR on `API-CONTRACT.md`, so it stays the agreed version.
+5. **Order of delivery (agreed):** auth → categories + products + image uploads → offers → banners → reviews → hero + about → site info → ordering.
 
 ## 10. Where to look in the repo
 
@@ -131,3 +132,13 @@ Use Laravel's default JSON. The frontend maps each status to a designed Arabic m
 | Every dashboard write (one interface) | `src/lib/dashboard/repository.ts` |
 | Why things are the way they are | [DECISIONS.md](DECISIONS.md) |
 | Overall requirements | [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md) |
+
+## 11. How we work together (agreed 2026-11-11)
+
+- **Two repos.** The Laravel API lives in its own repo, with the frontend owner added as a collaborator; this repo stays frontend only. The only link between them is the HTTP contract: PHP and TypeScript share no code, they deploy to different hosts (Hostinger, Vercel), and this repo's rules keep backend code out of it.
+- **Contract first.** A change to an endpoint, a field or an error goes into `API-CONTRACT.md` through a PR here (reviewed by the other side) before or with the backend code.
+- **One area at a time.** The backend delivers an area (order in §9) on **staging**; the frontend switches that area to the API (API-CONTRACT §7). Nobody needs PHP on the frontend machine: staging is the shared test server.
+- **Seeding** from `src/data/mock/` with the same ids (§6). The frontend exports the mock data as JSON (date still open: API-CONTRACT §9).
+- **GitHub issues** with the labels `backend`, `frontend`, `contract-change`, so questions don't get lost in chat.
+- **Branches + PRs** in both repos; no direct pushes to `main`.
+- **Secrets** (staging and admin passwords, tokens, `.env` files) are sent privately and never written in either repo or these docs.
