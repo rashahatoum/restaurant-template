@@ -141,13 +141,14 @@ Not needed now; done one area at a time (Phase D7), after that area works on sta
 
 | Where | Change |
 |---|---|
-| `src/lib/api/client.ts` (new, planned) | `apiFetch()`: base URL, headers, token from the session cookie, timeout, failures → `AppError` |
+| `src/lib/api/client.ts` ✅ D7a | `apiFetch()`: base URL, headers, token from the session cookie, timeout, failures → `AppError` (the server not reachable → `server` «ما قدرنا نوصل للسيرفر», not `offline`). Switch: `lib/api/config.isApiEnabled()` |
 | `src/services/*.ts` | Bodies switch from mock data to `apiFetch()` with cache tags; signatures unchanged |
 | `apiRepository` + Server Actions (new) | Each method calls one endpoint and revalidates the matching tag. `saveProduct` → `PUT`, `updateProduct` → `PATCH`; later the same split for offers, banners and reviews (§2) |
-| `src/services/auth.ts` | `authenticate()` calls `POST /auth/login`; the session cookie stores the Laravel token instead of checking the env-var account |
-| `apiFetch` (every request) | Send `X-Frontend-Key` on every request (§1); on login also `X-Client-IP` (from `x-forwarded-for`, §4 Auth) |
-| Dashboard `logout` action | Call `POST /auth/logout` before deleting the cookie (§4 Auth) |
-| `lib/auth/login-attempts.ts` | Keep as an extra first layer (optional, now that the API counts per browser) |
+| `src/services/auth.ts` ✅ D7a | `authenticate()` calls `POST /auth/login`; the session cookie (still signed, `httpOnly`) stores the Laravel token. Env-var account only while `API_BASE_URL` is unset |
+| `apiFetch` (every request) ✅ D7a | Send `X-Frontend-Key` on every request (§1); on login also `X-Client-IP` (from `x-forwarded-for`, §4 Auth) |
+| Dashboard `logout` action ✅ D7a | Call `POST /auth/logout` before deleting the cookie (§4 Auth) |
+| `lib/auth/login-attempts.ts` ✅ D7a | Kept as an extra first layer |
+| A `401` from the API ✅ D7a | The session is trusted until the cookie expires (no `GET /auth/me` per page); a `401` goes through `/dashboard/session-expired`, which deletes the cookie, then opens the login |
 | `checkProductQuickChanges` | Optionally add the new size-price check on a quick price change (§4 Products) |
 | `ProductForm` new sizes | Send new sizes with `id: ""`. Today the form gives them `size-xxxxxxxx` (`newRowId`), which the API refuses (§4.1); a local key for the row is fine, as `SiteInfoForm` does for phones and branches |
 | `src/lib/api/errors.ts` | Generic default `conflict` message (§5) |

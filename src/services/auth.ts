@@ -1,14 +1,43 @@
 import "server-only";
 
-// Dashboard sign-in. Today: one account from server env vars. Later: the
-// Laravel login endpoint, behind the same signature (API-CONTRACT §4), so the
-// login action and screen don't change.
+// Dashboard sign-in, one signature for both modes so the login action and
+// screen don't change: with API_BASE_URL set, the Laravel login endpoint
+// (API-CONTRACT §4 Auth); unset, one account from server env vars.
 
+import { apiFetch } from "@/lib/api/client";
+import { isApiEnabled } from "@/lib/api/config";
 import { appError, fail, ok, type Result } from "@/lib/api/errors";
 import { createHash, timingSafeEqual } from "node:crypto";
 
 export interface SignedInUser {
     name: string;
+    /** The Laravel token (7 days); only when the login went through the API. */
+    token?: string;
+}
+
+interface LoginResponse {
+    token: string;
+    user: { name: string };
+}
+
+async function authenticateWithApi(username: string, password: string, clientIp?: string): Promise<Result<SignedInUser>> {
+    const result = await apiFetch<LoginResponse>("/auth/login", {
+        method: "POST",
+        body: { username, password },
+        clientIp,
+    });
+
+    if (!result.ok) {
+        if (result.error.kind !== "validation") return result;
+        // The screen shows one message (no per-field errors): the API's own
+        // Arabic text, the same «اسم المستخدم أو كلمة السر غلط» as below
+        const first = Object.values(result.error.fieldErrors ?? {})[0]?.[0];
+        return fail(appError("validation", { message: first ?? WRONG_CREDENTIALS, status: result.error.status }));
+    }
+
+    const { token, user } = result.data;
+    if (typeof token !== "string" || !token || typeof user?.name !== "string") return fail(appError("server"));
+    return ok({ name: user.name, token });
 }
 
 /** Shown for any wrong username/password: never says which one. */
@@ -25,7 +54,14 @@ function sameText(a: string, b: string): boolean {
     return timingSafeEqual(hash(a), hash(b));
 }
 
-export async function authenticate(username: string, password: string): Promise<Result<SignedInUser>> {
+/** `clientIp`: the browser's IP, so the API counts failed tries per browser. */
+export async function authenticate(
+    username: string,
+    password: string,
+    { clientIp }: { clientIp?: string } = {}
+): Promise<Result<SignedInUser>> {
+    if (isApiEnabled()) return authenticateWithApi(username, password, clientIp);
+
     const expectedUser = process.env.DASHBOARD_USERNAME;
     const expectedPassword = process.env.DASHBOARD_PASSWORD;
     if (!expectedUser || !expectedPassword) {

@@ -59,7 +59,7 @@ Legend: ✅ done · 🟡 partial · ❌ missing
 ### Dashboard prototype
 | Item | Status |
 |---|---|
-| Login, session, protection | 🟡 D0 (PR #25): `/dashboard/login`, 7-day signed cookie, `proxy.ts`. **Vercel needs `DASHBOARD_USERNAME`, `DASHBOARD_PASSWORD`, `SESSION_SECRET` before deploy.** Switching to the Laravel login: API-CONTRACT §7 |
+| Login, session, protection | 🟡 D0 (PR #25): `/dashboard/login`, 7-day signed cookie, `proxy.ts`. **D7a** (`feat/dashboard-d7a`, review pending): with `API_BASE_URL` set, login and logout go through Laravel (the demo account); unset, the env-var account. Vercel needs `SESSION_SECRET`, `API_BASE_URL`, `FRONTEND_API_KEY` (the `DASHBOARD_*` pair only without the API) |
 | Error messages (backend-ready) | 🟡 D0 (PR #25): `AppError` model + components, review page `/lab/errors` (dev) |
 | Prices, availability, best sellers | 🟡 D1 (PR #25): `/dashboard/menu` quick edits with undo, saved in this browser (repository ready for Laravel) |
 | Product form (add / edit / delete, live preview, sizes) | ✅ D2a (PR #27) |
