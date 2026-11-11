@@ -1,8 +1,8 @@
 # Dashboard — Plan (v2)
 
-> Status: **PROPOSED v2, awaiting owner approval.** No code yet. Branch: `feat/dashboard`.
+> Status: **v2 approved; D0–D6 built and merged (PRs #25–#36).** Next: D7 (API readiness), one area at a time as the Laravel API reaches staging.
 > v2 (2026-11-03, owner): a **Laravel backend** (with the database) is coming from a backend developer; the frontend must make plugging in its API trivial. Login page added. Backend error messages need a designed UI. Public pages stay Server Components; preview only where it helps.
-> Field reference: [ARCHITECTURE.md](ARCHITECTURE.md) §8. Draft endpoint list for the backend developer: [API-CONTRACT.md](API-CONTRACT.md).
+> Field reference: [ARCHITECTURE.md](ARCHITECTURE.md) §8. Endpoints: [API-CONTRACT.md](API-CONTRACT.md) (agreed with the backend developer 2026-11-11, amended with the backend build in PR #39).
 
 ## 0. Conflicts to resolve first
 
@@ -145,7 +145,7 @@ Dashboard screens (client)
 
 ### 5.2 What the backend developer gets
 
-`API-CONTRACT.md` gets a **draft** for discussion: resources and operations the UI needs, mapped to our types (menu, categories, products, offers, banners, reviews, about, site info, ordering, login/logout/me, image upload), plus the expected error format (Laravel's default, below). The backend developer decides the final endpoints; only `services/` and `apiRepository` adapt.
+`API-CONTRACT.md` got a **draft** for discussion (now agreed, 2026-11-11): resources and operations the UI needs, mapped to our types (menu, categories, products, offers, banners, reviews, about, site info, ordering, login/logout/me, image upload), plus the expected error format (Laravel's default, below). The backend developer decides the final endpoints; only `services/` and `apiRepository` adapt.
 
 ### 5.3 Errors: one model, designed messages
 
@@ -164,7 +164,7 @@ interface AppError {
 }
 ```
 
-**From Laravel:** `422 { message, errors: { field: [...] } }` → `validation` with `fieldErrors` (backend asked to send Arabic messages via `Accept-Language: ar`; otherwise our Arabic fallback per field). `401` → `unauthenticated`, `403` → `forbidden`, `404` → `not_found`, `409` → `conflict`, `413` → `too_large`, `419` (CSRF, only if Sanctum cookies are used) → retry once, `429` → `rate_limited`, `5xx` → `server`; no response → `offline` / `timeout`.
+**From Laravel:** `422 { message, errors: { field: [...] } }` → `validation` with `fieldErrors` (backend asked to send Arabic messages via `Accept-Language: ar`; otherwise our Arabic fallback per field). `401` → `unauthenticated`, `403` → `forbidden`, `404` → `not_found`, `409` → `conflict`, `413` → `too_large`, no `419` (Bearer tokens, no CSRF; API-CONTRACT §5), `429` → `rate_limited`, `5xx` → `server`; no response → `offline` / `timeout`.
 
 **Messages and where they appear:**
 
@@ -204,9 +204,9 @@ A dev-only `/lab/errors` page shows every message and component for review (not 
 | D2 (plan) | Product form + categories | Add / edit / delete with preview (row + item page), sizes, categories add / rename / reorder / delete |
 | D3 ✅ (2026-11-07, `feat/dashboard-d3`, owner review pending) | Images | Picker, compression, IndexedDB, cut-out detection. **Built:** `ImagePicker` in the product form and category rows, `prepareImage`, `local-images` + `useImageSrc` + `DashboardImage`, repository `uploadImage` / `setCategoryImage` |
 | D4 | Offers + banner + best-seller order | Split: **D4a ✅ (2026-11-07, PR #29 merged)** offers section + CRUD with card/menu-row preview, `HighlightInput` «ميّز»; **D4b ✅ (PR #30 merged)** banner slides with a typed destination (`offers` / `category` / `product`, owner-approved; href computed in services, hidden when the target is gone; `DRAFT_VERSION` → 2); **D4c ✅ (2026-11-07, review pending)** `/dashboard/best-sellers` order via `Product.bestSellerOrder` + add from a list |
-| D5 | Hero + About + Reviews | Split (owner, 2026-11-08): **D5a ✅ (PR #32 merged)** `/dashboard/home-content`: hero texts moved to content (`getHeroContent`), three features with an icon picker (six icons), About form (1–4 paragraphs, several highlights per paragraph via `HighlightInput variant="text"`), no preview; **D5b ✅ (`8856551`, pushed, awaiting merge)** `/dashboard/reviews`: section settings, list (visible, order, delete), form with the WhatsApp card preview, answer ≤ 220 with «ميّز», time picked from a clock |
-| D6 | Ordering + restaurant info | Split (owner, 2026-11-08): **D6a ✅ (PR #34 merged)** `/dashboard/info`: tagline, social links (+ footer icons under the logo, Threads added), phones with ids (edits follow to ordering), branches, hours from two clock times; **D6b ✅ (2026-11-10, `feat/dashboard-d6b`, review pending)** `/dashboard/ordering`: delivery (fee, number picked from the restaurant's WhatsApp phones), tables per branch (number = the branch's staff phone), message texts with «اسم المطعم» / «اسم الزبون» buttons (Arabic placeholders in the form, `{restaurant}` / `{name}` saved), live WhatsApp preview via `buildOrderMessage` (PR #35 merged); **D6c ✅ (2026-11-10, `1666553` pushed on `feat/dashboard-d6c`, awaiting merge; added by the owner)** table QR codes: short link `/t/<branch>/<n>`, `/dashboard/qr` (range per branch, menu code, domain warning), server-made A4 print sheet |
-| D7 | API readiness | Contract agreed with the backend developer (draft already in `API-CONTRACT.md`), public `error.tsx` / `loading.tsx`, `apiRepository` skeleton behind the env switch |
+| D5 | Hero + About + Reviews | Split (owner, 2026-11-08): **D5a ✅ (PR #32 merged)** `/dashboard/home-content`: hero texts moved to content (`getHeroContent`), three features with an icon picker (six icons), About form (1–4 paragraphs, several highlights per paragraph via `HighlightInput variant="text"`), no preview; **D5b ✅ (PR #33 merged)** `/dashboard/reviews`: section settings, list (visible, order, delete), form with the WhatsApp card preview, answer ≤ 220 with «ميّز», time picked from a clock |
+| D6 | Ordering + restaurant info | Split (owner, 2026-11-08): **D6a ✅ (PR #34 merged)** `/dashboard/info`: tagline, social links (+ footer icons under the logo, Threads added), phones with ids (edits follow to ordering), branches, hours from two clock times; **D6b ✅ (2026-11-10)** `/dashboard/ordering`: delivery (fee, number picked from the restaurant's WhatsApp phones), tables per branch (number = the branch's staff phone), message texts with «اسم المطعم» / «اسم الزبون» buttons (Arabic placeholders in the form, `{restaurant}` / `{name}` saved), live WhatsApp preview via `buildOrderMessage` (PR #35 merged); **D6c ✅ (2026-11-10, PR #36 merged; added by the owner)** table QR codes: short link `/t/<branch>/<n>`, `/dashboard/qr` (range per branch, menu code, domain warning), server-made A4 print sheet |
+| D7 | API readiness | Contract ✅ agreed with the backend developer (2026-11-11, amended in PR #39). Still to do: `apiFetch`, public `error.tsx` / `loading.tsx`, `apiRepository` behind the env switch, then the per-area tasks in API-CONTRACT §7 |
 
 Each phase: lint, typecheck, build, manual check at 360px / desktop / keyboard / reduced motion, docs.
 
@@ -222,4 +222,4 @@ Multiple users and roles (Laravel), order management and counting (DECISIONS 202
 1. Requirements / CLAUDE.md update: approved and done.
 2. Hero texts: editable (with About, a priority). Best-sellers title: not editable.
 3. Login lasts 7 days per device (default, adjustable).
-4. Backend developer's preferences unknown: the draft in `API-CONTRACT.md` starts that conversation.
+4. Backend developer's preferences unknown: the draft in `API-CONTRACT.md` starts that conversation. **Since then:** agreed 2026-11-11, amended in PR #39 (DECISIONS).

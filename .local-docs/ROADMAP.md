@@ -81,14 +81,12 @@ Deliverable: a smooth, accessible spit rotation with a static fallback.
 - `DONE` `HeroImageSequence` replaced; `/lab/rotation` kept (dev-only) for tuning
 - `TODO` Real-phone performance check on a mid-range Android
 
-## Phase 7 — Dashboard prototype — `IN PROGRESS` (planning)
-Deliverable: a browser-local CRUD demo with preview. Plan, phases and open decisions: [DASHBOARD_PLAN.md](DASHBOARD_PLAN.md) (awaiting owner approval; branch `feat/dashboard`).
-- `DONE` (D0, `feat/dashboard`, owner review pending) `/dashboard` (noindex, prototype notice), login + 7-day session + `proxy.ts`, error model + messages (`/lab/errors`), home tiles
-- `DONE` (D1, owner review pending) Prices, availability and best-seller flags from the product list, with undo; repository + browser draft
-- `TODO` Product form, categories, offers, reviews, hero/about (D2–D6)
-- `TODO` Editor details agreed so far: a "highlight" button that wraps the selection in `**…**` (no manual markers); review reply capped at ~220 characters with a counter (the card also clamps at 6 lines as a safety net); section on/off toggles for offers and reviews
-- `TODO` `localStorage` overrides plus a preview surface (approach pending; ARCHITECTURE §8)
-- `TODO` "Reset to demo data" action
+## Phase 7 — Dashboard prototype — `IN PROGRESS` (D0–D6 done; D7 next)
+Deliverable: a browser-local CRUD demo with preview, ready to switch to the Laravel API. Plan and phases: [DASHBOARD_PLAN.md](DASHBOARD_PLAN.md).
+- `DONE` (D0, PR #25) `/dashboard` (noindex, prototype notice), login + 7-day session + `proxy.ts`, error model + messages (`/lab/errors`), home tiles
+- `DONE` (D1, PR #25) Prices, availability and best-seller flags from the product list, with undo; repository + browser draft; "رجّع البيانات الأصلية" (reset to demo data)
+- `DONE` (D2–D6, PRs #27–#36) Product form, categories, photos, offers, banner, best-seller order, hero + About, reviews, restaurant info, ordering, table QR codes; live previews; «ميّز» highlight button; review answer ≤ 220 with a counter; section on/off switches
+- `TODO` (D7) API readiness: `apiFetch`, `apiRepository`, public `error.tsx` / `loading.tsx`, then switch one area at a time once it works on the Laravel staging (API-CONTRACT §7)
 
 ## Phase 8 — Launch readiness — `TODO`
 - `DONE` OG images (site + per item); `TODO` per-page SEO review and a Lighthouse pass (performance, accessibility, SEO)
@@ -100,8 +98,8 @@ Deliverable: a browser-local CRUD demo with preview. Plan, phases and open decis
 ---
 
 ## Deferred (not in the MVP; do not implement)
-- Real backend, database, authentication, and API contracts (technology not decided)
-- Production admin dashboard and shared persistence
+- Backend, database and server persistence **in this repo** (the Laravel API is built in a separate repo by the backend developer; contract: [API-CONTRACT.md](API-CONTRACT.md))
+- Multiple dashboard users and roles
 - Online payments
 - Order management or tracking
 - SaaS or runtime multi-tenancy
