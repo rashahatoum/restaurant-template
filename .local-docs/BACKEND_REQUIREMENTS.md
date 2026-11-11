@@ -110,12 +110,12 @@ Dashboard endpoints (`/admin/…`) return **everything**, hidden items included.
 Use Laravel's default JSON. The frontend maps each status to a designed Arabic message (details: API-CONTRACT §5):
 
 - `422` with `errors` per field (keys = request field names, nested with dots: `optionGroups.0.options.1.priceDelta`). **Arabic messages please** (`lang/ar`); an English message falls back to our own text.
-- `401` (session ended → login), `403`, `404`, `409` (conflict, with a message), `413` (image too large), `429` (login tries), `5xx`.
+- `401` (session ended → login), `403`, `404`, `409` (conflict, with a message), `413` (image too large), `429` (login tries, or the public rate limit: API-CONTRACT §3), `5xx`. With the backend's frontend-key switch on, a request without the right `X-Frontend-Key` gets `403` «ما عندك صلاحية» (API-CONTRACT §1).
 
 ## 9. What we need back from you
 
 1. ~~**Answers** to the open questions~~: **done 2026-11-11** (API-CONTRACT §9).
-2. **A staging URL** and a test admin account (sent privately, never in the repo).
+2. ~~**A staging URL** and a test admin account~~: **done 2026-11-11**, the demo/staging server is up (API-CONTRACT §6); its URL, the `FRONTEND_API_KEY` and a test admin account are sent privately, never in the repo.
 3. **The image host**: `api.<domain>` (agreed), once the domain is known.
 4. **Changes to the contract** as you build: a PR on `API-CONTRACT.md`, so it stays the agreed version.
 5. **Order of delivery (agreed):** auth → categories + products + image uploads → offers → banners → reviews → hero + about → site info → ordering.
