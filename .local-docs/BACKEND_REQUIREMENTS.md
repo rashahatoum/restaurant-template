@@ -91,7 +91,7 @@ Numeric database ids are fine internally, as long as the API exposes these slugs
 
 ## 6. Seed data
 
-The real content is already written as mock data: [src/data/mock/](../src/data/mock/) (`menu.ts`, `offers.ts`, `menu-banners.ts`, `reviews.ts`, `hero.ts`, `about.ts`, `site-info.ts`, `ordering.ts`). **Please seed the database from it with the same ids**, so the live site starts with the same content and URLs. Photos are in [public/assets/](../public/assets/); they need to move to your image storage. We can export the mock data as JSON for your seeders if that helps (tell us).
+The real content is already written as mock data: [src/data/mock/](../src/data/mock/) (`menu.ts`, `offers.ts`, `menu-banners.ts`, `reviews.ts`, `hero.ts`, `about.ts`, `site-info.ts`, `ordering.ts`). **Please seed the database from it with the same ids**, so the live site starts with the same content and URLs. Photos are in [public/assets/](../public/assets/); they need to move to your image storage. **The backend exports them itself:** its script (`composer seed:export`) reads `src/data/mock/*.ts` and the photos in `public/assets/`, and commits JSON + photos in the backend repo with the frontend commit they came from. The frontend exports nothing; the mock files must stay plain data (type-only imports), because the script refuses a mock file that imports anything else.
 
 ## 7. Public responses (what customers see)
 
@@ -138,7 +138,7 @@ Use Laravel's default JSON. The frontend maps each status to a designed Arabic m
 - **Two repos.** The Laravel API lives in its own repo, with the frontend owner added as a collaborator; this repo stays frontend only. The only link between them is the HTTP contract: PHP and TypeScript share no code, they deploy to different hosts (Hostinger, Vercel), and this repo's rules keep backend code out of it.
 - **Contract first.** A change to an endpoint, a field or an error goes into `API-CONTRACT.md` through a PR here (reviewed by the other side) before or with the backend code.
 - **One area at a time.** The backend delivers an area (order in §9) on **staging**; the frontend switches that area to the API (API-CONTRACT §7). Nobody needs PHP on the frontend machine: staging is the shared test server.
-- **Seeding** from `src/data/mock/` with the same ids (§6). The frontend exports the mock data as JSON (date still open: API-CONTRACT §9).
+- **Seeding** from `src/data/mock/` with the same ids (§6). The backend exports the mock data itself with its script (`composer seed:export`); keep the mock files plain data (type-only imports).
 - **GitHub issues** with the labels `backend`, `frontend`, `contract-change`, so questions don't get lost in chat.
 - **Branches + PRs** in both repos; no direct pushes to `main`.
 - **Secrets** (staging and admin passwords, tokens, `.env` files) are sent privately and never written in either repo or these docs.
