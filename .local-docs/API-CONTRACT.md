@@ -2,13 +2,15 @@
 
 > **Status: AGREED (2026-11-11)** between the frontend and the backend developer. It started as the frontend's draft (2026-11-03); the backend's answers and changes were agreed on 2026-11-11 ([DECISIONS](DECISIONS.md) 2026-11-11).
 > **Amended 2026-11-11 with the backend build (Phases 1, 3, 4):** see [DECISIONS](DECISIONS.md) 2026-11-11 (contract amendments).
+> **Amended 2026-11-11 with the backend's demo server (Phase 5):** see [DECISIONS](DECISIONS.md) 2026-11-11 (demo server).
 > **Changing it:** a PR that edits this file, reviewed by the other side, before or together with the code. Never change the API silently.
 > Context: the backend is **Laravel** with its own database, in a separate repo, hosted on Hostinger (§6). The frontend adapts in `src/services/*` and the dashboard repository, so components don't change. Frontend plan: [DASHBOARD_PLAN.md](DASHBOARD_PLAN.md) §5. Backend terms used here are explained in §10.
 
 ## 1. How the frontend calls the API
 
 - **Server to server.** The browser never calls Laravel directly. Next.js (on Vercel) calls the API from Server Components (public reads) and Server Actions (dashboard writes). So: **no CORS needed**, and the auth token stays in an `httpOnly` cookie on the Next.js side.
-- **Base URL:** `https://api.<domain>/api/v1` (server-only env var `API_BASE_URL`). Staging: `api-staging.<domain>`, or a temporary Hostinger subdomain until the domain is bought.
+- **Base URL:** `https://api.<domain>/api/v1` (server-only env var `API_BASE_URL`). Staging: `api-staging.<domain>`, or a temporary Hostinger subdomain until the domain is bought; the staging URL is sent privately.
+- Every request also sends **`X-Frontend-Key`** (server-only env var `FRONTEND_API_KEY`). When the backend's `API_REQUIRE_FRONTEND_KEY` is on (it is on the demo/staging server), a request without the right key gets `403` «ما عندك صلاحية». The health check `/up` stays open.
 - Public reads are cached by Next.js; after a dashboard write, Next.js refreshes the affected pages itself (no webhook needed).
 - Every request sends **`Accept: application/json`** (required: without it Laravel answers a validation error with a redirect to a web page instead of JSON) and `Accept-Language: ar` (welcome, but the API's language is fixed to Arabic anyway).
 
@@ -49,6 +51,8 @@ What the website needs. Shapes = the TypeScript types in `src/types/` (fields li
 
 **Kept as separate endpoints** (not one `GET /site`): each read gets its own cache tag in Next.js (e.g. `menu`, `offers`), so a dashboard save only refreshes what changed. Public reads also get a **time-based fallback** (e.g. 1 hour), so a change made directly on the server (a seeder or a manual fix, not through the dashboard) still reaches the site.
 
+**Rate limit:** 300 requests per minute per client on `GET /menu` (and the later public reads). The client is the browser IP when `X-Client-IP` comes with the right `X-Frontend-Key`, otherwise the caller's IP. Over the limit → `429` with `{ "message": "محاولات كتير، جرّب بعد دقيقة" }` and a `Retry-After` header (seconds). Next.js caches the public reads, so its server stays far below this.
+
 ## 4. Dashboard endpoints (auth required)
 
 ### Auth
@@ -59,7 +63,7 @@ What the website needs. Shapes = the TypeScript types in `src/types/` (fields li
 | POST | `/auth/logout` | | `204`; the token is deleted on the server |
 | GET | `/auth/me` | | `{ name }`; `401` once the token is expired or deleted |
 
-- **Login limit per browser:** the Next.js server (only it) sends `X-Client-IP` (the browser IP, from `x-forwarded-for`) and `X-Frontend-Key` (a shared secret, server-only env var `FRONTEND_API_KEY`, sent privately, never committed). With the right key, the limit counts per browser IP. Without it, the IP is the caller's, and every dashboard login shares Vercel's IP: one person guessing could lock the owner out. Only **failed** tries count, and a success resets them.
+- **Login limit per browser:** the Next.js server (only it) sends `X-Client-IP` (the browser IP, from `x-forwarded-for`) and `X-Frontend-Key` (a shared secret, server-only env var `FRONTEND_API_KEY`, sent privately, never committed). With the right key, the limit counts per browser IP. Without it, the IP is the caller's, and every dashboard login shares Vercel's IP: one person guessing could lock the owner out. Only **failed** tries count, and a success resets them. `X-Frontend-Key` itself is sent on every request (§1); `X-Client-IP` only matters on login and for the public rate limit (§3).
 - **Logout must call the API:** the dashboard's logout calls `POST /auth/logout` (it deletes that device's token) before deleting the cookie. Deleting the cookie alone leaves the token valid until it expires.
 - **The admin account** is created, and its password changed, on the server with `php artisan admin:create`. Changing the password logs out every device.
 
@@ -109,11 +113,11 @@ Laravel's default JSON, which the frontend turns into one `AppError` (DASHBOARD_
 |---|---|---|
 | 422 | `{ "message": "…", "errors": { "price": ["السعر لازم يكون رقم أكبر من صفر"] } }` | Under each field. Field keys = the request's field names, camelCase (nested: `optionGroups.0.options.1.priceDelta`) |
 | 401 | `{ "message": "Unauthenticated." }` | "Session ended" → login |
-| 403 | | "No permission" |
+| 403 | `{ "message": "ما عندك صلاحية" }` when `X-Frontend-Key` is missing or wrong (§1) | "No permission" |
 | 404 | | "This item no longer exists" |
 | 409 | `{ "message": "…" }` (always Arabic) | A **business rule refused the change** (category still has products; moving a product that isn't a best seller; delivery or a branch would be left without a WhatsApp number). The message says why |
 | 413 | | "Image too large" (see below) |
-| 429 | | "Too many tries, wait a minute" |
+| 429 | Login (§4 Auth) or public reads (§3); `Retry-After` in seconds | "Too many tries, wait a minute" |
 | 5xx | | "Something went wrong on our side" + retry |
 
 - **No edit-conflict detection:** there is one admin, so the backend doesn't check whether "someone edited this before you". `409` only means a business rule. The frontend's default `conflict` text in `lib/api/errors.ts` ("في حدا عدّل هالعنصر قبلك…") becomes a generic one (agreed; frontend task, §7).
@@ -125,7 +129,8 @@ Laravel's default JSON, which the frontend turns into one `AppError` (DASHBOARD_
 
 - **Hostinger web hosting (shared)** for Laravel and the database, in an **EU data centre** (closer to Syria for the images, which customers' phones load directly from it).
 - **One domain, two hosts:** `<domain>` → Vercel (the site), `api.<domain>` → Hostinger (the API and the images). Buying the domain also unblocks printing the table QR codes (PROJECT_STATUS known issue 2).
-- **Vercel function region:** Vercel runs server code in `iad1` (US East) by default. Every dashboard save and every cache refresh is a call from Vercel to Hostinger, so set the function region (Vercel project settings) to the EU region closest to the Hostinger data centre.
+- **Vercel function region:** Vercel runs server code in `iad1` (US East) by default. Every dashboard save and every cache refresh is a call from Vercel to Hostinger, so set the function region (Vercel project settings) to the EU region closest to the Hostinger data centre. The demo server is in Frankfurt → **`fra1`**.
+- **Demo/staging server:** up on a temporary Hostinger subdomain, seeded with the mock content. Its URL and the key are sent privately.
 - **The build calls the API:** the static pages (and `generateStaticParams`) read the menu while Vercel builds. If the API is down, the build fails. So `API_BASE_URL` stays unset (→ mock data) on preview deployments until staging is stable.
 - **No IP allow-listing:** Vercel's outgoing IPs change, so the API is public and the admin routes are protected by the token.
 - **Server Actions body size limit:** uploads go browser → Server Action → Laravel. Next.js limits a Server Action's body (1 MB by default; check the Next 16 docs for the setting). Photos are resized to ≤ 800 px WebP and should fit, but large PNG cut-outs might not.
@@ -140,17 +145,17 @@ Not needed now; done one area at a time (Phase D7), after that area works on sta
 | `src/services/*.ts` | Bodies switch from mock data to `apiFetch()` with cache tags; signatures unchanged |
 | `apiRepository` + Server Actions (new) | Each method calls one endpoint and revalidates the matching tag. `saveProduct` → `PUT`, `updateProduct` → `PATCH`; later the same split for offers, banners and reviews (§2) |
 | `src/services/auth.ts` | `authenticate()` calls `POST /auth/login`; the session cookie stores the Laravel token instead of checking the env-var account |
-| `apiFetch` on login | Send `X-Client-IP` (from `x-forwarded-for`) and `X-Frontend-Key` (§4 Auth) |
+| `apiFetch` (every request) | Send `X-Frontend-Key` on every request (§1); on login also `X-Client-IP` (from `x-forwarded-for`, §4 Auth) |
 | Dashboard `logout` action | Call `POST /auth/logout` before deleting the cookie (§4 Auth) |
 | `lib/auth/login-attempts.ts` | Keep as an extra first layer (optional, now that the API counts per browser) |
 | `checkProductQuickChanges` | Optionally add the new size-price check on a quick price change (§4 Products) |
 | `ProductForm` new sizes | Send new sizes with `id: ""`. Today the form gives them `size-xxxxxxxx` (`newRowId`), which the API refuses (§4.1); a local key for the row is fine, as `SiteInfoForm` does for phones and branches |
 | `src/lib/api/errors.ts` | Generic default `conflict` message (§5) |
-| `next.config.ts` | `images.remotePatterns` for `api.<domain>`; possibly the Server Actions body size limit (§6) |
+| `next.config.ts` | `images.remotePatterns` for `api.<domain>`, and the staging host until the domain is bought; possibly the Server Actions body size limit (§6) |
 | Env vars (Vercel) | `API_BASE_URL` and `FRONTEND_API_KEY` (server only; the key is sent privately); `DASHBOARD_USERNAME` / `DASHBOARD_PASSWORD` go once login uses Laravel |
 | Public `error.tsx` / `loading.tsx` | Planned (DASHBOARD_PLAN §5.1): public reads can now fail |
 | Product / offer / category / branch forms | The «رابط الصفحة» slug field (§2): now the only way to get a readable URL for a new item |
-| Vercel settings | Function region (§6) |
+| Vercel settings | Function region `fra1` (§6) |
 
 ## 8. Out of scope for now
 
@@ -158,11 +163,10 @@ Orders (they go to WhatsApp; nothing is stored), order counting/analytics, payme
 
 ## 9. Questions
 
-**Answered (2026-11-11):** Sanctum tokens, 7 days (§2, §4) · camelCase (§2) · slugs: a neutral id unless the owner sets one in «رابط الصفحة» (§2, amended: transliteration rejected) · images on `api.<domain>`, 5 MB (§2) · Arabic messages (§5) · delivery order: auth → categories + products + uploads → offers → banners → reviews → hero + about → site info → ordering (BACKEND_REQUIREMENTS §9) · `move` instead of `reorder` (§4.2) · generic `conflict` message (§5).
+**Answered (2026-11-11):** Sanctum tokens, 7 days (§2, §4) · camelCase (§2) · slugs: a neutral id unless the owner sets one in «رابط الصفحة» (§2, amended: transliteration rejected) · images on `api.<domain>`, 5 MB (§2) · Arabic messages (§5) · delivery order: auth → categories + products + uploads → offers → banners → reviews → hero + about → site info → ordering (BACKEND_REQUIREMENTS §9) · `move` instead of `reorder` (§4.2) · generic `conflict` message (§5) · mock data export: the backend exports it itself (BACKEND_REQUIREMENTS §6).
 
 **Still open:**
-1. When can the frontend export the mock data as JSON for the backend's seeders (BACKEND_REQUIREMENTS §6)?
-2. Which domain? It decides `api.<domain>` and the URL printed in the QR codes.
+1. Which domain? It decides `api.<domain>` and the URL printed in the QR codes.
 
 ## 10. Backend terms used in this doc
 

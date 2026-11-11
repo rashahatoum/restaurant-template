@@ -5,6 +5,14 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
+## 2026-11-11 — Contract amendments from the backend's demo server — Proposed (backend developer; owner review in this PR)
+What Laravel Phase 2 (seed data) and Phase 5 (the demo server) settled; API-CONTRACT is amended to match.
+- **`X-Frontend-Key` on every request**, not only on login: with the backend's `API_REQUIRE_FRONTEND_KEY` on, a request without the right key gets `403` «ما عندك صلاحية» (`/up` stays open). On for the demo/staging server, off by default, production may keep it. Keeps a public demo private; Basic Auth would collide with the Bearer token (both use `Authorization`).
+- **Public reads rate limited:** 300 requests per minute per client on `GET /menu` (and the later public reads), `429` + `Retry-After`. Anyone can call `/menu` directly on shared hosting; counting per browser (`X-Client-IP` with the right key) means one visitor can't use up the Next.js server's allowance.
+- **The backend exports the seed data itself** (`composer seed:export`: the mock files + photos, committed in the backend repo with the source frontend commit). Answers API-CONTRACT §9 question 1. The mock files must stay plain data (type-only imports).
+- **Demo/staging server is up:** Hostinger, Frankfurt, a temporary Hostinger subdomain until the domain is bought, seeded with the mock content. Vercel function region **`fra1`** (closest to Frankfurt). URL, key and a test admin account are sent privately, never in these docs.
+- Frontend tasks are in API-CONTRACT §7; no code changes now.
+
 ## 2026-11-11 — Contract amendments from the backend build — Accepted (merged in PR #39)
 What Laravel Phases 1, 3 and 4 (database, auth, menu + uploads) settled while building; API-CONTRACT is amended to match. No frontend code changes now; the tasks are in API-CONTRACT §7.
 - **Slugs: optional `slug` in the bodies, neutral id when empty** (`cat-` / `item-` / `offer-` / `branch-xxxxxxxx`; kept on update). Supersedes "suggested from the Arabic name" in the entry below: transliteration on the real menu gave `shaorma-gag` and `frog`.
