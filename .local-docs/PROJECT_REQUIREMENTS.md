@@ -136,7 +136,7 @@ Additional dependencies require justification before installation.
 
 ## 9. Future Development
 
-The backend is Laravel. Its database design, authentication details, and API contract are owned by the backend developer and are not finalized; the frontend proposes what it needs (API-CONTRACT.md) and adapts in `services/` and the dashboard repository.
+The backend is Laravel, in a separate repo, owned by the backend developer (database design, authentication details). The API contract was agreed with him on 2026-11-11 and is amended only by a PR on API-CONTRACT.md reviewed by both sides; the frontend adapts in `services/` and the dashboard repository.
 
 Do not build backend logic or a database in the frontend.
 
