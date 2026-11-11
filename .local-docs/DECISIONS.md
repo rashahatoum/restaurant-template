@@ -5,6 +5,16 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
+## 2026-11-11 — API contract agreed with the backend developer — Accepted (owner + backend developer)
+- **Separate repo for Laravel**, not a folder here: no code is shared across the HTTP line, the two deploy to different hosts, and this repo's rules keep backend code out. The contract docs stay here (`API-CONTRACT.md` is the agreed version; changes by PR). Working rules: BACKEND_REQUIREMENTS §11.
+- **Hosting: Hostinger web hosting (shared)**, EU data centre, on `api.<domain>`; the site stays on Vercel. Shared hosting is enough because Next.js caches almost every read. Consequences: set the Vercel function region near it; the build reads the API, so preview deployments keep `API_BASE_URL` unset until staging is stable (API-CONTRACT §6).
+- **Conventions:** Sanctum Bearer tokens valid 7 days (login limited to 5 tries a minute); camelCase JSON matching `src/types/`, not wrapped in `data`, empty optional fields left out; ids always strings, slugs as the public ids of categories, products, offers and branches; Arabic messages always (API-CONTRACT §2).
+- **Slugs:** suggested by the backend from the Arabic name, **editable by the owner** (a «رابط الصفحة» field, planned in the forms), never changed by themselves. Today's browser draft still gives new items random ids (`lib/dashboard/ids`); Laravel replaces that.
+- **`move` instead of `reorder`:** `POST …/{id}/move { direction }` returns the list in order, matching the repository's `moveX(id, direction)`; one transaction, no stale full list sent from an old tab (API-CONTRACT §4.2).
+- **Lists saved by id:** sizes, phones and branches are updated row by row and never recreated, because cart lines keep the size's `optionId`, ordering keeps `phoneId`, and QR codes keep branch ids (API-CONTRACT §4.1).
+- **`409` = a business rule** (always with an Arabic message). No edit-conflict detection with one admin, so the default `conflict` text in `lib/api/errors.ts` becomes generic (frontend task when the API is connected). Image too large: `422` on `image` (over 5 MB) or a bare `413` (over PHP's limit).
+- Frontend work this implies is listed in API-CONTRACT §7; nothing changes in the code until an area switches to the API.
+
 ## 2026-11-11 — Docs shared in git for the backend developer — Accepted (owner)
 - `.local-docs/` is now tracked (removed from `.gitignore`, with `archive/`); `AGENTS.md` stays ignored. Closes the earlier flag (PROJECT_STATUS Q3). Rule added to `CLAUDE.md`: nothing private in these docs (credentials, private numbers, personal data). Scanned before the first commit: none.
 - New **`BACKEND_REQUIREMENTS.md`**: the Laravel developer's starting point (product, what the backend owns / doesn't, how Next.js calls the API, entities and formats, cross-record rules, stable ids incl. branch ids printed in QR codes, seed from `src/data/mock/`, public visibility rules, errors, what we need back). Endpoint details stay in `API-CONTRACT.md`; README links both.
