@@ -204,7 +204,7 @@ src/components/
 | Type | Fields | Notes |
 |---|---|---|
 | `Category` | id, name, order | |
-| `Product` | id, categoryId, name, description, ingredients, price, image?, imageStyle?, isBestSeller, isAvailable, optionGroups? | id = slug = image name. Price in whole currency units. No image → placeholder on the menu, excluded from best sellers. `ingredients: []` is valid (drinks: no details line). `imageStyle` "cutout" (default, transparent plate) or "photo" (full photo, rounded corners; also fills its category card when that has no photo) |
+| `Product` | id, categoryId, name, description, ingredients, price, image?, imageStyle?, isBestSeller, isAvailable, optionGroups? | id = slug (in the mock data also the image name; new products get `item-xxxxxxxx` unless the owner sets one, API-CONTRACT §2). Price in whole currency units. No image → placeholder on the menu, excluded from best sellers. `ingredients: []` is valid (drinks: no details line). `imageStyle` "cutout" (default, transparent plate) or "photo" (full photo, rounded corners; also fills its category card when that has no photo) |
 | `ProductOptionGroup` / `ProductOption` | id, name, required, maxSelect, options (id, name, shortName?, priceDelta) | **Price-changing choices only** (today: shawarma sandwich size). Extras/requests go in cart notes. Deltas don't depend on each other. `shortName` = compact label for the phone toggle |
 | `MenuBanner` | id, eyebrow?, title, image {src, alt}, action? {label, href}, isActive | Menu page banner slide; text is HTML over the photo |
 | `MenuSection` | category, products | Returned by `getMenu()` |
@@ -286,7 +286,7 @@ config.hero.motion = { kind: "spit-rotation" | "static" | …, ...options }
 
 | Area | Type / service | Editable fields | Flags & rules |
 |---|---|---|---|
-| Menu categories | `Category` / `services/menu.ts` | add / rename / reorder / delete (any number), photo (full photo, cropped square on the card; optional, falls back to the first product photo in the category) | `id` is a Latin slug generated once from the name and never changed (it's the `#category-<id>` anchor that banners may link to). Empty categories are hidden automatically. Deleting one needs its products moved or deleted first. Any number fits: the native select lists all |
+| Menu categories | `Category` / `services/menu.ts` | add / rename / reorder / delete (any number), photo (full photo, cropped square on the card; optional, falls back to the first product photo in the category) | `id` is a Latin slug that never changes by itself (it's the `#category-<id>` anchor that banners may link to): seeded ones keep their ids, new ones get a neutral `cat-xxxxxxxx` unless the owner sets one in «رابط الصفحة» (API-CONTRACT §2). Empty categories are hidden automatically. Deleting one needs its products moved or deleted first. Any number fits: the native select lists all |
 | Menu products | `Product` | add / edit / delete (any number per category): name, description, ingredients (may be empty), price, image (optional) + imageStyle (cut-out or full photo), category, option groups. Order within a category = list order today (add an `order` field when the dashboard needs drag-to-reorder) | `isAvailable` (unavailable = dimmed, no add button); `isBestSeller` (home slider, needs a photo; "الأكثر طلباً" pill on the menu) |
 | Size options | `ProductOptionGroup` | option name, short name (phone toggle, ~8 chars), price delta | Price-changing choices only; attach the group to the products that use it (today: chicken/meat shawarma sandwiches) |
 | Menu banner | `MenuBanner` / `getMenuBanners` | eyebrow, title (line breaks kept, keep it to 2 short lines), image + alt (transparent dish photo), button label + link | `isActive` per slide; banner hidden if none. Links: `/#offers`, `#category-<id>`, … |
@@ -306,6 +306,6 @@ config.hero.motion = { kind: "spit-rotation" | "static" | …, ...options }
 - Prices are whole numbers in `restaurantConfig.currency`; formatting is automatic (`formatPrice`).
 - Not editable from the dashboard (config, per deployment): name, logo, theme, currency, time zone, SEO, nav links. Hero copy (incl. the badge) is config today; move it to content if the owner needs to edit it.
 
-## 9. Future backend integration (deferred)
+## 9. Backend integration
 
-Backend technology, auth, database, and API contracts are **not decided**. When they are, only `services/*` implementations should change. See [API-CONTRACT.md](API-CONTRACT.md).
+The backend is a **Laravel REST API** in a separate repo (built by the backend developer, hosted on Hostinger); the contract is agreed and amended with the backend build ([API-CONTRACT.md](API-CONTRACT.md), DECISIONS 2026-11-11). Next.js calls it server to server. When an area switches (dashboard Phase D7), only `services/*` and the dashboard repository (`apiRepository`) change; the frontend tasks are listed in API-CONTRACT §7.

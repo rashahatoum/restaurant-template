@@ -2,7 +2,7 @@
 
 > Snapshot of what actually exists, measured against [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md). Keep this file short and current. It replaces the former `CURRENT-STATE.md` (archived).
 
-**Last updated:** 2026-11-11 · **Branch:** `main` up to PR #37 (docs shared with the backend developer); `docs/backend-contract-response`: API contract agreed with the backend developer. Next: D7 API readiness, one area at a time as the Laravel API reaches staging
+**Last updated:** 2026-11-11 · **Branch:** `main` up to PR #39 (API contract agreed with the backend developer, #38, and amended with the backend build, #39). Next: D7 API readiness, one area at a time as the Laravel API reaches staging
 
 ## Validation snapshot (2026-11-03, `main` at PR #24)
 
@@ -59,9 +59,9 @@ Legend: ✅ done · 🟡 partial · ❌ missing
 ### Dashboard prototype
 | Item | Status |
 |---|---|
-| Login, session, protection | 🟡 D0 on `feat/dashboard`: `/dashboard/login`, 7-day signed cookie, `proxy.ts`. **Vercel needs `DASHBOARD_USERNAME`, `DASHBOARD_PASSWORD`, `SESSION_SECRET` before deploy** |
-| Error messages (backend-ready) | 🟡 D0: `AppError` model + components, review page `/lab/errors` (dev) |
-| Prices, availability, best sellers | 🟡 D1: `/dashboard/menu` quick edits with undo, saved in this browser (repository ready for Laravel) |
+| Login, session, protection | 🟡 D0 (PR #25): `/dashboard/login`, 7-day signed cookie, `proxy.ts`. **Vercel needs `DASHBOARD_USERNAME`, `DASHBOARD_PASSWORD`, `SESSION_SECRET` before deploy.** Switching to the Laravel login: API-CONTRACT §7 |
+| Error messages (backend-ready) | 🟡 D0 (PR #25): `AppError` model + components, review page `/lab/errors` (dev) |
+| Prices, availability, best sellers | 🟡 D1 (PR #25): `/dashboard/menu` quick edits with undo, saved in this browser (repository ready for Laravel) |
 | Product form (add / edit / delete, live preview, sizes) | ✅ D2a (PR #27) |
 | Categories (add / rename / reorder / delete) | ✅ D2b (PR #27) |
 | Photos (products, category cards): upload, compress, cut-out detection | ✅ D3 (PR #28) |
@@ -93,15 +93,14 @@ Legend: ✅ done · 🟡 partial · ❌ missing
 ## Current priorities
 
 1. Owner's real-phone check of the latest features (compact menu, order number in WhatsApp, cart popup, checkout sheet, share, table QR).
-2. Dashboard prototype (Phase 7): owner review of [DASHBOARD_PLAN.md](DASHBOARD_PLAN.md) and its open decisions, then build phase by phase.
-3. Backend (separate Laravel repo, Hostinger): contract agreed 2026-11-11 ([API-CONTRACT.md](API-CONTRACT.md)). Next from the frontend: export the mock data as JSON for the seeders; then switch each area once it works on staging (API-CONTRACT §7).
+2. Dashboard prototype (Phase 7): D0–D6 built and merged ([DASHBOARD_PLAN.md](DASHBOARD_PLAN.md)). Next: D7 API readiness.
+3. Backend (separate Laravel repo, Hostinger): contract agreed 2026-11-11 and amended with the backend build ([API-CONTRACT.md](API-CONTRACT.md), PR #39). The backend has login, photo uploads, the admin menu (categories, products, best sellers) and the public `/menu`, **not on staging yet** and with no seed data. Next from the frontend: export the mock data as JSON for the seeders; then switch each area once it works on staging (API-CONTRACT §7, including: `ProductForm` sends new sizes with `id: ""`).
 4. When available: domain (also decides `api.<domain>`), real table counts, branch map links, Instagram / Facebook / Threads links (the footer icons show once they're in the data), offer images and real prices.
 
 ## Open questions (need the owner's decision)
 
 1. **Reusability model:** one restaurant per deployment, with config, data, assets and theme swapped per brand? (Assumed yes.)
-2. **Dashboard decisions:** preview approach, save model, image storage, first scope (DASHBOARD_PLAN §8).
-3. **Meal contents:** do meals include a drink? Meal ingredients and meal/size prices are placeholders.
-4. **Domain:** which one, and when (blocks printing the QR codes).
+2. **Meal contents:** do meals include a drink? Meal ingredients and meal/size prices are placeholders.
+3. **Domain:** which one, and when (blocks printing the QR codes).
 
-Answered since the last update: API contract with the backend (agreed 2026-11-11: DECISIONS), docs in git (yes, 2026-11-11, shared with the backend developer), currency/fee (SYP, fixed 150), WhatsApp numbers, spit motion (B), hero layout, QR approach (dev script, `qrcode`), product details UX.
+Answered since the last update: dashboard decisions (DASHBOARD_PLAN §9, then built in D0–D6), API contract with the backend (agreed 2026-11-11 and amended in PR #39: DECISIONS), docs in git (yes, 2026-11-11, shared with the backend developer), currency/fee (SYP, fixed 150), WhatsApp numbers, spit motion (B), hero layout, QR approach (dev script, `qrcode`), product details UX.

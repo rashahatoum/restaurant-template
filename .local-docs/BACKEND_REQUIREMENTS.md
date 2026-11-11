@@ -1,7 +1,7 @@
 # Backend Requirements — for the Laravel developer
 
-> **Start here.** This is what the frontend needs from the Laravel backend, in one place. The endpoint-by-endpoint draft (paths, field limits, error keys) is in [API-CONTRACT.md](API-CONTRACT.md); this file explains the product, the data, and the rules around it.
-> Status: 2026-11-11, written by the frontend; the backend's answers were **agreed the same day** (API-CONTRACT is now the agreed version, [DECISIONS](DECISIONS.md) 2026-11-11). Further changes go through a PR on [API-CONTRACT.md](API-CONTRACT.md) (§11).
+> **Start here.** This is what the frontend needs from the Laravel backend, in one place. The endpoint-by-endpoint contract (paths, field limits, error keys) is in [API-CONTRACT.md](API-CONTRACT.md); this file explains the product, the data, and the rules around it.
+> Status: 2026-11-11, written by the frontend; the backend's answers were **agreed the same day** (API-CONTRACT is now the agreed version, [DECISIONS](DECISIONS.md) 2026-11-11), then **amended with the backend build** (Phases 1, 3, 4; PR #39). Where this file and API-CONTRACT differ, API-CONTRACT wins. Further changes go through a PR on [API-CONTRACT.md](API-CONTRACT.md) (§11).
 
 ## 1. The product in two minutes
 

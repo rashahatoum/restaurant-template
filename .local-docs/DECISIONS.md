@@ -5,7 +5,7 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
-## 2026-11-11 — Contract amendments from the backend build — Proposed (backend developer; awaiting owner review)
+## 2026-11-11 — Contract amendments from the backend build — Accepted (merged in PR #39)
 What Laravel Phases 1, 3 and 4 (database, auth, menu + uploads) settled while building; API-CONTRACT is amended to match. No frontend code changes now; the tasks are in API-CONTRACT §7.
 - **Slugs: optional `slug` in the bodies, neutral id when empty** (`cat-` / `item-` / `offer-` / `branch-xxxxxxxx`; kept on update). Supersedes "suggested from the Arabic name" in the entry below: transliteration on the real menu gave `shaorma-gag` and `frog`.
 - **Sizes, phones, banners and reviews get database ids** (`"12"`); mock ids don't survive seeding. Slugged records keep their ids, so URLs and QR codes don't change.
@@ -348,7 +348,8 @@ What Laravel Phases 1, 3 and 4 (database, auth, menu + uploads) settled while bu
 - **Why:** lets a future API replace the mock data without touching the UI, which the requirements call for.
 - **Not doing:** repository classes or DI. These are plain functions until a real need appears.
 
-## 2026-10-25 — Backend technology not decided — Accepted
+## 2026-10-25 — Backend technology not decided — Superseded
+- **Superseded:** 2026-11-03 the owner confirmed Laravel, built by a separate developer (PROJECT_REQUIREMENTS); 2026-11-11 the API contract was agreed (entries above). The frontend still builds no backend, DB or server persistence.
 - **Decision:** no backend, DB, auth, or API contract work.
 - **Supersedes:** earlier notes naming Laravel as the likely backend. That is now one option among others, not an assumption.
 
