@@ -45,7 +45,7 @@ Deliverable: a working `/menu` that a QR code can point to. Split into three bra
 - `DONE` Options UX decided: no product sheet/page (superseded for viewing by the details page above). Only the shawarma sandwich size is an option (inline toggle); every "+" adds directly; extras become cart notes.
 - `DONE` "الأكثر طلباً" pill on best sellers; unavailable items dimmed without an add button
 - `DONE` (`feat/cart`) "+" wired: cart store (`useCart`, localStorage), `QuantityStepper` (per selected size), fixed cart bar on the menu, `/cart` page (notes, remove, total), NavBar cart badge. Toast dropped (the stepper + bar are the feedback). Needs manual check.
-- `TODO` Error state (`error.tsx`) once data comes from a real API; loading state likewise
+- `DONE` (D7b, menu routes) Error state (`error.tsx`) and loading state (`loading.tsx`) now that the menu comes from the API; the other public reads get theirs when they switch
 - `DONE` Sandwich photos (owner)
 - `TODO` Real meal/size prices (dashboard)
 - `DONE` Share a dish on WhatsApp (circle beside "أضف") + a generated preview image per item (PR #21–#22)

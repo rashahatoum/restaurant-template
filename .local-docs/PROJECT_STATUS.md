@@ -93,8 +93,8 @@ Legend: ✅ done · 🟡 partial · ❌ missing
 ## Current priorities
 
 1. Owner's real-phone check of the latest features (compact menu, order number in WhatsApp, cart popup, checkout sheet, share, table QR).
-2. Dashboard prototype (Phase 7): D0–D6 built and merged ([DASHBOARD_PLAN.md](DASHBOARD_PLAN.md)). Next: D7 API readiness.
-3. Backend (separate Laravel repo, Hostinger): contract agreed 2026-11-11 and amended with the backend build ([API-CONTRACT.md](API-CONTRACT.md), PR #39). The backend has login, photo uploads, the admin menu (categories, products, best sellers) and the public `/menu`, **not on staging yet** and with no seed data. Next from the frontend: export the mock data as JSON for the seeders; then switch each area once it works on staging (API-CONTRACT §7, including: `ProductForm` sends new sizes with `id: ""`).
+2. Dashboard prototype (Phase 7): D0–D6 built and merged ([DASHBOARD_PLAN.md](DASHBOARD_PLAN.md)). D7 API readiness: D7a login (PR #44, merged), **D7b public menu** (`feat/dashboard-d7b`, review pending), next **D7c** the dashboard menu area.
+3. Backend (separate Laravel repo, Hostinger): contract agreed 2026-11-11, amended with the backend build and the demo server ([API-CONTRACT.md](API-CONTRACT.md)). The **demo/staging server is up** (Frankfurt, seeded from the mock data by the backend's own export) with login, photo uploads, the admin menu (categories, products, best sellers) and the public `/menu`. The Vercel production site (the owner's showcase) uses it. The frontend switches each area once it works there (API-CONTRACT §7, including: `ProductForm` sends new sizes with `id: ""`, in D7c).
 4. When available: domain (also decides `api.<domain>`), real table counts, branch map links, Instagram / Facebook / Threads links (the footer icons show once they're in the data), offer images and real prices.
 
 ## Open questions (need the owner's decision)

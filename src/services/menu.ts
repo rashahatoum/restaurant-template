@@ -1,37 +1,67 @@
-// Menu data access. Today it reads mock data; later these bodies switch to
-// fetch() with the same signatures, so callers don't change. Async on purpose.
+// Menu data access. One loader, two sources: with API_BASE_URL set, the
+// Laravel `GET /menu` (API-CONTRACT §3); unset, the mock data. Everything
+// below is built from it, so callers don't change. Offers stay on mock data.
 
 import { categories, products } from "@/data/mock/menu";
 import { menuBanners } from "@/data/mock/menu-banners";
+import { apiFetch } from "@/lib/api/client";
+import { isApiEnabled } from "@/lib/api/config";
 import { bannerHref } from "@/lib/banner";
 import { offerKey } from "@/lib/cart";
 import { sortBestSellers, toMenuItemDetails } from "@/lib/menu";
 import { getOffersContent } from "@/services/content";
 import type { MenuBannerSlideData } from "@/types/content";
-import type { Category, MenuItemDetails, MenuSection, Product } from "@/types/menu";
+import type { MenuItemDetails, MenuSection, Product } from "@/types/menu";
+import { cache } from "react";
 
 /** A product that has a photo (required where the image is the focus, e.g. best sellers). */
 export type ProductWithImage = Product & { image: string };
 
-export async function getCategories(): Promise<readonly Category[]> {
-    return [...categories].sort((a, b) => a.order - b.order);
+/** Cache tag of every menu read: a dashboard save calls revalidateTag(MENU_TAG). */
+export const MENU_TAG = "menu";
+
+/** Fallback refresh, for changes made on the server without the dashboard (API-CONTRACT §3). */
+const MENU_REVALIDATE_SECONDS = 60 * 60;
+
+/** Same shape as the API: categories in order, each with its products; empty ones left out. */
+function mockMenu(): MenuSection[] {
+    return [...categories]
+        .sort((a, b) => a.order - b.order)
+        .map((category) => ({
+            category,
+            products: products.filter((product) => product.categoryId === category.id),
+        }))
+        .filter((section) => section.products.length > 0);
 }
+
+/**
+ * The menu, once per render (React cache: the menu page reads it for the list
+ * and again for the banner targets). Across pages and builds, Next's Data
+ * Cache shares one `GET /menu` (tag + time-based fallback), so the build's
+ * page-per-product doesn't hit the API's 300-a-minute limit.
+ *
+ * Throws when the API fails, on purpose: a background refresh then keeps the
+ * last good page, a build fails (Vercel keeps the live deployment), and only
+ * a page with no good copy shows the menu's error.tsx. Never falls back to
+ * mock data: customers would see old prices.
+ */
+const loadMenu = cache(async (): Promise<readonly MenuSection[]> => {
+    if (!isApiEnabled()) return mockMenu();
+
+    const result = await apiFetch<MenuSection[]>("/menu", {
+        next: { tags: [MENU_TAG], revalidate: MENU_REVALIDATE_SECONDS },
+    });
+    if (!result.ok) throw new Error(`GET /menu failed (${result.error.kind}${result.error.status ? ` ${result.error.status}` : ""})`);
+    if (!Array.isArray(result.data)) throw new Error("GET /menu didn't return a list");
+    return result.data;
+});
 
 /**
  * Categories in display order, each with its products (unavailable ones
  * included, shown as such). Empty categories are left out.
  */
 export async function getMenu(): Promise<readonly MenuSection[]> {
-    const sortedCategories = await getCategories();
-
-    return sortedCategories
-        .map((category) => ({
-            category,
-            products: products.filter(
-                (product) => product.categoryId === category.id
-            ),
-        }))
-        .filter((section) => section.products.length > 0);
+    return loadMenu();
 }
 
 /**
@@ -96,7 +126,8 @@ export async function getMenuBanners(): Promise<readonly MenuBannerSlideData[]> 
 
 /** Available best sellers that have a photo (the slider shows the dish), in the owner's order. */
 export async function getBestSellers(): Promise<readonly ProductWithImage[]> {
-    return sortBestSellers(products).filter(
+    const shown = (await loadMenu()).flatMap((section) => section.products);
+    return sortBestSellers(shown).filter(
         (product): product is ProductWithImage =>
             product.isBestSeller &&
             product.isAvailable &&
