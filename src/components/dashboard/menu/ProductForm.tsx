@@ -15,7 +15,14 @@ import { useIsHydrated } from "@/hooks/useIsHydrated";
 import { useSingleSubmit } from "@/hooks/useSingleSubmit";
 import { fieldError, type AppError } from "@/lib/api/errors";
 import { withNotice, type DoneAction } from "@/lib/dashboard/notice";
-import { isSameForm, parseProductForm, previewProduct, toFormValues, type ProductFormValues } from "@/lib/dashboard/product-form";
+import {
+    isSameForm,
+    newSizeRowId,
+    parseProductForm,
+    previewProduct,
+    toFormValues,
+    type ProductFormValues,
+} from "@/lib/dashboard/product-form";
 import { repository } from "@/lib/dashboard/repository";
 import { PRODUCT_LIMITS, sizeField } from "@/lib/dashboard/validation";
 import type { DashboardData } from "@/types/dashboard";
@@ -260,6 +267,7 @@ const ProductEditor = ({ product, categories, startCategory, onLeave }: ProductE
                         value={values.image}
                         imageStyle={values.imageStyle}
                         onChange={({ image, imageStyle }) => setValues((current) => ({ ...current, image, imageStyle }))}
+                        area="menu"
                     />
 
                     <div className="flex flex-col gap-10 rounded-2xl border border-border bg-surface p-12">
@@ -292,7 +300,7 @@ const ProductEditor = ({ product, categories, startCategory, onLeave }: ProductE
                                     errorOf(sizeField(index, field)) ?? (index === 0 && field === "priceDelta" ? priceError : undefined)
                                 }
                                 listError={errorOf("optionGroups")}
-                                newRowId={() => `size-${crypto.randomUUID().slice(0, 8)}`}
+                                newRowId={newSizeRowId}
                             />
                         </div>
                     </details>

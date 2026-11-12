@@ -143,16 +143,16 @@ Not needed now; done one area at a time (Phase D7), after that area works on sta
 |---|---|
 | `src/lib/api/client.ts` ✅ D7a | `apiFetch()`: base URL, headers, token from the session cookie, timeout, failures → `AppError` (the server not reachable → `server` «ما قدرنا نوصل للسيرفر», not `offline`). Switch: `lib/api/config.isApiEnabled()` |
 | `src/services/*.ts` | Bodies switch from mock data to `apiFetch()` with cache tags; signatures unchanged. **✅ D7b `services/menu.ts`:** `GET /menu` with tag `menu` + 1 h fallback; a failure throws (a refresh keeps the last good page; never falls back to mock prices). The rest still mock |
-| `apiRepository` + Server Actions (new) | Each method calls one endpoint and revalidates the matching tag. `saveProduct` → `PUT`, `updateProduct` → `PATCH`; later the same split for offers, banners and reviews (§2) |
+| `apiRepository` + Server Actions (new) | Each method calls one endpoint and revalidates the matching tag. `saveProduct` → `PUT`, `updateProduct` → `PATCH`; later the same split for offers, banners and reviews (§2). **✅ D7c for the menu area** (`lib/dashboard/api-repository`, `dashboard/menu-actions`): products, categories, best sellers and their photos; after a save `updateTag("menu")` + `refresh()`; a `401` → `/dashboard/session-expired`. The dashboard seed reads `GET /admin/categories` and `GET /admin/products`. Other areas stay on the browser draft |
 | `src/services/auth.ts` ✅ D7a | `authenticate()` calls `POST /auth/login`; the session cookie (still signed, `httpOnly`) stores the Laravel token. Env-var account only while `API_BASE_URL` is unset |
 | `apiFetch` (every request) ✅ D7a | Send `X-Frontend-Key` on every request (§1); on login also `X-Client-IP` (from `x-forwarded-for`, §4 Auth) |
 | Dashboard `logout` action ✅ D7a | Call `POST /auth/logout` before deleting the cookie (§4 Auth) |
 | `lib/auth/login-attempts.ts` ✅ D7a | Kept as an extra first layer |
 | A `401` from the API ✅ D7a | The session is trusted until the cookie expires (no `GET /auth/me` per page); a `401` goes through `/dashboard/session-expired`, which deletes the cookie, then opens the login |
 | `checkProductQuickChanges` | Optionally add the new size-price check on a quick price change (§4 Products) |
-| `ProductForm` new sizes | Send new sizes with `id: ""`. Today the form gives them `size-xxxxxxxx` (`newRowId`), which the API refuses (§4.1); a local key for the row is fine, as `SiteInfoForm` does for phones and branches |
-| `src/lib/api/errors.ts` | Generic default `conflict` message (§5) |
-| `next.config.ts` | `images.remotePatterns` for `api.<domain>`, and the staging host until the domain is bought; possibly the Server Actions body size limit (§6). **✅ D7b:** built from `API_BASE_URL` (its host, `/storage/**`), never hard-coded |
+| `ProductForm` new sizes ✅ D7c | New sizes go out with `id: ""` (the row keeps a local `new-…` key for React only; the browser draft gives them an id, as the API does) |
+| `src/lib/api/errors.ts` ✅ D7c | Generic default `conflict` message (§5): «ما قدرنا نحفظ هالتعديل، حدّث الصفحة وجرّب مرة تانية» |
+| `next.config.ts` | `images.remotePatterns` for `api.<domain>`, and the staging host until the domain is bought; possibly the Server Actions body size limit (§6). **✅ D7b:** built from `API_BASE_URL` (its host, `/storage/**`), never hard-coded. **✅ D7c:** `serverActions.bodySizeLimit: "4mb"` (Safari uploads PNG cut-outs; a Vercel function refuses bodies over 4.5 MB) |
 | Env vars (Vercel) | `API_BASE_URL` and `FRONTEND_API_KEY` (server only; the key is sent privately); `DASHBOARD_USERNAME` / `DASHBOARD_PASSWORD` go once login uses Laravel |
 | Public `error.tsx` / `loading.tsx` | **✅ D7b for the menu routes** (`(site)/menu/`): «القائمة مش متاحة هلق، اطلب على الواتساب», a retry button, and a link to the footer's «تواصل معنا» (the footer stays visible). Shown only when there's no good copy to serve |
 | Product / offer / category / branch forms | The «رابط الصفحة» slug field (§2): now the only way to get a readable URL for a new item |

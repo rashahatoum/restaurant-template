@@ -36,7 +36,8 @@ export const ERROR_MESSAGES: Record<AppErrorKind, string> = {
     unauthenticated: "انتهت الجلسة، سجّل دخول من جديد",
     forbidden: "ما عندك صلاحية لهالتعديل",
     not_found: "هالعنصر ما عاد موجود، يمكن انحذف",
-    conflict: "في حدا عدّل هالعنصر قبلك. حدّث الصفحة لتشوف آخر نسخة",
+    // Generic (API-CONTRACT §5): a 409 is a business rule, and the API sends its own Arabic reason
+    conflict: "ما قدرنا نحفظ هالتعديل، حدّث الصفحة وجرّب مرة تانية",
     too_large: "الملف كبير، اختار صورة أصغر من 5MB",
     rate_limited: "محاولات كتير، جرّب بعد دقيقة",
     server: "صار خلل عندنا، جرّب كمان شوي",

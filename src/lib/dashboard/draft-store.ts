@@ -50,16 +50,32 @@ export function getDraft(): DashboardData | null {
     return draft;
 }
 
-/** Remembers the original data (same object on every render, so assigning once is enough). */
+/**
+ * Remembers the data the page was rendered with. Always the latest: after a
+ * save to the API the server renders again (refresh()) with fresh data.
+ */
 export function registerSeed(data: DashboardData) {
-    seed ??= data;
+    seed = data;
 }
 
-/** What the dashboard shows: the draft if any, else the original data. */
+/** True when categories and products live on the server (API on): saves go there. */
+export function isMenuLive(): boolean {
+    return seed?.menuSource === "api";
+}
+
+/**
+ * The draft with the server's menu: with the API on, categories and products
+ * always come from `server` (the latest render), never from an older draft.
+ */
+export function withServerMenu(data: DashboardData, server: DashboardData): DashboardData {
+    if (server.menuSource !== "api" || data === server) return data;
+    return { ...data, menuSource: "api", categories: server.categories, products: server.products };
+}
+
+/** What the dashboard shows: the draft if any, else the original data (the menu from the server when live). */
 export function currentData(): DashboardData {
-    const data = getDraft() ?? seed;
-    if (!data) throw new Error("Dashboard data read before useDashboardData registered the seed.");
-    return data;
+    if (!seed) throw new Error("Dashboard data read before useDashboardData registered the seed.");
+    return withServerMenu(getDraft() ?? seed, seed);
 }
 
 /** Saves the whole data as the draft. Returns false when the browser refused (storage full or blocked). */

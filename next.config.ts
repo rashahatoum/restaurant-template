@@ -13,6 +13,15 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: apiImages,
   },
+  experimental: {
+    serverActions: {
+      // Dashboard photo uploads go browser → Server Action → Laravel. Safari
+      // can't encode WebP, so a cut-out from an iPhone is a PNG and can pass
+      // the 1 MB default. Laravel allows 5 MB, but a Vercel function refuses
+      // bodies over 4.5 MB: 4 MB leaves room for the multipart overhead.
+      bodySizeLimit: "4mb",
+    },
+  },
   async redirects() {
     return [
       // Table QR codes hold this short link (lib/table-session tableShortPath).
