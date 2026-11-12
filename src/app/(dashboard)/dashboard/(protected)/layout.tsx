@@ -1,5 +1,6 @@
 import { logout } from "@/app/(dashboard)/dashboard/actions";
 import { platformConfig } from "@/config/platform";
+import { isApiEnabled } from "@/lib/api/config";
 import { getSession } from "@/lib/auth/session";
 import { LOGIN_PATH } from "@/lib/auth/paths";
 import Image from "next/image";
@@ -49,7 +50,9 @@ const ProtectedLayout = async ({ children }: { children: ReactNode }) => {
             {/* Honest about where edits go until the Laravel API is connected */}
             <p className="flex items-center justify-center gap-6 border-b border-border bg-warning/10 px-16 py-8 text-center text-xs font-bold text-warning print:hidden">
                 <FiInfo aria-hidden="true" className="shrink-0" />
-                نسخة تجريبية: التعديلات بتنحفظ على هالجهاز بس، وما بتوصل للزباين.
+                {isApiEnabled()
+                    ? "الأقسام والأصناف بتنحفظ عالسيرفر وبتوصل للزباين. باقي الأقسام لسا تجريبية: بتنحفظ على هالجهاز بس."
+                    : "نسخة تجريبية: التعديلات بتنحفظ على هالجهاز بس، وما بتوصل للزباين."}
             </p>
 
             <main className="mx-auto w-full max-w-960 flex-1 px-16 py-24 md:py-32 print:max-w-none print:p-0">{children}</main>

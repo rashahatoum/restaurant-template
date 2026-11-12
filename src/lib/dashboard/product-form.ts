@@ -7,7 +7,7 @@ import type { ProductInput } from "@/types/dashboard";
 import type { ImageStyle, Product, ProductOptionGroup } from "@/types/menu";
 
 export interface SizeRow {
-    /** Kept for existing sizes: carts refer to it. */
+    /** Kept for existing sizes: carts refer to it. A new row has a local key (`newSizeRowId`). */
     id: string;
     name: string;
     shortName: string;
@@ -31,6 +31,11 @@ export interface ProductFormValues {
 }
 
 const DEFAULT_SIZES_LABEL = "الحجم";
+
+const NEW_SIZE_PREFIX = "new-";
+
+/** A local key for a size row added in the form (React key only; never saved). */
+export const newSizeRowId = () => `${NEW_SIZE_PREFIX}${crypto.randomUUID().slice(0, 8)}`;
 
 /** The form's starting values: the product's, or an empty product in a category. */
 export function toFormValues(product: Product | undefined, categoryId: string): ProductFormValues {
@@ -59,7 +64,17 @@ export function toFormValues(product: Product | undefined, categoryId: string): 
 /** Same content (decides whether the save bar shows). */
 export const isSameForm = (a: ProductFormValues, b: ProductFormValues) => JSON.stringify(a) === JSON.stringify(b);
 
-function sizeGroup(values: ProductFormValues, deltas: number[]): ProductOptionGroup[] | undefined {
+/**
+ * `for: "save"`: a new size goes out with an empty id, and whoever saves it
+ * gives it one (API-CONTRACT §4.1: an unknown id is refused).
+ * `for: "preview"`: rows keep their local key, so each size stays a unique
+ * React key in the preview (two new sizes would otherwise both be "").
+ */
+function sizeGroup(
+    values: ProductFormValues,
+    deltas: number[],
+    use: "save" | "preview"
+): ProductOptionGroup[] | undefined {
     if (values.sizes.length === 0) return undefined;
     return [
         {
@@ -68,7 +83,7 @@ function sizeGroup(values: ProductFormValues, deltas: number[]): ProductOptionGr
             required: true,
             maxSelect: 1,
             options: values.sizes.map((row, index) => ({
-                id: row.id,
+                id: use === "save" && row.id.startsWith(NEW_SIZE_PREFIX) ? "" : row.id,
                 name: row.name.trim(),
                 ...(row.shortName.trim() ? { shortName: row.shortName.trim() } : {}),
                 priceDelta: deltas[index],
@@ -118,7 +133,7 @@ export function parseProductForm(values: ProductFormValues): Result<ProductInput
         imageStyle: values.imageStyle,
         isAvailable: values.isAvailable,
         isBestSeller: values.isBestSeller,
-        optionGroups: sizeGroup(values, deltas),
+        optionGroups: sizeGroup(values, deltas, "save"),
     });
 }
 
@@ -136,6 +151,6 @@ export function previewProduct(values: ProductFormValues, id: string): Product {
         imageStyle: values.imageStyle,
         isAvailable: values.isAvailable,
         isBestSeller: values.isBestSeller,
-        optionGroups: values.sizes.length > 1 ? sizeGroup(values, deltas) : undefined,
+        optionGroups: values.sizes.length > 1 ? sizeGroup(values, deltas, "preview") : undefined,
     };
 }

@@ -27,6 +27,8 @@ interface ImagePickerProps {
     compact?: boolean;
     /** Category cards: always a full photo cropped square, whatever was detected. */
     fullPhoto?: boolean;
+    /** Products and category cards: uploaded to the API when the menu is live (D7c). */
+    area?: "menu";
 }
 
 const buttonClasses =
@@ -37,7 +39,7 @@ const buttonClasses =
 // and its type (cut-out or full photo) is detected from transparency and
 // returned with it, with nothing to choose (owner). Opening the file chooser
 // needs no JS: a real file input (visually hidden) with a <label> styled as a button.
-const ImagePicker = ({ id, label, hint, value, imageStyle, onChange, compact = false, fullPhoto = false }: ImagePickerProps) => {
+const ImagePicker = ({ id, label, hint, value, imageStyle, onChange, compact = false, fullPhoto = false, area }: ImagePickerProps) => {
     const [isBusy, setIsBusy] = useState(false);
     const [error, setError] = useState<AppError>();
 
@@ -50,7 +52,7 @@ const ImagePicker = ({ id, label, hint, value, imageStyle, onChange, compact = f
         setIsBusy(true);
         setError(undefined);
         const prepared = await prepareImage(file);
-        const stored = prepared.ok ? await repository.uploadImage(prepared.data) : prepared;
+        const stored = prepared.ok ? await repository.uploadImage(prepared.data, area) : prepared;
         setIsBusy(false);
 
         if (!stored.ok) return setError(stored.error);

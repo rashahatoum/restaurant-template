@@ -24,6 +24,12 @@ export type ReviewsSettings = Pick<ReviewsContent, "isEnabled" | "eyebrow" | "ti
 export type OffersSettings = Pick<OffersContent, "isEnabled" | "eyebrow" | "title" | "menuCardImage">;
 
 export interface DashboardData {
+    /**
+     * Set by the server when categories and products come from the Laravel
+     * API (D7c): the dashboard then saves them there and never takes them
+     * from the browser draft. Absent = everything in the draft, as before.
+     */
+    menuSource?: "api";
     categories: readonly Category[];
     products: readonly Product[];
     offers: OffersContent;

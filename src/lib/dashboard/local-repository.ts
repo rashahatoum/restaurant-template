@@ -23,7 +23,7 @@ import {
 } from "@/lib/dashboard/validation";
 import { numberBestSellers, sortBestSellers } from "@/lib/menu";
 import type { MenuBanner, Offer, Review, SiteInfo } from "@/types/content";
-import type { DashboardData } from "@/types/dashboard";
+import type { DashboardData, ProductInput } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 
 /** Order 1…n in list order (no gaps after a move or a delete). */
@@ -43,6 +43,26 @@ function moveStep<T>(list: readonly T[], from: number, direction: "up" | "down")
 function placeNewBestSeller(previous: Product | undefined, next: Product): Product {
     const isNew = next.isBestSeller && !previous?.isBestSeller;
     return isNew && next.bestSellerOrder === undefined ? { ...next, bestSellerOrder: Number.MAX_SAFE_INTEGER } : next;
+}
+
+/** New sizes come with an empty id (API-CONTRACT §4.1): give them one, as the API does. */
+function withSizeIds(input: ProductInput): ProductInput {
+    if (!input.optionGroups) return input;
+    return {
+        ...input,
+        optionGroups: input.optionGroups.map((group) => {
+            const taken = new Set(group.options.map((option) => option.id).filter(Boolean));
+            return {
+                ...group,
+                options: group.options.map((option) => {
+                    if (option.id) return option;
+                    const id = newId("size", taken);
+                    taken.add(id);
+                    return { ...option, id };
+                }),
+            };
+        }),
+    };
 }
 
 /** Saves the products with best sellers renumbered 1…n; returns the saved one as stored. */
@@ -88,7 +108,7 @@ export const localRepository: DashboardRepository = {
 
         // Products and offers share /menu/<id>, so the id must be free in both
         const taken = new Set([...data.products.map((product) => product.id), ...data.offers.offers.map((offer) => offer.id)]);
-        const created = placeNewBestSeller(undefined, { ...input, id: newId("item", taken) });
+        const created = placeNewBestSeller(undefined, { ...withSizeIds(input), id: newId("item", taken) });
         return commitProducts(data, [...data.products, created], created.id);
     },
 
@@ -101,7 +121,7 @@ export const localRepository: DashboardRepository = {
         if (error) return fail(error);
 
         // The form doesn't hold the slider place: keep it
-        const saved = placeNewBestSeller(previous, { ...input, id, bestSellerOrder: previous.bestSellerOrder });
+        const saved = placeNewBestSeller(previous, { ...withSizeIds(input), id, bestSellerOrder: previous.bestSellerOrder });
         return commitProducts(data, data.products.map((product) => (product.id === id ? saved : product)), id);
     },
 

@@ -2,10 +2,14 @@
 // and returns a Result, never throws for expected failures, so screens handle
 // "saved" and "failed" the same way whatever is behind it.
 //
-// Today: localRepository (browser draft). With Laravel: an apiRepository
-// calling Server Actions → the API, swapped in here. Screens don't change.
+// localRepository: the browser draft. apiMenuRepository: Server Actions →
+// the Laravel API, for the menu area only (D7c), used when the server says the
+// menu is live (API_BASE_URL set). Every other area stays on the draft until
+// the API has it. Screens don't change.
 
 import type { Result } from "@/lib/api/errors";
+import { apiMenuRepository } from "@/lib/dashboard/api-repository";
+import { isMenuLive } from "@/lib/dashboard/draft-store";
 import type { PreparedImage } from "@/lib/dashboard/image-processing";
 import { localRepository } from "@/lib/dashboard/local-repository";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
@@ -79,10 +83,32 @@ export interface DashboardRepository {
     saveHero(input: HeroContent): Promise<Result<HeroContent>>;
     /** «من نحن», all together (one form). */
     saveAbout(input: AboutContent): Promise<Result<AboutContent>>;
-    /** Stores a prepared photo; returns the src to save on the record (a URL with the API). */
-    uploadImage(image: PreparedImage): Promise<Result<{ src: string }>>;
-    /** Drops every local edit (browser draft only; no-op with the API). */
+    /**
+     * Stores a prepared photo; returns the src to save on the record.
+     * `area: "menu"` (products, category cards) → the API's uploads when the
+     * menu is live. Other areas keep their photos in this browser: the API
+     * deletes an upload that no API record uses after 24 h.
+     */
+    uploadImage(image: PreparedImage, area?: "menu"): Promise<Result<{ src: string }>>;
+    /** Drops every local edit (browser draft only; the menu on the server isn't touched). */
     resetToOriginal(): Promise<Result<null>>;
 }
 
-export const repository: DashboardRepository = localRepository;
+/** The API when the menu is live, else the browser draft (checked on every call). */
+const menu = () => (isMenuLive() ? apiMenuRepository : localRepository);
+
+export const repository: DashboardRepository = {
+    ...localRepository,
+    updateProduct: (id, changes) => menu().updateProduct(id, changes),
+    createProduct: (input) => menu().createProduct(input),
+    saveProduct: (id, input) => menu().saveProduct(id, input),
+    deleteProduct: (id) => menu().deleteProduct(id),
+    moveBestSeller: (id, direction) => menu().moveBestSeller(id, direction),
+    createCategory: (name) => menu().createCategory(name),
+    renameCategory: (id, name) => menu().renameCategory(id, name),
+    moveCategory: (id, direction) => menu().moveCategory(id, direction),
+    deleteCategory: (id) => menu().deleteCategory(id),
+    setCategoryImage: (id, image) => menu().setCategoryImage(id, image),
+    uploadImage: (image, area) =>
+        area === "menu" && isMenuLive() ? apiMenuRepository.uploadMenuImage(image) : localRepository.uploadImage(image),
+};

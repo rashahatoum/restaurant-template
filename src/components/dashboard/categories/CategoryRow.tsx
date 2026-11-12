@@ -78,6 +78,7 @@ const CategoryRow = ({ category, count, index, total, onMove, onRename, onDelete
                             onChange={({ image }) => onImageChange(image)}
                             compact
                             fullPhoto
+                            area="menu"
                         />
                     </div>
                 </div>
