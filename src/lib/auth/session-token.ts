@@ -1,7 +1,8 @@
 // Signed session token: "<payload>.<signature>", both base64url.
 // HMAC-SHA256 with Web Crypto (built into Node and browsers): no dependency.
-// Signed, not encrypted: the payload (name, expiry) is readable but can't be
-// changed without the secret. Used by proxy.ts and lib/auth/session.ts.
+// Signed, not encrypted: the payload (name, expiry, Laravel token) is readable
+// but can't be changed without the secret. The cookie is httpOnly, so page
+// scripts never see it (D7a decision 1). Used by proxy.ts and lib/auth/session.ts.
 
 /** Name of the dashboard login cookie. */
 export const SESSION_COOKIE = "dashboard_session";
@@ -11,6 +12,16 @@ export interface SessionPayload {
     name: string;
     /** Expiry, epoch ms. */
     exp: number;
+    /** The Laravel API token (Sanctum, 7 days), when the login went through the API. */
+    token?: string;
+}
+
+/**
+ * With the API on, only a login made through it counts: an older cookie from
+ * the env-var account has no token, so every API call would answer 401.
+ */
+export function usableSession(session: SessionPayload | null, isApiEnabled: boolean): SessionPayload | null {
+    return session && (!isApiEnabled || session.token) ? session : null;
 }
 
 const encoder = new TextEncoder();
@@ -60,9 +71,9 @@ export async function verifySession(
         );
         if (!isValid) return null;
 
-        const { name, exp } = JSON.parse(decoder.decode(fromBase64Url(body))) as Record<string, unknown>;
+        const { name, exp, token } = JSON.parse(decoder.decode(fromBase64Url(body))) as Record<string, unknown>;
         if (typeof name !== "string" || typeof exp !== "number" || exp <= now) return null;
-        return { name, exp };
+        return { name, exp, ...(typeof token === "string" && token ? { token } : {}) };
     } catch {
         // Malformed base64 or JSON
         return null;

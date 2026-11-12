@@ -5,6 +5,15 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
+## 2026-11-12 — D7a: login through the Laravel API — Proposed (approved by the backend developer; owner review in the PR)
+- **One client:** `lib/api/client.apiFetch()` (server only) is the only caller of the API: base URL, `Accept` / `Accept-Language: ar` / `X-Frontend-Key` on every call, the Bearer token read from the session, `X-Client-IP` on login, 10 s timeout, every failure → `AppError`. Switch: `lib/api/config.isApiEnabled()` (`API_BASE_URL` set). Unset = exactly today (env-var account, mock data, browser draft).
+- **Cookie: the same signed cookie, plus the token** (`{ name, exp, token }`), not encrypted. It's `httpOnly` (scripts never read it), `secure`, path `/dashboard`; signing stops edits, and with the key switch on the token alone can't call Laravel. The proxy's check keeps working with no new code. Encrypting (AES-GCM) stays an option if the cookie value ever risks leaking (logs, screenshots).
+- **Session trusted until the cookie expires** (7 days, same as the token): no `GET /auth/me` per page (a round trip to Frankfurt, and layouts don't re-render on navigation anyway). With the API on, a cookie without a token (an old env-var login) counts as signed out.
+- **`401` → `/dashboard/session-expired`:** a Route Handler that deletes the cookie on its redirect to the login. Needed because a page can't delete cookies, and with a still-valid cookie the proxy would bounce the login page back to the dashboard (endless loop after a revoked token). The proxy lets that path through; `safeDashboardPath` never returns to it; `SessionExpiredDialog` uses a plain `<a>` (a `<Link>` could prefetch the route and sign out before a click).
+- **The API not reachable → `server`** «ما قدرنا نوصل للسيرفر، جرّب كمان شوي», not `offline`: the owner's internet works (her action reached Vercel); the Vercel → Hostinger call failed.
+- **Logout** calls `POST /auth/logout` first, then deletes the cookie even if the API can't be reached.
+- **Verified** (production build, headless Edge, against the demo server): wrong login → the API's «اسم المستخدم أو كلمة السر غلط»; wrong `FRONTEND_API_KEY` → «ما عندك صلاحية» (proves the call reaches Laravel); unreachable API → the `server` text; proxy redirects, forged cookie refused, `session-expired` clears the cookie and never returns to itself; public pages 200. Mock-mode and API-mode builds pass.
+
 ## 2026-11-11 — Contract amendments from the backend's demo server — Proposed (backend developer; owner review in this PR)
 What Laravel Phase 2 (seed data) and Phase 5 (the demo server) settled; API-CONTRACT is amended to match.
 - **`X-Frontend-Key` on every request**, not only on login: with the backend's `API_REQUIRE_FRONTEND_KEY` on, a request without the right key gets `403` «ما عندك صلاحية» (`/up` stays open). On for the demo/staging server, off by default, production may keep it. Keeps a public demo private; Basic Auth would collide with the Bearer token (both use `Authorization`).

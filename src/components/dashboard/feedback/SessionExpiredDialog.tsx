@@ -1,7 +1,6 @@
 "use client";
 
-import { LOGIN_PATH } from "@/lib/auth/paths";
-import Link from "next/link";
+import { sessionExpiredHref } from "@/lib/auth/paths";
 import { useEffect, useRef } from "react";
 import { FiLock } from "react-icons/fi";
 
@@ -48,12 +47,14 @@ const SessionExpiredDialog = ({ open, returnTo, onClose }: SessionExpiredDialogP
             <p className="mb-20 text-sm leading-relaxed text-muted">
                 لحماية حسابك، سجّل دخول من جديد. رح نرجّعك لنفس الصفحة.
             </p>
-            <Link
-                href={`${LOGIN_PATH}?next=${encodeURIComponent(returnTo)}`}
+            {/* A plain link: it goes through a route that clears the ended
+                login, and <Link> could prefetch (run) it before a click */}
+            <a
+                href={sessionExpiredHref(returnTo)}
                 className="flex h-46 items-center justify-center rounded-full bg-primary font-extrabold text-background transition-opacity hover:opacity-90"
             >
                 سجّل دخول
-            </Link>
+            </a>
             {onClose && (
                 <button type="button" onClick={onClose} className="mt-10 text-sm font-bold text-muted hover:text-foreground">
                     سكّر (معاينة بس)
