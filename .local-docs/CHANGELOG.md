@@ -2,6 +2,9 @@
 
 Significant changes only. Small styling tweaks are not recorded.
 
+## 2026-11-15 — Dashboard D7h: restaurant info on the Laravel API (`feat/dashboard-d7-info`, on top of D7g, not tried on staging yet)
+- Footer, JSON-LD and the mobile menu read `GET /site-info` (no staff phones); the dashboard saves the whole info through the API (new numbers and branches get their ids there). Until D7i, the ordering numbers stay on the mock site info. Tested with the local fake API.
+
 ## 2026-11-15 — Dashboard D7g: hero + «من نحن» on the Laravel API (`feat/dashboard-d7-home`, on top of D7f, not tried on staging yet)
 - The home reads the hero texts and «من نحن» from `GET /hero` and `GET /about` (tag `home`); the dashboard saves both (and the About photo) through the API. Tested with the local fake API.
 

@@ -1,7 +1,7 @@
 // Editable page content. Same contract as services/menu.ts: each area reads
 // the Laravel API once it's switched (D7) and API_BASE_URL is set, else the
 // mock data, behind the same signatures. Offers (D7d), reviews (D7f), hero and
-// about (D7g) are on the API; site info is still mock.
+// about (D7g), site info (D7h) are on the API.
 
 import { about } from "@/data/mock/about";
 import { hero } from "@/data/mock/hero";
@@ -38,9 +38,17 @@ export async function getHeroContent(): Promise<HeroContent> {
     return isApiEnabled() ? readOne<HeroContent>("/hero", HOME_TAG) : hero;
 }
 
-export async function getSiteInfo(): Promise<SiteInfo> {
-    return siteInfo;
-}
+/** Cache tag of the public site-info read: a dashboard site-info save calls updateTag(SITE_INFO_TAG). */
+export const SITE_INFO_TAG = "site-info";
+
+/**
+ * The restaurant's info as customers see it (footer, JSON-LD, mobile menu).
+ * With the API: `GET /site-info`, which leaves the branch staff phones out
+ * (they're private). Once per render (several components read it).
+ */
+export const getSiteInfo = cache(async (): Promise<SiteInfo> => {
+    return isApiEnabled() ? readOne<SiteInfo>("/site-info", SITE_INFO_TAG) : siteInfo;
+});
 
 /** The mobile menu's quick contact: first WhatsApp number, first phone, opening hours. */
 export async function getNavContact(): Promise<{

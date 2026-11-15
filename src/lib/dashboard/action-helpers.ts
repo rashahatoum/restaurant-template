@@ -21,13 +21,13 @@ export const isObject = (value: unknown): value is Record<string, unknown> =>
 
 /**
  * Runs a dashboard write with the user's token; on success refreshes the
- * public pages that read `tag` (the owner sees her change on the site right
+ * public pages that read `tags` (the owner sees her change on the site right
  * away) and re-renders this dashboard page with fresh data. A 204 becomes `null`.
  */
-export async function adminWrite<T>(tag: string, path: string, init: Parameters<typeof apiFetch>[1]): Promise<Result<T>> {
+export async function adminWrite<T>(tags: string | readonly string[], path: string, init: Parameters<typeof apiFetch>[1]): Promise<Result<T>> {
     const result = await apiFetch<T>(path, { ...init, auth: true });
     if (!result.ok) return result;
-    updateTag(tag);
+    for (const tag of typeof tags === "string" ? [tags] : tags) updateTag(tag);
     refresh();
     return ok((result.data ?? null) as T);
 }
