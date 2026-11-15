@@ -2,6 +2,10 @@
 
 Significant changes only. Small styling tweaks are not recorded.
 
+## 2026-11-15 — Dashboard D7i: ordering on the Laravel API (`feat/dashboard-d7-ordering`, on top of D7h, not tried on staging yet)
+- The checkout and the table QR greeting read `GET /ordering` (numbers resolved on the server); the dashboard saves the ordering settings through the API.
+- Every dashboard area is now on the API when `API_BASE_URL` is set; «رجّع البيانات الأصلية» hides then (the draft isn't used). Tested with the local fake API; builds with and without the API pass.
+
 ## 2026-11-15 — Dashboard D7h: restaurant info on the Laravel API (`feat/dashboard-d7-info`, on top of D7g, not tried on staging yet)
 - Footer, JSON-LD and the mobile menu read `GET /site-info` (no staff phones); the dashboard saves the whole info through the API (new numbers and branches get their ids there). Until D7i, the ordering numbers stay on the mock site info. Tested with the local fake API.
 
