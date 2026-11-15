@@ -1,5 +1,5 @@
 // The dashboard's methods with the Laravel API, for the areas that are live:
-// the menu (D7c) and offers (D7d). Each calls a Server Action, which calls the
+// the menu (D7c), offers (D7d), banners (D7e). Each calls a Server Action, which calls the
 // API with the user's token. Screens see the same Result as with the browser
 // draft. Other areas stay on localRepository until the API has them.
 
@@ -23,6 +23,13 @@ import {
     setOfferActiveAction,
     updateOffersSettingsAction,
 } from "@/app/(dashboard)/dashboard/offers-actions";
+import {
+    createBannerAction,
+    deleteBannerAction,
+    moveBannerAction,
+    saveBannerAction,
+    setBannerActiveAction,
+} from "@/app/(dashboard)/dashboard/banners-actions";
 import { uploadImageAction } from "@/app/(dashboard)/dashboard/upload-actions";
 import { appError, fail, type Result } from "@/lib/api/errors";
 import { sessionExpiredHref } from "@/lib/auth/paths";
@@ -86,6 +93,16 @@ export const apiOffersRepository: Pick<DashboardRepository, OffersMethods> = {
     setOfferActive: (id, isActive) => signedIn(() => setOfferActiveAction(id, isActive)),
     moveOffer: (id, direction) => signedIn(() => moveOfferAction(id, direction)),
     deleteOffer: (id) => signedIn(() => deleteOfferAction(id)),
+};
+
+export type BannersMethods = "createBanner" | "saveBanner" | "setBannerActive" | "moveBanner" | "deleteBanner";
+
+export const apiBannersRepository: Pick<DashboardRepository, BannersMethods> = {
+    createBanner: (input) => signedIn(() => createBannerAction(input)),
+    saveBanner: (id, input) => signedIn(() => saveBannerAction(id, input)),
+    setBannerActive: (id, isActive) => signedIn(() => setBannerActiveAction(id, isActive)),
+    moveBanner: (id, direction) => signedIn(() => moveBannerAction(id, direction)),
+    deleteBanner: (id) => signedIn(() => deleteBannerAction(id)),
 };
 
 /** A prepared photo → the API's uploads (any live area). */

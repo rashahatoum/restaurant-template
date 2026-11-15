@@ -2,6 +2,11 @@
 
 Significant changes only. Small styling tweaks are not recorded.
 
+## 2026-11-15 — Dashboard D7e: menu banner on the Laravel API (`feat/dashboard-d7-banners`, on top of D7d, not tried on staging yet)
+- The menu reads its slides from `GET /banners`; the dashboard saves slides, order, on/off and photos through the API.
+- The dashboard seed is now one loader per live area (`LIVE_LOADERS`); «رجّع البيانات الأصلية» lists only the areas still kept in the browser.
+- Tested end to end with the local fake API.
+
 ## 2026-11-15 — Dashboard D7d: offers on the Laravel API (`feat/dashboard-d7-offers`, not tried on staging yet)
 - The site reads offers from `GET /offers`; the dashboard reads and saves them through the API (section, offers, order, on/off, photos).
 - `liveAreas` replaces the menu-only flag, so each next area switches with one entry; shared Server Action helpers and uploads.

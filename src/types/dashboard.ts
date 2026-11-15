@@ -25,9 +25,10 @@ export type OffersSettings = Pick<OffersContent, "isEnabled" | "eyebrow" | "titl
 
 /**
  * Dashboard areas that can live on the Laravel API (D7), switched one by one.
- * "menu" = categories + products (D7c); "offers" = the offers section + list.
+ * "menu" = categories + products (D7c); "offers" = the offers section + list;
+ * "banners" = the menu banner slides.
  */
-export type LiveArea = "menu" | "offers";
+export type LiveArea = "menu" | "offers" | "banners";
 
 export interface DashboardData {
     /**

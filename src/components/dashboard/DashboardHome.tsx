@@ -14,6 +14,25 @@ import { useState } from "react";
 import { FiGift, FiHome, FiImage, FiInfo, FiLayers, FiMessageCircle, FiRotateCcw, FiShoppingBag, FiStar } from "react-icons/fi";
 import { MdOutlineRestaurantMenu, MdQrCode2 } from "react-icons/md";
 
+/** Every dashboard area, by its LiveArea key (an area not switched to the API yet is still listed). */
+const AREAS: readonly { key: string; label: string }[] = [
+    { key: "menu", label: "الأصناف والأقسام" },
+    { key: "offers", label: "العروض" },
+    { key: "banners", label: "البانر" },
+    { key: "reviews", label: "الآراء" },
+    { key: "home", label: "الواجهة و«من نحن»" },
+    { key: "info", label: "معلومات المطعم" },
+    { key: "ordering", label: "الطلب" },
+];
+
+/** What "رجّع البيانات الأصلية" clears: only the areas still kept in this browser. */
+function resetMessage(liveAreas: readonly string[]): string {
+    const local = AREAS.filter((area) => !liveAreas.includes(area.key)).map((area) => area.label);
+    const live = AREAS.filter((area) => liveAreas.includes(area.key)).map((area) => area.label);
+    if (live.length === 0) return "رح تنمسح كل التعديلات اللي عملتها على هالجهاز (الأصناف، الأقسام، العروض، الصور). ما فيك تتراجع عن هالخطوة.";
+    return `رح تنمسح التعديلات اللي عملتها على هالجهاز${local.length ? ` (${local.join("، ")}، وصورها)` : ""}. ${live.join("، ")} محفوظة عالسيرفر وما بتتأثر. ما فيك تتراجع عن هالخطوة.`;
+}
+
 const items = (n: number) => formatCount(n, { one: "صنف واحد", two: "صنفين", few: "أصناف", many: "صنف" });
 const branches = (n: number) => formatCount(n, { one: "فرع واحد", two: "فرعين", few: "فروع", many: "فرع" });
 
@@ -129,11 +148,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
             <ConfirmDialog
                 open={isConfirming}
                 title="ترجع للبيانات الأصلية؟"
-                message={
-                    data.liveAreas?.length
-                        ? "رح تنمسح التعديلات اللي عملتها على هالجهاز (البانر، الآراء، الرئيسية، معلومات المطعم، الطلب، وصورها). الأقسام والأصناف والعروض محفوظة عالسيرفر وما بتتأثر. ما فيك تتراجع عن هالخطوة."
-                        : "رح تنمسح كل التعديلات اللي عملتها على هالجهاز (الأصناف، الأقسام، العروض، الصور). ما فيك تتراجع عن هالخطوة."
-                }
+                message={resetMessage(data.liveAreas ?? [])}
                 confirmLabel="إي، امسح تعديلاتي"
                 onConfirm={reset}
                 onCancel={() => setIsConfirming(false)}

@@ -185,6 +185,7 @@ const BannerEditorForm = ({ banner, data, background, onLeave }: BannerEditorFor
                     <div className="flex flex-col gap-6">
                         <ImagePicker
                             id="banner-image"
+                            area="banners"
                             label="صورة الطبق"
                             hint="الأحسن صحن مقصوص على خلفية شفافة (PNG أو WebP)، بيطلع على طرف الشريحة فوق خلفية المطعم. بنصغّرها لحالنا."
                             value={values.image}

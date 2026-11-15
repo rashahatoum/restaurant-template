@@ -4,11 +4,11 @@
 //
 // localRepository: the browser draft. apiMenuRepository / apiOffersRepository:
 // Server Actions → the Laravel API, used for an area when the server says it's
-// live (API_BASE_URL set): the menu (D7c), offers (D7d). Every other area
+// live (API_BASE_URL set): the menu (D7c), offers (D7d), banners (D7e). Every other area
 // stays on the draft until the API has it. Screens don't change.
 
 import type { Result } from "@/lib/api/errors";
-import { apiMenuRepository, apiOffersRepository, uploadImageToApi } from "@/lib/dashboard/api-repository";
+import { apiBannersRepository, apiMenuRepository, apiOffersRepository, uploadImageToApi } from "@/lib/dashboard/api-repository";
 import { isLive } from "@/lib/dashboard/draft-store";
 import type { PreparedImage } from "@/lib/dashboard/image-processing";
 import { localRepository } from "@/lib/dashboard/local-repository";
@@ -98,9 +98,15 @@ export interface DashboardRepository {
 /** The API when the area is live, else the browser draft (checked on every call). */
 const menu = () => (isLive("menu") ? apiMenuRepository : localRepository);
 const offers = () => (isLive("offers") ? apiOffersRepository : localRepository);
+const banners = () => (isLive("banners") ? apiBannersRepository : localRepository);
 
 export const repository: DashboardRepository = {
     ...localRepository,
+    createBanner: (input) => banners().createBanner(input),
+    saveBanner: (id, input) => banners().saveBanner(id, input),
+    setBannerActive: (id, isActive) => banners().setBannerActive(id, isActive),
+    moveBanner: (id, direction) => banners().moveBanner(id, direction),
+    deleteBanner: (id) => banners().deleteBanner(id),
     updateOffersSettings: (changes) => offers().updateOffersSettings(changes),
     createOffer: (input) => offers().createOffer(input),
     saveOffer: (id, input) => offers().saveOffer(id, input),
