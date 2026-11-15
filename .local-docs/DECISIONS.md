@@ -5,6 +5,13 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
+## 2026-11-15 — Rotation lab removed; test checklist — Accepted (owner)
+- `/lab/rotation` (`app/lab/rotation`, `components/lab/rotation`) deleted: the spit's values are in `restaurantConfig.hero.spit.motion` and `HeroSpit` is the production component; the lab stays in git history for a future brand. Not moved to the dashboard: tuning the spit is per-deployment config for developers, not restaurant content. `/lab/errors` stays until D7 ends (to review error messages while areas switch to the API), then goes too.
+- **Effect:** `restaurantConfig` strings (`Asia/Damascus`) are now in **no** client chunk (the lab chunk was the only one). Check after every build: none allowed.
+- After deleting a route, stale `.next/dev/types` (from an earlier `next dev`) break `tsc` and the build; delete that folder (it's regenerated).
+- New **`TEST_PLAN.md`**: manual checklist for the site + dashboard on the API deployment, with what's on the API now.
+- **Mock data stays** (owner asked): it's the data source whenever `API_BASE_URL` is unset (local work without the server, a new restaurant's starting point) and the backend's seed came from it. It's never a fallback when the API fails (customers would see old prices). Each area's mock file stops being used in production once that area switches (D7), but isn't deleted.
+
 ## 2026-11-12 — D7c: the dashboard menu area saves to the Laravel API — Proposed (approved by the backend developer; owner review in the PR)
 - **Server data and the draft, merged:** with the API on, `getDashboardSeed()` reads `GET /admin/categories` + `GET /admin/products` (token, not cached) and sets `menuSource: "api"`; the rest stays mock. `useDashboardData` / `currentData()` show the draft as before, but **categories and products always come from the latest server seed** (`withServerMenu`), never from an older draft. `registerSeed` now keeps the latest seed, not the first. The menu screens don't change. (Rejected: a separate data hook per screen, a rewrite of every menu screen.)
 - **Repository router:** `repository`'s 10 menu methods go to `apiMenuRepository` when the seed says `menuSource: "api"` (the client can't read `API_BASE_URL`), else to `localRepository`; every other method stays local.

@@ -2,6 +2,10 @@
 
 Significant changes only. Small styling tweaks are not recorded.
 
+## 2026-11-15 — Rotation lab removed, test checklist (`feat/dashboard-d7d`)
+- `/lab/rotation` deleted (values already in the config); no client chunk carries `restaurantConfig` anymore.
+- `.local-docs/TEST_PLAN.md`: manual checklist for the site + dashboard on the API.
+
 ## 2026-11-10 — Dashboard D6c: table QR codes (PR #36, merged)
 - Short link in the codes: `/t/<branchId>/<n>` → 307 to `/menu?branch=…&table=…` (`next.config` redirect).
 - `/dashboard/qr`: per branch with tables on, print all tables or a range (one damaged card, new tables); branches with tables off say why; menu code; warning while the site has no domain.

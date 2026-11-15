@@ -17,6 +17,7 @@ Restaurant website, digital menu, and WhatsApp ordering, built frontend-first an
 | Why things are the way they are | `.local-docs/DECISIONS.md` |
 | Backend integration notes | `.local-docs/API-CONTRACT.md` |
 | What the Laravel developer needs (his starting point) | `.local-docs/BACKEND_REQUIREMENTS.md` |
+| Manual test checklist (site + dashboard with the API) | `.local-docs/TEST_PLAN.md` |
 
 `.local-docs/` is in git (shared with the backend developer since 2026-11-11): never put credentials, private numbers or personal data in it. `archive/` holds superseded docs; don't treat it as current.
 
@@ -67,7 +68,7 @@ After each feature, report:
 - **Tailwind spacing is 1px per unit** (`--spacing: 1px` in `globals.css`): `p-16` is 16px and `size-5` is 5px. Never append `px` (`max-w-760px` generates no CSS, silently); use `max-w-760` or `max-w-[760px]`.
 - `/lab/*` routes are dev-only experiments (`notFound()` in production). Don't link to them, and don't import lab code into production components. Promote code out of the lab deliberately instead.
 - Public routes live in `src/app/(site)/`, whose layout renders the NavBar. After moving or adding routes, run `npm run build` (or `npx next typegen`) before `npm run typecheck`, because stale `.next/types` cause false errors.
-- `three` is imported dynamically (`import("three")`) and only in the lab.
+- `three` is imported dynamically (`import("three")`), only by the hero spit (`components/motion/HeroSpit`).
 
 ## Verification
 
