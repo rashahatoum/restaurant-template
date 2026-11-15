@@ -9,10 +9,29 @@ import { formatCount } from "@/lib/arabic-count";
 import { dashboardSummary } from "@/lib/dashboard/summary";
 import { repository } from "@/lib/dashboard/repository";
 import { formatPrice } from "@/lib/format-price";
-import type { DashboardData } from "@/types/dashboard";
+import type { DashboardData, LiveArea } from "@/types/dashboard";
 import { useState } from "react";
 import { FiGift, FiHome, FiImage, FiInfo, FiLayers, FiMessageCircle, FiRotateCcw, FiShoppingBag, FiStar } from "react-icons/fi";
 import { MdOutlineRestaurantMenu, MdQrCode2 } from "react-icons/md";
+
+/** Every dashboard area, by its LiveArea key. */
+const AREAS: readonly { key: LiveArea; label: string }[] = [
+    { key: "menu", label: "الأصناف والأقسام" },
+    { key: "offers", label: "العروض" },
+    { key: "banners", label: "البانر" },
+    { key: "reviews", label: "الآراء" },
+    { key: "home", label: "الواجهة و«من نحن»" },
+    { key: "info", label: "معلومات المطعم" },
+    { key: "ordering", label: "الطلب" },
+];
+
+/** What "رجّع البيانات الأصلية" clears: only the areas still kept in this browser. */
+function resetMessage(liveAreas: readonly LiveArea[]): string {
+    const local = AREAS.filter((area) => !liveAreas.includes(area.key)).map((area) => area.label);
+    const live = AREAS.filter((area) => liveAreas.includes(area.key)).map((area) => area.label);
+    if (live.length === 0) return "رح تنمسح كل التعديلات اللي عملتها على هالجهاز (الأصناف، الأقسام، العروض، الصور). ما فيك تتراجع عن هالخطوة.";
+    return `رح تنمسح التعديلات اللي عملتها على هالجهاز${local.length ? ` (${local.join("، ")}، وصورها)` : ""}. ${live.join("، ")} محفوظة عالسيرفر وما بتتأثر. ما فيك تتراجع عن هالخطوة.`;
+}
 
 const items = (n: number) => formatCount(n, { one: "صنف واحد", two: "صنفين", few: "أصناف", many: "صنف" });
 const branches = (n: number) => formatCount(n, { one: "فرع واحد", two: "فرعين", few: "فروع", many: "فرع" });
@@ -25,6 +44,8 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
     const { toast, show, hide } = useToast();
     const [isConfirming, setIsConfirming] = useState(false);
     const count = dashboardSummary(data);
+    // With every area on the server, the browser draft isn't used: nothing to reset
+    const hasLocalAreas = AREAS.some((area) => !(data.liveAreas ?? []).includes(area.key));
 
     const tiles = [
         {
@@ -112,7 +133,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
             </ul>
 
             {/* Only when this device has edits */}
-            {hasDraft && (
+            {hasDraft && hasLocalAreas && (
                 <div className="flex flex-col items-start gap-10 rounded-2xl border border-dashed border-border p-16 text-sm md:flex-row md:items-center md:justify-between">
                     <p className="text-muted">عدّلت على هالجهاز. بدك تمسح كل تعديلاتك وترجع للبيانات الأصلية؟</p>
                     <button
@@ -129,11 +150,7 @@ const DashboardHome = ({ seed }: { seed: DashboardData }) => {
             <ConfirmDialog
                 open={isConfirming}
                 title="ترجع للبيانات الأصلية؟"
-                message={
-                    data.liveAreas?.length
-                        ? "رح تنمسح التعديلات اللي عملتها على هالجهاز (البانر، الآراء، الرئيسية، معلومات المطعم، الطلب، وصورها). الأقسام والأصناف والعروض محفوظة عالسيرفر وما بتتأثر. ما فيك تتراجع عن هالخطوة."
-                        : "رح تنمسح كل التعديلات اللي عملتها على هالجهاز (الأصناف، الأقسام، العروض، الصور). ما فيك تتراجع عن هالخطوة."
-                }
+                message={resetMessage(data.liveAreas ?? [])}
                 confirmLabel="إي، امسح تعديلاتي"
                 onConfirm={reset}
                 onCancel={() => setIsConfirming(false)}

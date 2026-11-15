@@ -2,8 +2,10 @@ import "server-only";
 
 // The dashboard's starting data: every record as stored, nothing filtered.
 // With API_BASE_URL set, the live areas come from the Laravel admin GETs
-// (API-CONTRACT §4) and are saved there: categories and products (D7c), offers
-// (D7d). Everything else is still the mock data + the browser draft.
+// (API-CONTRACT §4) and are saved there (D7): categories and products,
+// offers, banners, reviews, hero + about, site info, ordering: every area. Without
+// the API, everything is the mock data + the browser draft.
+// Switching a new area = one entry in LIVE_LOADERS.
 
 import { about } from "@/data/mock/about";
 import { hero } from "@/data/mock/hero";
@@ -17,11 +19,12 @@ import { apiFetch } from "@/lib/api/client";
 import { isApiEnabled } from "@/lib/api/config";
 import type { Result } from "@/lib/api/errors";
 import { DASHBOARD_HOME, sessionExpiredHref } from "@/lib/auth/paths";
-import { toOffersContent } from "@/lib/dashboard/offers-api";
+import { toOffersContent, toReviewsContent } from "@/lib/dashboard/section-api";
 import { numberBestSellers } from "@/lib/menu";
-import type { OffersContent } from "@/types/content";
-import type { DashboardData } from "@/types/dashboard";
+import type { AboutContent, HeroContent, MenuBanner, SiteInfo } from "@/types/content";
+import type { DashboardData, LiveArea } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
+import type { OrderingSettings } from "@/types/order";
 import { redirect } from "next/navigation";
 
 /** An admin GET's data, or leave the page: 401 → sign in again; anything else → the dashboard's error page. */
@@ -32,46 +35,16 @@ function dataOrLeave<T>(result: Result<T>, what: string): T {
     throw new Error(`GET /admin/${what} failed (${result.error.kind}${result.error.status ? ` ${result.error.status}` : ""})`);
 }
 
-/** Categories (in order) and products as the API stores them; never cached (the dashboard edits them). */
-async function menuFromApi(): Promise<Pick<DashboardData, "categories" | "products">> {
-    const [categoryResult, productResult] = await Promise.all([
-        apiFetch<Category[]>("/admin/categories", { auth: true }),
-        apiFetch<Product[]>("/admin/products", { auth: true }),
-    ]);
+/** An admin GET (token, never cached: the dashboard edits it). */
+const adminGet = async <T>(what: string): Promise<T> => dataOrLeave(await apiFetch<T>(`/admin/${what}`, { auth: true }), what);
+
+/** Without the API: the mock data (the browser draft takes over once the owner edits). */
+function mockData(): DashboardData {
     return {
-        categories: [...dataOrLeave(categoryResult, "categories")].sort((a, b) => a.order - b.order),
-        // The API keeps best sellers numbered 1…n already
-        products: dataOrLeave(productResult, "products"),
-    };
-}
-
-/** The offers section with every offer (inactive included), in order; never cached. */
-async function offersFromApi(): Promise<OffersContent> {
-    return toOffersContent(dataOrLeave(await apiFetch<unknown>("/admin/offers", { auth: true }), "offers"));
-}
-
-export async function getDashboardSeed(): Promise<DashboardData> {
-    if (!isApiEnabled()) {
-        return {
-            categories: [...categories].sort((a, b) => a.order - b.order),
-            // Numbered, so moves and undo in the dashboard always have a place to work with
-            products: numberBestSellers(products),
-            offers,
-            banners: menuBanners,
-            reviews,
-            hero,
-            about,
-            siteInfo,
-            ordering,
-        };
-    }
-
-    const [menu, liveOffers] = await Promise.all([menuFromApi(), offersFromApi()]);
-    return {
-        liveAreas: ["menu", "offers"],
-        ...menu,
-        offers: liveOffers,
-        // Still the mock data + the browser draft until the API has them
+        categories: [...categories].sort((a, b) => a.order - b.order),
+        // Numbered, so moves and undo in the dashboard always have a place to work with
+        products: numberBestSellers(products),
+        offers,
         banners: menuBanners,
         reviews,
         hero,
@@ -79,4 +52,33 @@ export async function getDashboardSeed(): Promise<DashboardData> {
         siteInfo,
         ordering,
     };
+}
+
+/** Each live area's admin reads → its fields of DashboardData. */
+const LIVE_LOADERS: Record<LiveArea, () => Promise<Partial<DashboardData>>> = {
+    menu: async () => {
+        const [apiCategories, apiProducts] = await Promise.all([adminGet<Category[]>("categories"), adminGet<Product[]>("products")]);
+        // The API keeps best sellers numbered 1…n already
+        return { categories: [...apiCategories].sort((a, b) => a.order - b.order), products: apiProducts };
+    },
+    offers: async () => ({ offers: toOffersContent(await adminGet<unknown>("offers")) }),
+    banners: async () => ({ banners: await adminGet<MenuBanner[]>("banners") }),
+    reviews: async () => ({ reviews: toReviewsContent(await adminGet<unknown>("reviews")) }),
+    home: async () => {
+        const [apiHero, apiAbout] = await Promise.all([adminGet<HeroContent>("hero"), adminGet<AboutContent>("about")]);
+        return { hero: apiHero, about: apiAbout };
+    },
+    // Branch staff phones included (the admin GET has everything)
+    info: async () => ({ siteInfo: await adminGet<SiteInfo>("site-info") }),
+    // Every branch, even never set up (API-CONTRACT §4)
+    ordering: async () => ({ ordering: await adminGet<OrderingSettings>("ordering") }),
+};
+
+export async function getDashboardSeed(): Promise<DashboardData> {
+    const data = mockData();
+    if (!isApiEnabled()) return data;
+
+    const liveAreas = Object.keys(LIVE_LOADERS) as LiveArea[];
+    const parts = await Promise.all(liveAreas.map((area) => LIVE_LOADERS[area]()));
+    return Object.assign(data, ...parts, { liveAreas });
 }

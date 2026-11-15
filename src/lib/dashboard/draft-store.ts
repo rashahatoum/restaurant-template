@@ -67,6 +67,11 @@ export function isLive(area: LiveArea): boolean {
 const AREA_FIELDS = {
     menu: ["categories", "products"],
     offers: ["offers"],
+    banners: ["banners"],
+    reviews: ["reviews"],
+    home: ["hero", "about"],
+    info: ["siteInfo"],
+    ordering: ["ordering"],
 } as const satisfies Record<LiveArea, readonly (keyof DashboardData)[]>;
 
 /**

@@ -1,7 +1,8 @@
 // Menu data access. One loader, two sources: with API_BASE_URL set, the
 // Laravel `GET /menu` (API-CONTRACT §3); unset, the mock data. Everything
 // below is built from it, so callers don't change. Offers come from
-// services/content (their own read and tag). Banners stay on mock data.
+// services/content (their own read and tag); banners have their own read
+// (`GET /banners`, D7e).
 
 import { categories, products } from "@/data/mock/menu";
 import { menuBanners } from "@/data/mock/menu-banners";
@@ -11,7 +12,7 @@ import { bannerHref } from "@/lib/banner";
 import { offerKey } from "@/lib/cart";
 import { sortBestSellers, toMenuItemDetails } from "@/lib/menu";
 import { getOffersContent } from "@/services/content";
-import type { MenuBannerSlideData } from "@/types/content";
+import type { BannerTarget, MenuBanner, MenuBannerSlideData } from "@/types/content";
 import type { MenuItemDetails, MenuSection, Product } from "@/types/menu";
 import { cache } from "react";
 
@@ -104,23 +105,41 @@ export async function getMenuItemIds(): Promise<string[]> {
     ];
 }
 
+/** Cache tag of the public banner read: a dashboard banner save calls updateTag(BANNERS_TAG). */
+export const BANNERS_TAG = "banners";
+
+/** A slide as `GET /banners` may send its button: a resolved link, or the stored target (API-CONTRACT §4). */
+type ApiBanner = Omit<MenuBanner, "action"> & { action?: { label: string; href?: string; target?: BannerTarget } };
+
+/** The active slides as stored (target ids), or as the API sends them; once per render. */
+const loadBanners = cache(async (): Promise<readonly ApiBanner[]> => {
+    if (!isApiEnabled()) return menuBanners;
+
+    const result = await apiFetch<ApiBanner[]>("/banners", { next: { tags: [BANNERS_TAG], revalidate: MENU_REVALIDATE_SECONDS } });
+    if (!result.ok) throw new Error(`GET /banners failed (${result.error.kind}${result.error.status ? ` ${result.error.status}` : ""})`);
+    if (!Array.isArray(result.data)) throw new Error("GET /banners didn't return a list");
+    return result.data;
+});
+
 /**
  * Active menu banner slides, in order, each button resolved to a link (may be
  * empty: the page then hides the banner). A button whose target is gone
  * (offers off, category empty or deleted, product gone) is dropped; the slide stays.
+ * With the API the button may come resolved (`href`) or as a target; a target
+ * is resolved here, against what customers can reach now.
  */
 export async function getMenuBanners(): Promise<readonly MenuBannerSlideData[]> {
-    const [sections, offers] = await Promise.all([getMenu(), getOffersContent()]);
+    const [banners, sections, offers] = await Promise.all([loadBanners(), getMenu(), getOffersContent()]);
     const targets = {
         hasOffers: offers !== null,
         categoryIds: new Set(sections.map((section) => section.category.id)),
         productIds: new Set(sections.flatMap((section) => section.products.map((product) => product.id))),
     };
 
-    return menuBanners
+    return banners
         .filter((banner) => banner.isActive)
         .map(({ action, ...banner }) => {
-            const href = action && bannerHref(action.target, targets);
+            const href = action?.href ?? (action?.target && bannerHref(action.target, targets));
             return action && href ? { ...banner, action: { label: action.label, href } } : banner;
         });
 }

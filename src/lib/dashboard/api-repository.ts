@@ -1,5 +1,5 @@
 // The dashboard's methods with the Laravel API, for the areas that are live:
-// the menu (D7c) and offers (D7d). Each calls a Server Action, which calls the
+// the menu (D7c), offers (D7d), banners (D7e), reviews (D7f), hero + about (D7g), site info (D7h), ordering (D7i). Each calls a Server Action, which calls the
 // API with the user's token. Screens see the same Result as with the browser
 // draft. Other areas stay on localRepository until the API has them.
 
@@ -15,6 +15,9 @@ import {
     setCategoryImageAction,
     updateProductAction,
 } from "@/app/(dashboard)/dashboard/menu-actions";
+import { saveAboutAction, saveHeroAction } from "@/app/(dashboard)/dashboard/home-actions";
+import { saveSiteInfoAction } from "@/app/(dashboard)/dashboard/info-actions";
+import { saveOrderingAction } from "@/app/(dashboard)/dashboard/ordering-actions";
 import {
     createOfferAction,
     deleteOfferAction,
@@ -23,6 +26,21 @@ import {
     setOfferActiveAction,
     updateOffersSettingsAction,
 } from "@/app/(dashboard)/dashboard/offers-actions";
+import {
+    createBannerAction,
+    deleteBannerAction,
+    moveBannerAction,
+    saveBannerAction,
+    setBannerActiveAction,
+} from "@/app/(dashboard)/dashboard/banners-actions";
+import {
+    createReviewAction,
+    deleteReviewAction,
+    moveReviewAction,
+    saveReviewAction,
+    setReviewVisibleAction,
+    updateReviewsSettingsAction,
+} from "@/app/(dashboard)/dashboard/reviews-actions";
 import { uploadImageAction } from "@/app/(dashboard)/dashboard/upload-actions";
 import { appError, fail, type Result } from "@/lib/api/errors";
 import { sessionExpiredHref } from "@/lib/auth/paths";
@@ -86,6 +104,40 @@ export const apiOffersRepository: Pick<DashboardRepository, OffersMethods> = {
     setOfferActive: (id, isActive) => signedIn(() => setOfferActiveAction(id, isActive)),
     moveOffer: (id, direction) => signedIn(() => moveOfferAction(id, direction)),
     deleteOffer: (id) => signedIn(() => deleteOfferAction(id)),
+};
+
+export type BannersMethods = "createBanner" | "saveBanner" | "setBannerActive" | "moveBanner" | "deleteBanner";
+
+export const apiBannersRepository: Pick<DashboardRepository, BannersMethods> = {
+    createBanner: (input) => signedIn(() => createBannerAction(input)),
+    saveBanner: (id, input) => signedIn(() => saveBannerAction(id, input)),
+    setBannerActive: (id, isActive) => signedIn(() => setBannerActiveAction(id, isActive)),
+    moveBanner: (id, direction) => signedIn(() => moveBannerAction(id, direction)),
+    deleteBanner: (id) => signedIn(() => deleteBannerAction(id)),
+};
+
+export type ReviewsMethods = "updateReviewsSettings" | "createReview" | "saveReview" | "setReviewVisible" | "moveReview" | "deleteReview";
+
+export const apiReviewsRepository: Pick<DashboardRepository, ReviewsMethods> = {
+    updateReviewsSettings: (changes) => signedIn(() => updateReviewsSettingsAction(changes)),
+    createReview: (input) => signedIn(() => createReviewAction(input)),
+    saveReview: (id, input) => signedIn(() => saveReviewAction(id, input)),
+    setReviewVisible: (id, isVisible) => signedIn(() => setReviewVisibleAction(id, isVisible)),
+    moveReview: (id, direction) => signedIn(() => moveReviewAction(id, direction)),
+    deleteReview: (id) => signedIn(() => deleteReviewAction(id)),
+};
+
+export const apiHomeRepository: Pick<DashboardRepository, "saveHero" | "saveAbout"> = {
+    saveHero: (input) => signedIn(() => saveHeroAction(input)),
+    saveAbout: (input) => signedIn(() => saveAboutAction(input)),
+};
+
+export const apiInfoRepository: Pick<DashboardRepository, "saveSiteInfo"> = {
+    saveSiteInfo: (input) => signedIn(() => saveSiteInfoAction(input)),
+};
+
+export const apiOrderingRepository: Pick<DashboardRepository, "saveOrdering"> = {
+    saveOrdering: (input) => signedIn(() => saveOrderingAction(input)),
 };
 
 /** A prepared photo → the API's uploads (any live area). */

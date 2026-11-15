@@ -192,6 +192,7 @@ const AboutForm = ({ about, onSaved }: AboutFormProps) => {
             <div className="flex flex-col gap-6">
                 <ImagePicker
                     id="about-image"
+                    area="home"
                     label="الصورة"
                     hint="صورة طولية كاملة (متل الشيف عم يقص الشاورما). أطرافها بتذوب بخلفية الصفحة. بنصغّرها لحالنا."
                     value={values.imageSrc}
