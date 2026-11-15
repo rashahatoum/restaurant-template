@@ -57,9 +57,10 @@ export async function moveBestSellerAction(id: string, direction: Direction): Pr
    CATEGORIES
 ========================= */
 
-export async function createCategoryAction(name: string): Promise<Result<Category>> {
-    if (typeof name !== "string") return badRequest();
-    return menuWrite("/admin/categories", { method: "POST", body: { name } });
+/** `slug`: the optional «رابط» (API-CONTRACT §2); missing → the API gives a neutral id. */
+export async function createCategoryAction(name: string, slug?: string): Promise<Result<Category>> {
+    if (typeof name !== "string" || (slug !== undefined && typeof slug !== "string")) return badRequest();
+    return menuWrite("/admin/categories", { method: "POST", body: { name, ...(slug ? { slug } : {}) } });
 }
 
 export async function renameCategoryAction(id: string, name: string): Promise<Result<Category>> {

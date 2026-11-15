@@ -22,6 +22,7 @@ import {
     validateCategoryName,
 } from "@/lib/dashboard/validation";
 import { numberBestSellers, sortBestSellers } from "@/lib/menu";
+import { slugProblem } from "@/lib/slug";
 import type { MenuBanner, Offer, Review, SiteInfo } from "@/types/content";
 import type { DashboardData, ProductInput } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
@@ -81,6 +82,21 @@ const withReviews = (data: DashboardData, reviews: readonly Review[]): Dashboard
     reviews: { ...data.reviews, reviews },
 });
 
+/** Every /menu/<id> in use (products and offers share it), but `except` (the record being saved). */
+const itemIds = (data: DashboardData, except?: string) =>
+    new Set([...data.products.map((product) => product.id), ...data.offers.offers.map((offer) => offer.id)].filter((id) => id !== except));
+
+/** The «رابط» error, on the field the API uses. */
+const invalidSlug = (message: string) => appError("validation", { message, fieldErrors: { slug: [message] } });
+
+/** Banner buttons that pointed at a renamed product point at its new id. */
+const retargetBanners = (banners: readonly MenuBanner[], from: string, to: string): readonly MenuBanner[] =>
+    banners.map((banner) =>
+        banner.action?.target.kind === "product" && banner.action.target.productId === from
+            ? { ...banner, action: { ...banner.action, target: { kind: "product", productId: to } } }
+            : banner
+    );
+
 /** Saves the draft; the change shows on screen either way, but say so if it won't survive a reload. */
 function commit<T>(next: DashboardData, data: T): Result<T> {
     return saveDraft(next)
@@ -101,18 +117,20 @@ export const localRepository: DashboardRepository = {
         return commitProducts(data, data.products.map((candidate) => (candidate.id === id ? saved : candidate)), id);
     },
 
-    async createProduct(input) {
+    async createProduct({ slug, ...input }) {
         const data = currentData();
         const error = checkProductInput(input, data.categories);
         if (error) return fail(error);
 
         // Products and offers share /menu/<id>, so the id must be free in both
-        const taken = new Set([...data.products.map((product) => product.id), ...data.offers.offers.map((offer) => offer.id)]);
-        const created = placeNewBestSeller(undefined, { ...withSizeIds(input), id: newId("item", taken) });
+        const taken = itemIds(data);
+        const slugError = slug && slugProblem(slug, taken);
+        if (slugError) return fail(invalidSlug(slugError));
+        const created = placeNewBestSeller(undefined, { ...withSizeIds(input), id: slug || newId("item", taken) });
         return commitProducts(data, [...data.products, created], created.id);
     },
 
-    async saveProduct(id, input) {
+    async saveProduct(id, { slug, ...input }) {
         const data = currentData();
         const previous = data.products.find((product) => product.id === id);
         if (!previous) return fail(appError("not_found"));
@@ -120,9 +138,15 @@ export const localRepository: DashboardRepository = {
         const error = checkProductInput(input, data.categories);
         if (error) return fail(error);
 
+        // A new link renames the product; banner buttons pointing at it follow
+        const nextId = slug && slug !== id ? slug : id;
+        const slugError = nextId !== id && slugProblem(nextId, itemIds(data, id));
+        if (slugError) return fail(invalidSlug(slugError));
+
         // The form doesn't hold the slider place: keep it
-        const saved = placeNewBestSeller(previous, { ...withSizeIds(input), id, bestSellerOrder: previous.bestSellerOrder });
-        return commitProducts(data, data.products.map((product) => (product.id === id ? saved : product)), id);
+        const saved = placeNewBestSeller(previous, { ...withSizeIds(input), id: nextId, bestSellerOrder: previous.bestSellerOrder });
+        const renamed = nextId === id ? data : { ...data, banners: retargetBanners(data.banners, id, nextId) };
+        return commitProducts(renamed, data.products.map((product) => (product.id === id ? saved : product)), nextId);
     },
 
     async deleteProduct(id) {
@@ -145,13 +169,17 @@ export const localRepository: DashboardRepository = {
         return commit({ ...data, products }, sortBestSellers(products));
     },
 
-    async createCategory(name) {
+    async createCategory(name, slug) {
         const data = currentData();
         const checked = validateCategoryName(name, data.categories);
         if (!checked.ok) return checked;
 
+        const taken = new Set(data.categories.map((category) => category.id));
+        const slugError = slug && slugProblem(slug, taken);
+        if (slugError) return fail(invalidSlug(slugError));
+
         const created: Category = {
-            id: newId("cat", new Set(data.categories.map((category) => category.id))),
+            id: slug || newId("cat", taken),
             name: checked.data,
             order: data.categories.length + 1,
         };
@@ -228,25 +256,32 @@ export const localRepository: DashboardRepository = {
         return commit({ ...data, offers }, { isEnabled, eyebrow, title, menuCardImage });
     },
 
-    async createOffer(input) {
+    async createOffer({ slug, ...input }) {
         const data = currentData();
         const error = checkOfferInput(input);
         if (error) return fail(error);
 
         // Products and offers share /menu/<id>, so the id must be free in both
-        const taken = new Set([...data.products.map((product) => product.id), ...data.offers.offers.map((offer) => offer.id)]);
-        const created: Offer = { ...input, id: newId("offer", taken) };
+        const taken = itemIds(data);
+        const slugError = slug && slugProblem(slug, taken);
+        if (slugError) return fail(invalidSlug(slugError));
+        const created: Offer = { ...input, id: slug || newId("offer", taken) };
         return commit({ ...data, offers: { ...data.offers, offers: [...data.offers.offers, created] } }, created);
     },
 
-    async saveOffer(id, input) {
+    async saveOffer(id, { slug, ...input }) {
         const data = currentData();
         if (!data.offers.offers.some((offer) => offer.id === id)) return fail(appError("not_found"));
 
         const error = checkOfferInput(input);
         if (error) return fail(error);
 
-        const saved: Offer = { ...input, id };
+        // A new link renames the offer (banners point at "the offers", not one offer)
+        const nextId = slug && slug !== id ? slug : id;
+        const slugError = nextId !== id && slugProblem(nextId, itemIds(data, id));
+        if (slugError) return fail(invalidSlug(slugError));
+
+        const saved: Offer = { ...input, id: nextId };
         return commit(withOffers(data, data.offers.offers.map((offer) => (offer.id === id ? saved : offer))), saved);
     },
 
@@ -380,7 +415,17 @@ export const localRepository: DashboardRepository = {
         // New phones and branches come without an id (empty); give them one, as the API will
         const phoneIds = new Set(sent.phones.map((phone) => phone.id).filter(Boolean));
         const branchIds = new Set(sent.branches.map((branch) => branch.id).filter(Boolean));
-        const branches = sent.branches.map((branch) => (branch.id ? branch : { ...branch, id: newId("branch", branchIds) }));
+        // A new branch takes its «رابط» as its id (it's printed in the QR codes); the link of a saved branch never changes
+        const slugErrors: Record<string, string[]> = {};
+        const branches = sent.branches.map(({ slug, ...branch }, index) => {
+            if (branch.id) return branch;
+            const problem = slug && slugProblem(slug, branchIds);
+            if (problem) slugErrors[`branches.${index}.slug`] = [problem];
+            const id = slug && !problem ? slug : newId("branch", branchIds);
+            branchIds.add(id);
+            return { ...branch, id };
+        });
+        if (Object.keys(slugErrors).length > 0) return fail(appError("validation", { fieldErrors: slugErrors }));
         const kept = new Set(branches.map((branch) => branch.id));
         const input: SiteInfo = {
             ...sent,

@@ -2,31 +2,37 @@
 
 Significant changes only. Small styling tweaks are not recorded.
 
-## 2026-11-15 — Dashboard D7i: ordering on the Laravel API (`feat/dashboard-d7-ordering`, on top of D7h, not tried on staging yet)
+## 2026-11-15 — Error pages, card skeletons, «رابط الصفحة», size-price check (`feat/d7-front-finish`, not committed yet)
+- Public error pages: `(site)/error.tsx` (home, cart; NavBar and footer stay) and `app/error.tsx` (when the site frame itself fails); the menu's error page uses the same shared `PublicErrorState`.
+- Loading: `ui/Skeleton`; the home streams each section (best sellers, offers, «من نحن», reviews) behind a placeholder of its size; the menu and item pages have skeletons in their real layout.
+- «رابط الصفحة»: an optional Latin link for new products, offers, categories and branches; products and offers can change it later (with a warning), categories and branches only get it when added (branch links are printed in the QR codes).
+- A quick price change that would make a size free or negative is refused before sending, with the API's message.
+
+## 2026-11-15 — Dashboard D7i: ordering on the Laravel API (PR #48, merged with D7e–D7h; not tried on staging yet)
 - The checkout and the table QR greeting read `GET /ordering` (numbers resolved on the server); the dashboard saves the ordering settings through the API.
 - Every dashboard area is now on the API when `API_BASE_URL` is set; «رجّع البيانات الأصلية» hides then (the draft isn't used). Tested with the local fake API; builds with and without the API pass.
 
-## 2026-11-15 — Dashboard D7h: restaurant info on the Laravel API (`feat/dashboard-d7-info`, on top of D7g, not tried on staging yet)
+## 2026-11-15 — Dashboard D7h: restaurant info on the Laravel API (in PR #48)
 - Footer, JSON-LD and the mobile menu read `GET /site-info` (no staff phones); the dashboard saves the whole info through the API (new numbers and branches get their ids there). Until D7i, the ordering numbers stay on the mock site info. Tested with the local fake API.
 
-## 2026-11-15 — Dashboard D7g: hero + «من نحن» on the Laravel API (`feat/dashboard-d7-home`, on top of D7f, not tried on staging yet)
+## 2026-11-15 — Dashboard D7g: hero + «من نحن» on the Laravel API (in PR #48)
 - The home reads the hero texts and «من نحن» from `GET /hero` and `GET /about` (tag `home`); the dashboard saves both (and the About photo) through the API. Tested with the local fake API.
 
-## 2026-11-15 — Dashboard D7f: reviews on the Laravel API (`feat/dashboard-d7-reviews`, on top of D7e, not tried on staging yet)
+## 2026-11-15 — Dashboard D7f: reviews on the Laravel API (in PR #48)
 - The home reads reviews from `GET /reviews`; the dashboard saves the section, reviews, order and shown/hidden through the API.
 - `lib/dashboard/offers-api` → `section-api` (offers and reviews share the section + list reading). Tested with the local fake API.
 
-## 2026-11-15 — Dashboard D7e: menu banner on the Laravel API (`feat/dashboard-d7-banners`, on top of D7d, not tried on staging yet)
+## 2026-11-15 — Dashboard D7e: menu banner on the Laravel API (in PR #48)
 - The menu reads its slides from `GET /banners`; the dashboard saves slides, order, on/off and photos through the API.
 - The dashboard seed is now one loader per live area (`LIVE_LOADERS`); «رجّع البيانات الأصلية» lists only the areas still kept in the browser.
 - Tested end to end with the local fake API.
 
-## 2026-11-15 — Dashboard D7d: offers on the Laravel API (`feat/dashboard-d7-offers`, not tried on staging yet)
+## 2026-11-15 — Dashboard D7d: offers on the Laravel API (PR #47, merged; not tried on staging yet)
 - The site reads offers from `GET /offers`; the dashboard reads and saves them through the API (section, offers, order, on/off, photos).
 - `liveAreas` replaces the menu-only flag, so each next area switches with one entry; shared Server Action helpers and uploads.
 - Tested end to end with a local fake API (staging was down).
 
-## 2026-11-15 — Rotation lab removed, test checklist (`feat/dashboard-d7d`)
+## 2026-11-15 — Rotation lab removed, test checklist (in PR #47)
 - `/lab/rotation` deleted (values already in the config); no client chunk carries `restaurantConfig` anymore.
 - `.local-docs/TEST_PLAN.md`: manual checklist for the site + dashboard on the API.
 

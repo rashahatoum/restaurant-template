@@ -5,11 +5,22 @@ import type { AboutContent, HeroContent, MenuBanner, Offer, OffersContent, Revie
 import type { Category, Product } from "@/types/menu";
 import type { OrderingSettings } from "@/types/order";
 
-/** What the dashboard sends to create or save a product (the API payload later): everything but the id. */
-export type ProductInput = Omit<Product, "id">;
+/**
+ * «رابط الصفحة» (API-CONTRACT §2): an optional readable link, which becomes the
+ * record's id. Missing on create → a neutral id; missing on update → kept.
+ */
+export interface WithSlug {
+    slug?: string;
+}
 
-/** What the dashboard sends to create or save an offer: everything but the id. */
-export type OfferInput = Omit<Offer, "id">;
+/** What the dashboard sends to create or save a product: everything but the id, plus the optional link. */
+export type ProductInput = Omit<Product, "id"> & WithSlug;
+
+/** What the dashboard sends to create or save an offer: everything but the id, plus the optional link. */
+export type OfferInput = Omit<Offer, "id"> & WithSlug;
+
+/** Restaurant info as sent: a new branch (`id: ""`) may carry its link. */
+export type SiteInfoInput = Omit<SiteInfo, "branches"> & { branches: readonly (SiteInfo["branches"][number] & WithSlug)[] };
 
 /** What the dashboard sends to create or save a banner slide: everything but the id. */
 export type BannerInput = Omit<MenuBanner, "id">;

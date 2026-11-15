@@ -155,7 +155,8 @@ Not needed now; done one area at a time (Phase D7), after that area works on sta
 | `next.config.ts` | `images.remotePatterns` for `api.<domain>`, and the staging host until the domain is bought; possibly the Server Actions body size limit (§6). **✅ D7b:** built from `API_BASE_URL` (its host, `/storage/**`), never hard-coded. **✅ D7c:** `serverActions.bodySizeLimit: "4mb"` (Safari uploads PNG cut-outs; a Vercel function refuses bodies over 4.5 MB) |
 | Env vars (Vercel) | `API_BASE_URL` and `FRONTEND_API_KEY` (server only; the key is sent privately); `DASHBOARD_USERNAME` / `DASHBOARD_PASSWORD` go once login uses Laravel |
 | Public `error.tsx` / `loading.tsx` | **✅ D7b for the menu routes** (`(site)/menu/`): «القائمة مش متاحة هلق، اطلب على الواتساب», a retry button, and a link to the footer's «تواصل معنا» (the footer stays visible). Shown only when there's no good copy to serve |
-| Product / offer / category / branch forms | The «رابط الصفحة» slug field (§2): now the only way to get a readable URL for a new item |
+| Product / offer / category / branch forms | The «رابط الصفحة» slug field (§2). **✅ 2026-11-15** (`lib/slug`, `form/SlugField`): `slug` sent on create, and on product / offer updates only when changed; categories and branches get it only when created (`POST /admin/categories` body `{ name, slug? }`; a new branch in `PUT /admin/site-info` carries `slug`). 422 keys `slug` / `branches.<i>.slug` |
+| `checkProductQuickChanges` size price | **✅ 2026-11-15:** a quick price that makes a size ≤ 0 is refused before sending, with the same message as the API |
 | Vercel settings | Function region `fra1` (§6) |
 
 ## 8. Out of scope for now

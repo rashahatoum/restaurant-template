@@ -11,8 +11,10 @@ import { adminWrite, badRequest, isObject } from "@/lib/dashboard/action-helpers
 import { SITE_INFO_TAG } from "@/services/content";
 import { ORDERING_TAG } from "@/services/ordering";
 import type { SiteInfo } from "@/types/content";
+import type { SiteInfoInput } from "@/types/dashboard";
 
-export async function saveSiteInfoAction(input: SiteInfo): Promise<Result<SiteInfo>> {
+/** A new branch may carry its «رابط» (`slug`, API-CONTRACT §2); it's the branch id printed in the QR codes. */
+export async function saveSiteInfoAction(input: SiteInfoInput): Promise<Result<SiteInfo>> {
     if (!isObject(input) || !Array.isArray(input.phones) || !Array.isArray(input.branches)) return badRequest();
     return adminWrite([SITE_INFO_TAG, ORDERING_TAG], "/admin/site-info", { method: "PUT", body: input });
 }

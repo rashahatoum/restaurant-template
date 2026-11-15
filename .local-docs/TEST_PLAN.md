@@ -9,9 +9,9 @@
 |---|---|---|
 | Login / logout | API ✅ | — |
 | Categories, products, best sellers, their photos | API ✅ | API ✅ |
-| Offers, banner, reviews, hero + «من نحن», restaurant info, ordering | API once D7d–D7i are merged | API once D7d–D7i are merged |
+| Offers, banner, reviews, hero + «من نحن», restaurant info, ordering | API (merged in #47 / #48) | API (merged in #47 / #48) |
 
-Until those branches are merged, only the menu area can be tested end to end. Each branch is tried on staging first (section F), then merged.
+**Not testable on Vercel yet:** its builds fail until the staging API has these areas, so production still runs PR #46 (only the menu on the API). Test them locally first (`.env.local` with the staging values), then on Vercel after a successful redeploy.
 
 **D7d offers, first run on staging:** in the dashboard, switch an offer off and on, move one, edit one (title, badge removed), add one with a photo, remove the «العروض» card photo, switch the section off and on, delete one; after each, check the home and the menu on another device.
 
@@ -46,6 +46,9 @@ For each step: save in the dashboard, then open the site **on another device** a
 - [ ] A big photo (> 5 MB) → a clear «الصورة كبيرة» message, nothing breaks.
 - [ ] Two edits quickly in a row (double tap «احفظ») → saved once.
 
+- [ ] «رابط الصفحة»: a new product with a link (`chicken-test`) opens at `/menu/chicken-test`; a taken link and an Arabic one are refused with a clear message; changing it warns that old links stop working.
+- [ ] A product whose sizes have different prices: lowering the list price so a size would cost 0 or less → refused under the price.
+
 ## C. Customer journey (phone)
 
 - [ ] Home loads; the spit turns (or shows the photo with reduced motion); best sellers, offers, reviews, footer.
@@ -60,6 +63,7 @@ For each step: save in the dashboard, then open the site **on another device** a
 ## D. When things go wrong
 
 - [ ] Slow network (DevTools → Network → "Slow 4G"): pages show their loading state, nothing jumps or breaks.
+- [ ] Right after a dashboard save, open the home: the hero shows at once, a section still loading shows its grey placeholder of the same size.
 - [ ] Phone offline in the dashboard, then «احفظ» → «ما في إنترنت»-style message; the form keeps what you typed.
 - [ ] Session ended mid-edit (sign out on another tab, then save here) → sent to the login, then back to the page.
 - [ ] The API down (ask the backend developer to stop staging for 5 minutes): the menu keeps showing the last good copy; a page never seen before shows «القائمة مش متاحة هلق، اطلب على الواتساب».

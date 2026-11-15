@@ -2,7 +2,7 @@
 
 > Snapshot of what actually exists, measured against [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md). Keep this file short and current. It replaces the former `CURRENT-STATE.md` (archived).
 
-**Last updated:** 2026-11-11 · **Branch:** `main` up to PR #39 (API contract agreed with the backend developer, #38, and amended with the backend build, #39). Next: D7 API readiness, one area at a time as the Laravel API reaches staging
+**Last updated:** 2026-11-15 · **Branch:** `main` up to PR #48 (every dashboard area on the API, D7d–D7i). **Vercel production is still PR #46** (D7c): the builds of #47 / #48 fail until the staging API has the new public endpoints (message sent to the backend developer). `feat/d7-front-finish` (not committed yet): public error pages, card skeletons, «رابط الصفحة», size-price check on quick edits. Postponed until the backend answers: `API_AREAS`, removing `/lab/errors`
 
 ## Validation snapshot (2026-11-03, `main` at PR #24)
 
@@ -93,7 +93,7 @@ Legend: ✅ done · 🟡 partial · ❌ missing
 ## Current priorities
 
 1. Owner's real-phone check of the latest features (compact menu, order number in WhatsApp, cart popup, checkout sheet, share, table QR).
-2. Dashboard prototype (Phase 7): D0–D6 built and merged ([DASHBOARD_PLAN.md](DASHBOARD_PLAN.md)). D7 API readiness: D7a login (PR #44, merged), D7b public menu (PR #45, merged), **D7c the dashboard menu area** (PR #46, merged); **D7d–D7i: offers, banner, reviews, hero + about, site info, ordering** (stacked branches `feat/dashboard-d7-offers` → `-banners` → `-reviews` → `-home` → `-info` → `-ordering`: built and tested with a local fake API while staging was down; merge in that order after trying each on staging). With all of them, every area is on the API: with the API on, menu edits are saved on the server and reach customers; the other areas are still the browser draft.
+2. Dashboard prototype (Phase 7): D0–D6 built and merged ([DASHBOARD_PLAN.md](DASHBOARD_PLAN.md)). D7 API readiness: D7a login (PR #44, merged), D7b public menu (PR #45, merged), **D7c the dashboard menu area** (PR #46, merged); **D7d–D7i: offers, banner, reviews, hero + about, site info, ordering** (PRs #47 and #48, merged; built and tested with a local fake API while staging was down, not yet tried on staging). Every area is on the API when `API_BASE_URL` is set: with the API on, menu edits are saved on the server and reach customers; the other areas are still the browser draft.
 3. Backend (separate Laravel repo, Hostinger): contract agreed 2026-11-11, amended with the backend build and the demo server ([API-CONTRACT.md](API-CONTRACT.md)). The **demo/staging server is up** (Frankfurt, seeded from the mock data by the backend's own export) with login, photo uploads, the admin menu (categories, products, best sellers) and the public `/menu`. The Vercel production site (the owner's showcase) uses it. The frontend switches each area once it works there (API-CONTRACT §7, including: `ProductForm` sends new sizes with `id: ""`, in D7c).
 4. When available: domain (also decides `api.<domain>`), real table counts, branch map links, Instagram / Facebook / Threads links (the footer icons show once they're in the data), offer images and real prices.
 

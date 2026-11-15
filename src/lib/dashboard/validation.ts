@@ -530,6 +530,11 @@ export function checkProductQuickChanges(product: Product, changes: ProductQuick
     if (changes.price !== undefined) {
         const checked = validatePrice(changes.price);
         if (!checked.ok) return checked.error;
+        // Sizes are stored as differences from the price: a lower price can't make one free or negative (API-CONTRACT §4 Products)
+        const deltas = product.optionGroups?.flatMap((group) => group.options.map((option) => option.priceDelta)) ?? [];
+        if (deltas.some((delta) => changes.price! + delta <= 0)) {
+            return invalid("price", "في حجم سعره بيصير صفر أو أقل بهالسعر، عدّل الأحجام من صفحة الصنف");
+        }
     }
     // The home slider shows the dish photo (services/menu getBestSellers)
     if (changes.isBestSeller && !product.image) {
