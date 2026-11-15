@@ -2,6 +2,10 @@
 
 Significant changes only. Small styling tweaks are not recorded.
 
+## 2026-11-15 — Dashboard D7f: reviews on the Laravel API (`feat/dashboard-d7-reviews`, on top of D7e, not tried on staging yet)
+- The home reads reviews from `GET /reviews`; the dashboard saves the section, reviews, order and shown/hidden through the API.
+- `lib/dashboard/offers-api` → `section-api` (offers and reviews share the section + list reading). Tested with the local fake API.
+
 ## 2026-11-15 — Dashboard D7e: menu banner on the Laravel API (`feat/dashboard-d7-banners`, on top of D7d, not tried on staging yet)
 - The menu reads its slides from `GET /banners`; the dashboard saves slides, order, on/off and photos through the API.
 - The dashboard seed is now one loader per live area (`LIVE_LOADERS`); «رجّع البيانات الأصلية» lists only the areas still kept in the browser.

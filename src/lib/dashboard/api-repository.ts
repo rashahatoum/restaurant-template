@@ -1,5 +1,5 @@
 // The dashboard's methods with the Laravel API, for the areas that are live:
-// the menu (D7c), offers (D7d), banners (D7e). Each calls a Server Action, which calls the
+// the menu (D7c), offers (D7d), banners (D7e), reviews (D7f). Each calls a Server Action, which calls the
 // API with the user's token. Screens see the same Result as with the browser
 // draft. Other areas stay on localRepository until the API has them.
 
@@ -30,6 +30,14 @@ import {
     saveBannerAction,
     setBannerActiveAction,
 } from "@/app/(dashboard)/dashboard/banners-actions";
+import {
+    createReviewAction,
+    deleteReviewAction,
+    moveReviewAction,
+    saveReviewAction,
+    setReviewVisibleAction,
+    updateReviewsSettingsAction,
+} from "@/app/(dashboard)/dashboard/reviews-actions";
 import { uploadImageAction } from "@/app/(dashboard)/dashboard/upload-actions";
 import { appError, fail, type Result } from "@/lib/api/errors";
 import { sessionExpiredHref } from "@/lib/auth/paths";
@@ -103,6 +111,17 @@ export const apiBannersRepository: Pick<DashboardRepository, BannersMethods> = {
     setBannerActive: (id, isActive) => signedIn(() => setBannerActiveAction(id, isActive)),
     moveBanner: (id, direction) => signedIn(() => moveBannerAction(id, direction)),
     deleteBanner: (id) => signedIn(() => deleteBannerAction(id)),
+};
+
+export type ReviewsMethods = "updateReviewsSettings" | "createReview" | "saveReview" | "setReviewVisible" | "moveReview" | "deleteReview";
+
+export const apiReviewsRepository: Pick<DashboardRepository, ReviewsMethods> = {
+    updateReviewsSettings: (changes) => signedIn(() => updateReviewsSettingsAction(changes)),
+    createReview: (input) => signedIn(() => createReviewAction(input)),
+    saveReview: (id, input) => signedIn(() => saveReviewAction(id, input)),
+    setReviewVisible: (id, isVisible) => signedIn(() => setReviewVisibleAction(id, isVisible)),
+    moveReview: (id, direction) => signedIn(() => moveReviewAction(id, direction)),
+    deleteReview: (id) => signedIn(() => deleteReviewAction(id)),
 };
 
 /** A prepared photo → the API's uploads (any live area). */

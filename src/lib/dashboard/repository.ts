@@ -4,11 +4,18 @@
 //
 // localRepository: the browser draft. apiMenuRepository / apiOffersRepository:
 // Server Actions → the Laravel API, used for an area when the server says it's
-// live (API_BASE_URL set): the menu (D7c), offers (D7d), banners (D7e). Every other area
+// live (API_BASE_URL set): the menu (D7c), offers (D7d), banners (D7e),
+// reviews (D7f). Every other area
 // stays on the draft until the API has it. Screens don't change.
 
 import type { Result } from "@/lib/api/errors";
-import { apiBannersRepository, apiMenuRepository, apiOffersRepository, uploadImageToApi } from "@/lib/dashboard/api-repository";
+import {
+    apiBannersRepository,
+    apiMenuRepository,
+    apiOffersRepository,
+    apiReviewsRepository,
+    uploadImageToApi,
+} from "@/lib/dashboard/api-repository";
 import { isLive } from "@/lib/dashboard/draft-store";
 import type { PreparedImage } from "@/lib/dashboard/image-processing";
 import { localRepository } from "@/lib/dashboard/local-repository";
@@ -99,9 +106,16 @@ export interface DashboardRepository {
 const menu = () => (isLive("menu") ? apiMenuRepository : localRepository);
 const offers = () => (isLive("offers") ? apiOffersRepository : localRepository);
 const banners = () => (isLive("banners") ? apiBannersRepository : localRepository);
+const reviews = () => (isLive("reviews") ? apiReviewsRepository : localRepository);
 
 export const repository: DashboardRepository = {
     ...localRepository,
+    updateReviewsSettings: (changes) => reviews().updateReviewsSettings(changes),
+    createReview: (input) => reviews().createReview(input),
+    saveReview: (id, input) => reviews().saveReview(id, input),
+    setReviewVisible: (id, isVisible) => reviews().setReviewVisible(id, isVisible),
+    moveReview: (id, direction) => reviews().moveReview(id, direction),
+    deleteReview: (id) => reviews().deleteReview(id),
     createBanner: (input) => banners().createBanner(input),
     saveBanner: (id, input) => banners().saveBanner(id, input),
     setBannerActive: (id, isActive) => banners().setBannerActive(id, isActive),

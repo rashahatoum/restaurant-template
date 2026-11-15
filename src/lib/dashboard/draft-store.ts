@@ -68,6 +68,7 @@ const AREA_FIELDS = {
     menu: ["categories", "products"],
     offers: ["offers"],
     banners: ["banners"],
+    reviews: ["reviews"],
 } as const satisfies Record<LiveArea, readonly (keyof DashboardData)[]>;
 
 /**

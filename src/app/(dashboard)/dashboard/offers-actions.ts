@@ -8,11 +8,11 @@
 // Endpoints (API-CONTRACT §2, §4): section → PATCH /admin/offers-section;
 // a whole offer from the form → PUT (a missing optional field is cleared);
 // on/off from the list → PATCH; move → POST …/move. To confirm on staging:
-// the full save's method and the section's response shape (lib/dashboard/offers-api).
+// the full save's method and the section's response shape (lib/dashboard/section-api).
 
 import { appError, fail, ok, type Result } from "@/lib/api/errors";
 import { adminWrite, badRequest, isDirection, isObject, segment, type Direction } from "@/lib/dashboard/action-helpers";
-import { toOffersSettings } from "@/lib/dashboard/offers-api";
+import { toOffersSettings } from "@/lib/dashboard/section-api";
 import { OFFERS_TAG } from "@/services/content";
 import type { Offer } from "@/types/content";
 import type { OfferInput, OffersSettings } from "@/types/dashboard";

@@ -1,7 +1,7 @@
 // Editable page content. Same contract as services/menu.ts: each area reads
 // the Laravel API once it's switched (D7) and API_BASE_URL is set, else the
-// mock data, behind the same signatures. Offers are on the API (D7d); hero,
-// about, reviews and site info are still mock.
+// mock data, behind the same signatures. Offers (D7d) and reviews (D7f) are on
+// the API; hero, about and site info are still mock.
 
 import { about } from "@/data/mock/about";
 import { hero } from "@/data/mock/hero";
@@ -51,7 +51,7 @@ export async function getAboutContent(): Promise<AboutContent> {
 export const OFFERS_TAG = "offers";
 
 /** Fallback refresh, for changes made on the server without the dashboard (API-CONTRACT §3). */
-const OFFERS_REVALIDATE_SECONDS = 60 * 60;
+const CONTENT_REVALIDATE_SECONDS = 60 * 60;
 
 /** Active offers only; null when the section is off or has nothing to show. */
 const activeOffersOnly = (content: OffersContent | null): OffersContent | null => {
@@ -70,7 +70,7 @@ const loadOffers = cache(async (): Promise<OffersContent | null> => {
     if (!isApiEnabled()) return activeOffersOnly(offers);
 
     const result = await apiFetch<OffersContent | null>("/offers", {
-        next: { tags: [OFFERS_TAG], revalidate: OFFERS_REVALIDATE_SECONDS },
+        next: { tags: [OFFERS_TAG], revalidate: CONTENT_REVALIDATE_SECONDS },
     });
     if (!result.ok) throw new Error(`GET /offers failed (${result.error.kind}${result.error.status ? ` ${result.error.status}` : ""})`);
     if (result.data !== null && !Array.isArray(result.data?.offers)) throw new Error("GET /offers didn't return the offers section");
@@ -82,15 +82,24 @@ export async function getOffersContent(): Promise<OffersContent | null> {
     return loadOffers();
 }
 
+/** Cache tag of the public reviews read: a dashboard reviews save calls updateTag(REVIEWS_TAG). */
+export const REVIEWS_TAG = "reviews";
+
 /** Visible reviews only; null when the section is off or has nothing to show. */
+const visibleReviewsOnly = (content: ReviewsContent | null): ReviewsContent | null => {
+    if (!content?.isEnabled) return null;
+    const visibleReviews = content.reviews.filter((review) => review.isVisible);
+    return visibleReviews.length > 0 ? { ...content, reviews: visibleReviews } : null;
+};
+
+/** With the API: `GET /reviews` (section + visible reviews, or null when off), cached with its tag; throws on failure. */
 export async function getReviewsContent(): Promise<ReviewsContent | null> {
-    if (!reviews.isEnabled) return null;
+    if (!isApiEnabled()) return visibleReviewsOnly(reviews);
 
-    const visibleReviews = reviews.reviews.filter(
-        (review) => review.isVisible
-    );
-
-    return visibleReviews.length > 0
-        ? { ...reviews, reviews: visibleReviews }
-        : null;
+    const result = await apiFetch<ReviewsContent | null>("/reviews", {
+        next: { tags: [REVIEWS_TAG], revalidate: CONTENT_REVALIDATE_SECONDS },
+    });
+    if (!result.ok) throw new Error(`GET /reviews failed (${result.error.kind}${result.error.status ? ` ${result.error.status}` : ""})`);
+    if (result.data !== null && !Array.isArray(result.data?.reviews)) throw new Error("GET /reviews didn't return the reviews section");
+    return visibleReviewsOnly(result.data);
 }

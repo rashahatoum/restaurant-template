@@ -3,7 +3,7 @@ import "server-only";
 // The dashboard's starting data: every record as stored, nothing filtered.
 // With API_BASE_URL set, the live areas come from the Laravel admin GETs
 // (API-CONTRACT §4) and are saved there (D7): categories and products,
-// offers, banners. Everything else is still the mock data + the browser draft.
+// offers, banners, reviews. Everything else is still the mock data + the browser draft.
 // Switching a new area = one entry in LIVE_LOADERS.
 
 import { about } from "@/data/mock/about";
@@ -18,7 +18,7 @@ import { apiFetch } from "@/lib/api/client";
 import { isApiEnabled } from "@/lib/api/config";
 import type { Result } from "@/lib/api/errors";
 import { DASHBOARD_HOME, sessionExpiredHref } from "@/lib/auth/paths";
-import { toOffersContent } from "@/lib/dashboard/offers-api";
+import { toOffersContent, toReviewsContent } from "@/lib/dashboard/section-api";
 import { numberBestSellers } from "@/lib/menu";
 import type { MenuBanner } from "@/types/content";
 import type { DashboardData, LiveArea } from "@/types/dashboard";
@@ -61,6 +61,7 @@ const LIVE_LOADERS: Record<LiveArea, () => Promise<Partial<DashboardData>>> = {
     },
     offers: async () => ({ offers: toOffersContent(await adminGet<unknown>("offers")) }),
     banners: async () => ({ banners: await adminGet<MenuBanner[]>("banners") }),
+    reviews: async () => ({ reviews: toReviewsContent(await adminGet<unknown>("reviews")) }),
 };
 
 export async function getDashboardSeed(): Promise<DashboardData> {
