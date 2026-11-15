@@ -8,7 +8,7 @@
 // reviews (D7f), hero + about (D7g), site info (D7h), ordering (D7i): every
 // area. Without the API, everything stays on the draft. Screens don't change.
 
-import type { Result } from "@/lib/api/errors";
+import { fail, type Result } from "@/lib/api/errors";
 import {
     apiBannersRepository,
     apiHomeRepository,
@@ -19,12 +19,21 @@ import {
     apiReviewsRepository,
     uploadImageToApi,
 } from "@/lib/dashboard/api-repository";
-import { isLive } from "@/lib/dashboard/draft-store";
+import { currentData, isLive } from "@/lib/dashboard/draft-store";
 import type { PreparedImage } from "@/lib/dashboard/image-processing";
 import { localRepository } from "@/lib/dashboard/local-repository";
-import type { ProductQuickChanges } from "@/lib/dashboard/validation";
+import { checkProductQuickChanges, type ProductQuickChanges } from "@/lib/dashboard/validation";
 import type { AboutContent, HeroContent, MenuBanner, Offer, Review, SiteInfo } from "@/types/content";
-import type { BannerInput, LiveArea, OfferInput, OffersSettings, ProductInput, ReviewInput, ReviewsSettings } from "@/types/dashboard";
+import type {
+    BannerInput,
+    LiveArea,
+    OfferInput,
+    OffersSettings,
+    ProductInput,
+    ReviewInput,
+    ReviewsSettings,
+    SiteInfoInput,
+} from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 import type { OrderingSettings } from "@/types/order";
 
@@ -39,7 +48,8 @@ export interface DashboardRepository {
     /** One step earlier or later in the home "الأكثر مبيعاً" slider. Returns the best sellers in order. */
     moveBestSeller(id: string, direction: "up" | "down"): Promise<Result<readonly Product[]>>;
     /** New category, last in the order. */
-    createCategory(name: string): Promise<Result<Category>>;
+    /** `slug`: the optional «رابط» (lib/slug); missing → a neutral id. */
+    createCategory(name: string, slug?: string): Promise<Result<Category>>;
     renameCategory(id: string, name: string): Promise<Result<Category>>;
     /** One step up or down in the menu order. */
     moveCategory(id: string, direction: "up" | "down"): Promise<Result<readonly Category[]>>;
@@ -83,7 +93,7 @@ export interface DashboardRepository {
      * with an empty id. A deleted branch's tables and staff numbers go with it. Refused (conflict) when delivery or a branch with tables
      * would be left without a WhatsApp number.
      */
-    saveSiteInfo(input: SiteInfo): Promise<Result<SiteInfo>>;
+    saveSiteInfo(input: SiteInfoInput): Promise<Result<SiteInfo>>;
     /**
      * Delivery, tables and message texts, all together (one form). Checked
      * against the saved restaurant info: what's on needs a WhatsApp number.
@@ -107,6 +117,17 @@ export interface DashboardRepository {
 
 /** The API when the area is live, else the browser draft (checked on every call). */
 const menu = () => (isLive("menu") ? apiMenuRepository : localRepository);
+
+/**
+ * A quick change from the list, checked here before it's sent (the browser
+ * draft checks it too, the API checks it again): the owner hears it at once,
+ * e.g. a lower price that would make a size free.
+ */
+async function updateProductChecked(id: string, changes: ProductQuickChanges): Promise<Result<Product>> {
+    const product = currentData().products.find((candidate) => candidate.id === id);
+    const error = product && checkProductQuickChanges(product, changes);
+    return error ? fail(error) : menu().updateProduct(id, changes);
+}
 const offers = () => (isLive("offers") ? apiOffersRepository : localRepository);
 const banners = () => (isLive("banners") ? apiBannersRepository : localRepository);
 const reviews = () => (isLive("reviews") ? apiReviewsRepository : localRepository);
@@ -137,12 +158,12 @@ export const repository: DashboardRepository = {
     setOfferActive: (id, isActive) => offers().setOfferActive(id, isActive),
     moveOffer: (id, direction) => offers().moveOffer(id, direction),
     deleteOffer: (id) => offers().deleteOffer(id),
-    updateProduct: (id, changes) => menu().updateProduct(id, changes),
+    updateProduct: updateProductChecked,
     createProduct: (input) => menu().createProduct(input),
     saveProduct: (id, input) => menu().saveProduct(id, input),
     deleteProduct: (id) => menu().deleteProduct(id),
     moveBestSeller: (id, direction) => menu().moveBestSeller(id, direction),
-    createCategory: (name) => menu().createCategory(name),
+    createCategory: (name, slug) => menu().createCategory(name, slug),
     renameCategory: (id, name) => menu().renameCategory(id, name),
     moveCategory: (id, direction) => menu().moveCategory(id, direction),
     deleteCategory: (id) => menu().deleteCategory(id),

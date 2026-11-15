@@ -3,6 +3,7 @@
 
 import { appError, fail, ok, type Result } from "@/lib/api/errors";
 import { parsePriceInput, sizeField } from "@/lib/dashboard/validation";
+import { slugToSend } from "@/lib/slug";
 import type { ProductInput } from "@/types/dashboard";
 import type { ImageStyle, Product, ProductOptionGroup } from "@/types/menu";
 
@@ -28,6 +29,8 @@ export interface ProductFormValues {
     sizes: SizeRow[];
     /** Name of the size group, e.g. "الحجم" (kept from the product). */
     sizesLabel: string;
+    /** «رابط الصفحة»: the product's current id, or empty for a new one (lib/slug). */
+    slug: string;
 }
 
 const DEFAULT_SIZES_LABEL = "الحجم";
@@ -58,9 +61,9 @@ export function toFormValues(product: Product | undefined, categoryId: string): 
                 price: String((product?.price ?? 0) + option.priceDelta),
             })) ?? [],
         sizesLabel: group?.name ?? DEFAULT_SIZES_LABEL,
+        slug: product?.id ?? "",
     };
 }
-
 /** Same content (decides whether the save bar shows). */
 export const isSameForm = (a: ProductFormValues, b: ProductFormValues) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -108,8 +111,10 @@ function priceAndDeltas(values: ProductFormValues, read: (text: string, index: n
  * Text → a product payload. Fails only on numbers that can't be read; the
  * other rules (required, lengths…) are the repository's (checkProductInput).
  */
-export function parseProductForm(values: ProductFormValues): Result<ProductInput> {
+export function parseProductForm(values: ProductFormValues, currentId?: string): Result<ProductInput> {
     const errors: Record<string, string[]> = {};
+    const slug = slugToSend(values.slug, currentId);
+    if (!slug.ok) Object.assign(errors, slug.error.fieldErrors);
 
     const { price, deltas } = priceAndDeltas(values, (text, index) => {
         const value = parsePriceInput(text);
@@ -134,6 +139,7 @@ export function parseProductForm(values: ProductFormValues): Result<ProductInput
         isAvailable: values.isAvailable,
         isBestSeller: values.isBestSeller,
         optionGroups: sizeGroup(values, deltas, "save"),
+        ...(slug.ok && slug.data ? { slug: slug.data } : {}),
     });
 }
 

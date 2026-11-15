@@ -2,6 +2,7 @@
 // text while typing and is parsed only on save.
 
 import { appError, fail, ok, type Result } from "@/lib/api/errors";
+import { slugToSend } from "@/lib/slug";
 import { checkOfferInput, parsePriceInput } from "@/lib/dashboard/validation";
 import type { OfferInput } from "@/types/dashboard";
 import type { Offer } from "@/types/content";
@@ -16,6 +17,8 @@ export interface OfferFormValues {
     imageStyle?: ImageStyle;
     badge: string;
     isActive: boolean;
+    /** «رابط الصفحة»: the offer's current id, or empty for a new one. */
+    slug: string;
 }
 
 export function toOfferFormValues(offer: Offer | undefined): OfferFormValues {
@@ -28,6 +31,7 @@ export function toOfferFormValues(offer: Offer | undefined): OfferFormValues {
         imageStyle: offer?.imageStyle,
         badge: offer?.badge ?? "",
         isActive: offer?.isActive ?? true,
+        slug: offer?.id ?? "",
     };
 }
 
@@ -52,14 +56,17 @@ const toInput = (values: OfferFormValues, price: number): OfferInput => {
  * with the other fields' problems (so an empty form shows every error at
  * once); a readable payload is checked again by the repository.
  */
-export function parseOfferForm(values: OfferFormValues): Result<OfferInput> {
+export function parseOfferForm(values: OfferFormValues, currentId?: string): Result<OfferInput> {
     const price = parsePriceInput(values.price);
-    if (price !== null) return ok(toInput(values, price));
+    const slug = slugToSend(values.slug, currentId);
+    if (price !== null && slug.ok) return ok({ ...toInput(values, price), ...(slug.data ? { slug: slug.data } : {}) });
 
     // A valid stand-in price, so only the other fields are reported from this check
-    const others = checkOfferInput(toInput(values, 1))?.fieldErrors ?? {};
-    const message = values.price.trim() ? "السعر لازم يكون رقم، متل 1000" : "اكتب السعر";
-    return fail(appError("validation", { fieldErrors: { ...others, price: [message] } }));
+    const others = checkOfferInput(toInput(values, price ?? 1))?.fieldErrors ?? {};
+    const priceErrors: Record<string, string[]> =
+        price === null ? { price: [values.price.trim() ? "السعر لازم يكون رقم، متل 1000" : "اكتب السعر"] } : {};
+    const slugErrors: Record<string, string[]> = slug.ok ? {} : (slug.error.fieldErrors ?? {});
+    return fail(appError("validation", { fieldErrors: { ...others, ...priceErrors, ...slugErrors } }));
 }
 
 /** A best-effort offer for the live preview (never fails: placeholders fill empty fields). */

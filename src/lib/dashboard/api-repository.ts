@@ -90,7 +90,7 @@ export const apiMenuRepository: Pick<DashboardRepository, MenuMethods> = {
     saveProduct: (id, input) => signedIn(() => saveProductAction(id, input)),
     deleteProduct: (id) => signedIn(() => deleteProductAction(id)),
     moveBestSeller: (id, direction) => signedIn(() => moveBestSellerAction(id, direction)),
-    createCategory: (name) => signedIn(() => createCategoryAction(name)),
+    createCategory: (name, slug) => signedIn(() => createCategoryAction(name, slug)),
     renameCategory: (id, name) => signedIn(() => renameCategoryAction(id, name)),
     moveCategory: (id, direction) => signedIn(() => moveCategoryAction(id, direction)),
     deleteCategory: (id) => signedIn(() => deleteCategoryAction(id)),

@@ -6,6 +6,7 @@ import ErrorState from "@/components/dashboard/feedback/ErrorState";
 import FieldError from "@/components/dashboard/feedback/FieldError";
 import ChipsInput from "@/components/dashboard/form/ChipsInput";
 import FieldShell, { describedBy } from "@/components/dashboard/form/FieldShell";
+import SlugField from "@/components/dashboard/form/SlugField";
 import ImagePicker from "@/components/dashboard/form/ImagePicker";
 import { inputClasses } from "@/components/dashboard/form/field-styles";
 import SaveBar from "@/components/dashboard/form/SaveBar";
@@ -89,7 +90,7 @@ const OfferEditor = ({ offer, onLeave }: OfferEditorProps) => {
 
     const submit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const parsed = parseOfferForm(values);
+        const parsed = parseOfferForm(values, offer?.id);
         if (!parsed.ok) return setError(parsed.error);
 
         const input = parsed.data;
@@ -142,6 +143,21 @@ const OfferEditor = ({ offer, onLeave }: OfferEditorProps) => {
                             className={inputClasses}
                         />
                     </FieldShell>
+
+                    <SlugField
+                        id="offer-slug"
+                        label="رابط الصفحة (اختياري)"
+                        prefix="/menu/"
+                        value={values.slug}
+                        onChange={(slug) => set("slug", slug)}
+                        placeholder="shawarma-4-plus-1"
+                        hint={
+                            offer
+                                ? "بالإنكليزي. إذا غيّرته، الروابط القديمة يلي انشاركت ما عادت تفتح هالعرض."
+                                : "بالإنكليزي، متل shawarma-4-plus-1. إذا تركته فاضي منعطيه رابط تلقائي."
+                        }
+                        error={errorOf("slug")}
+                    />
 
                     <FieldShell
                         htmlFor="offer-items"

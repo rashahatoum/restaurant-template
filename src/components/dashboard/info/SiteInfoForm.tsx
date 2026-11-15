@@ -6,6 +6,7 @@ import FieldError from "@/components/dashboard/feedback/FieldError";
 import FieldShell, { describedBy } from "@/components/dashboard/form/FieldShell";
 import { inputClasses, textareaClasses } from "@/components/dashboard/form/field-styles";
 import SaveBar from "@/components/dashboard/form/SaveBar";
+import SlugField from "@/components/dashboard/form/SlugField";
 import Switch from "@/components/dashboard/Switch";
 import { SOCIAL_ICONS } from "@/components/ui/social-icons";
 import { useFormGuards } from "@/hooks/useFormGuards";
@@ -15,6 +16,7 @@ import { formatPhone, normalizePhone } from "@/lib/contact";
 import { repository } from "@/lib/dashboard/repository";
 import { hasDineIn, phoneUses } from "@/lib/dashboard/site-info";
 import {
+    branchSlugErrors,
     isHalfHours,
     isSameSiteInfo,
     toSiteInfoFormValues,
@@ -98,6 +100,8 @@ const SiteInfoForm = ({ info, ordering, onSaved }: SiteInfoFormProps) => {
             const message = "اختار ساعة الفتح وساعة السكّر، أو فضّي التنين";
             return setError(appError("validation", { fieldErrors: { openingHours: [message] } }));
         }
+        const slugErrors = branchSlugErrors(values);
+        if (Object.keys(slugErrors).length > 0) return setError(appError("validation", { fieldErrors: slugErrors }));
         const result = await run(() => repository.saveSiteInfo(input));
         if (!result) return; // a second tap while saving
         if (!result.ok) return setError(result.error);
@@ -323,6 +327,20 @@ const SiteInfoForm = ({ info, ordering, onSaved }: SiteInfoFormProps) => {
                                     />
                                 </FieldShell>
 
+                                {/* New branches only: it's printed in the table QR codes, so it never changes after */}
+                                {!branch.id && (
+                                    <SlugField
+                                        id={`info-branch-${branch.key}-slug`}
+                                        label="رابط الفرع (اختياري)"
+                                        prefix="/t/"
+                                        value={branch.slug}
+                                        onChange={(slug) => setBranch(branch.key, { slug })}
+                                        placeholder="al-corniche"
+                                        hint="بالإنكليزي، وبينطبع بأكواد QR الطاولات، فما بيتغيّر بعد الحفظ. إذا تركته فاضي منعطيه رابط تلقائي."
+                                        error={errorOf(`branches.${index}.slug`)}
+                                    />
+                                )}
+
                                 {/* The branch's own numbers: table orders, not shown on the site */}
                                 <div className="flex flex-col gap-8">
                                     <p className="text-sm font-bold">رقم عامل الصالة</p>
@@ -368,7 +386,7 @@ const SiteInfoForm = ({ info, ordering, onSaved }: SiteInfoFormProps) => {
                         <button
                             type="button"
                             onClick={() =>
-                                set("branches", [...values.branches, { key: nextKey(values.branches), id: "", name: "", address: "", mapUrl: "" }])
+                                set("branches", [...values.branches, { key: nextKey(values.branches), id: "", name: "", address: "", mapUrl: "", slug: "" }])
                             }
                             className={addButton}
                         >

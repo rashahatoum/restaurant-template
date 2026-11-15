@@ -3,7 +3,9 @@
 
 import { formatPhone, normalizePhone } from "@/lib/contact";
 import { hoursSchema, hoursText, normalizeSocialUrl, parseHoursSchema, SOCIAL_PLATFORMS } from "@/lib/site-info";
+import { slugToSend, tidySlug } from "@/lib/slug";
 import type { SiteInfo, SocialPlatform } from "@/types/content";
+import type { SiteInfoInput } from "@/types/dashboard";
 
 export interface PhoneValues {
     /** React key: stays put when a row above is deleted. */
@@ -24,6 +26,8 @@ export interface BranchValues {
     name: string;
     address: string;
     mapUrl: string;
+    /** «رابط الفرع», new branches only: it becomes the id printed in the table QR codes. */
+    slug: string;
 }
 
 export interface SiteInfoFormValues {
@@ -56,6 +60,7 @@ export function toSiteInfoFormValues(info: SiteInfo): SiteInfoFormValues {
             name: branch.name,
             address: branch.address,
             mapUrl: branch.mapUrl ?? "",
+            slug: "",
         })),
         opens: hours?.opens ?? "",
         closes: hours?.closes ?? "",
@@ -69,7 +74,7 @@ const withHttps = (text: string) => (text && !/^[a-z]+:\/\//i.test(text) ? `http
 /** Only one of the two clock times set: the form says so before saving. */
 export const isHalfHours = (values: Pick<SiteInfoFormValues, "opens" | "closes">) => Boolean(values.opens) !== Boolean(values.closes);
 
-export function toSiteInfoInput(values: SiteInfoFormValues): SiteInfo {
+export function toSiteInfoInput(values: SiteInfoFormValues): SiteInfoInput {
     const hasHours = Boolean(values.opens && values.closes);
     const socialLinks = SOCIAL_PLATFORMS.flatMap(({ platform }) => {
         const typed = values.social[platform].trim();
@@ -86,11 +91,13 @@ export function toSiteInfoInput(values: SiteInfoFormValues): SiteInfo {
         })),
         branches: values.branches.map((branch) => {
             const mapUrl = withHttps(branch.mapUrl.trim());
+            const slug = branch.id ? "" : tidySlug(branch.slug);
             return {
                 id: branch.id,
                 name: branch.name.trim(),
                 address: branch.address.trim(),
                 ...(mapUrl ? { mapUrl } : {}),
+                ...(slug ? { slug } : {}),
             };
         }),
         ...(hasHours
@@ -100,4 +107,15 @@ export function toSiteInfoInput(values: SiteInfoFormValues): SiteInfo {
     };
 }
 
-export const isSameSiteInfo = (a: SiteInfo, b: SiteInfo) => JSON.stringify(a) === JSON.stringify(b);
+export const isSameSiteInfo = (a: SiteInfoInput, b: SiteInfoInput) => JSON.stringify(a) === JSON.stringify(b);
+
+/** The shape of each new branch's «رابط», checked before saving (uniqueness is the saver's), keyed like the API. */
+export function branchSlugErrors(values: Pick<SiteInfoFormValues, "branches">): Record<string, string[]> {
+    return Object.fromEntries(
+        values.branches.flatMap((branch, index) => {
+            if (branch.id) return [];
+            const checked = slugToSend(branch.slug, undefined);
+            return checked.ok ? [] : [[`branches.${index}.slug`, checked.error.fieldErrors?.slug ?? []]];
+        })
+    );
+}

@@ -6,6 +6,7 @@ import ErrorState from "@/components/dashboard/feedback/ErrorState";
 import ChipsInput from "@/components/dashboard/form/ChipsInput";
 import ImagePicker from "@/components/dashboard/form/ImagePicker";
 import FieldShell, { describedBy } from "@/components/dashboard/form/FieldShell";
+import SlugField from "@/components/dashboard/form/SlugField";
 import { inputClasses, textareaClasses } from "@/components/dashboard/form/field-styles";
 import SaveBar from "@/components/dashboard/form/SaveBar";
 import Switch from "@/components/dashboard/Switch";
@@ -128,7 +129,7 @@ const ProductEditor = ({ product, categories, startCategory, onLeave }: ProductE
 
     const submit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const parsed = parseProductForm(values);
+        const parsed = parseProductForm(values, product?.id);
         if (!parsed.ok) return setError(parsed.error);
 
         const input = parsed.data;
@@ -185,6 +186,21 @@ const ProductEditor = ({ product, categories, startCategory, onLeave }: ProductE
                             className={inputClasses}
                         />
                     </FieldShell>
+
+                    <SlugField
+                        id="product-slug"
+                        label="رابط الصفحة (اختياري)"
+                        prefix="/menu/"
+                        value={values.slug}
+                        onChange={(slug) => set("slug", slug)}
+                        placeholder="chicken-shawarma"
+                        hint={
+                            product
+                                ? "بالإنكليزي. إذا غيّرته، الروابط القديمة يلي انشاركت ما عادت تفتح هالصنف."
+                                : "بالإنكليزي، متل chicken-shawarma: بيبيّن بالرابط وبـGoogle. إذا تركته فاضي منعطيه رابط تلقائي."
+                        }
+                        error={errorOf("slug")}
+                    />
 
                     <div className="grid gap-18 md:grid-cols-2">
                         {/* With sizes, each size has its own price (in the sizes list below) */}

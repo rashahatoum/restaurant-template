@@ -9,7 +9,9 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { useToast } from "@/hooks/useToast";
 import { fieldError, type AppError } from "@/lib/api/errors";
 import { repository } from "@/lib/dashboard/repository";
+import SlugField from "@/components/dashboard/form/SlugField";
 import { CATEGORY_NAME_MAX } from "@/lib/dashboard/validation";
+import { slugToSend } from "@/lib/slug";
 import type { DashboardData } from "@/types/dashboard";
 import type { Category } from "@/types/menu";
 import { useRouter } from "next/navigation";
@@ -24,6 +26,7 @@ const CategoriesEditor = ({ seed }: { seed: DashboardData }) => {
     const router = useRouter();
     const { toast, show, hide } = useToast();
     const [newName, setNewName] = useState("");
+    const [newSlug, setNewSlug] = useState("");
     const [addError, setAddError] = useState<AppError>();
     const [toDelete, setToDelete] = useState<Category>();
 
@@ -32,10 +35,13 @@ const CategoriesEditor = ({ seed }: { seed: DashboardData }) => {
 
     const add = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const result = await repository.createCategory(newName);
+        const slug = slugToSend(newSlug, undefined);
+        if (!slug.ok) return setAddError(slug.error);
+        const result = await repository.createCategory(newName, slug.data);
         if (!result.ok) return setAddError(result.error);
         setAddError(undefined);
         setNewName("");
+        setNewSlug("");
         show({ tone: "success", message: `انضاف قسم ${result.data.name}. هلق ضيفله أصناف من المنيو.` });
     };
 
@@ -79,7 +85,8 @@ const CategoriesEditor = ({ seed }: { seed: DashboardData }) => {
         show(result.ok ? { tone: "success", message: `انحذف قسم ${category.name}` } : { tone: "error", message: result.error.message });
     };
 
-    const addMessage = addError ? (fieldError(addError, "name") ?? addError.message) : undefined;
+    const slugMessage = fieldError(addError, "slug");
+    const addMessage = addError && !slugMessage ? (fieldError(addError, "name") ?? addError.message) : undefined;
 
     return (
         <>
@@ -111,6 +118,17 @@ const CategoriesEditor = ({ seed }: { seed: DashboardData }) => {
                     </button>
                 </div>
                 <FieldError id="new-category-error" message={addMessage} />
+                {/* Only when adding: the menu's jump links use it (#category-…) */}
+                <SlugField
+                    id="new-category-slug"
+                    label="رابط القسم (اختياري)"
+                    prefix="#category-"
+                    value={newSlug}
+                    onChange={setNewSlug}
+                    placeholder="desserts"
+                    hint="بالإنكليزي. بيبيّن آخر رابط القسم بالمنيو. إذا تركته فاضي منعطيه رابط تلقائي."
+                    error={slugMessage}
+                />
             </form>
 
             {/* =========================
