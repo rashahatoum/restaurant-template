@@ -5,12 +5,13 @@
 // localRepository: the browser draft. apiMenuRepository / apiOffersRepository:
 // Server Actions → the Laravel API, used for an area when the server says it's
 // live (API_BASE_URL set): the menu (D7c), offers (D7d), banners (D7e),
-// reviews (D7f). Every other area
+// reviews (D7f), hero + about (D7g). Every other area
 // stays on the draft until the API has it. Screens don't change.
 
 import type { Result } from "@/lib/api/errors";
 import {
     apiBannersRepository,
+    apiHomeRepository,
     apiMenuRepository,
     apiOffersRepository,
     apiReviewsRepository,
@@ -107,9 +108,12 @@ const menu = () => (isLive("menu") ? apiMenuRepository : localRepository);
 const offers = () => (isLive("offers") ? apiOffersRepository : localRepository);
 const banners = () => (isLive("banners") ? apiBannersRepository : localRepository);
 const reviews = () => (isLive("reviews") ? apiReviewsRepository : localRepository);
+const home = () => (isLive("home") ? apiHomeRepository : localRepository);
 
 export const repository: DashboardRepository = {
     ...localRepository,
+    saveHero: (input) => home().saveHero(input),
+    saveAbout: (input) => home().saveAbout(input),
     updateReviewsSettings: (changes) => reviews().updateReviewsSettings(changes),
     createReview: (input) => reviews().createReview(input),
     saveReview: (id, input) => reviews().saveReview(id, input),

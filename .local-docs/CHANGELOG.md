@@ -2,6 +2,9 @@
 
 Significant changes only. Small styling tweaks are not recorded.
 
+## 2026-11-15 — Dashboard D7g: hero + «من نحن» on the Laravel API (`feat/dashboard-d7-home`, on top of D7f, not tried on staging yet)
+- The home reads the hero texts and «من نحن» from `GET /hero` and `GET /about` (tag `home`); the dashboard saves both (and the About photo) through the API. Tested with the local fake API.
+
 ## 2026-11-15 — Dashboard D7f: reviews on the Laravel API (`feat/dashboard-d7-reviews`, on top of D7e, not tried on staging yet)
 - The home reads reviews from `GET /reviews`; the dashboard saves the section, reviews, order and shown/hidden through the API.
 - `lib/dashboard/offers-api` → `section-api` (offers and reviews share the section + list reading). Tested with the local fake API.

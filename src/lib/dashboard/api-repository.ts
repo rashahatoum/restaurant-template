@@ -1,5 +1,5 @@
 // The dashboard's methods with the Laravel API, for the areas that are live:
-// the menu (D7c), offers (D7d), banners (D7e), reviews (D7f). Each calls a Server Action, which calls the
+// the menu (D7c), offers (D7d), banners (D7e), reviews (D7f), hero + about (D7g). Each calls a Server Action, which calls the
 // API with the user's token. Screens see the same Result as with the browser
 // draft. Other areas stay on localRepository until the API has them.
 
@@ -15,6 +15,7 @@ import {
     setCategoryImageAction,
     updateProductAction,
 } from "@/app/(dashboard)/dashboard/menu-actions";
+import { saveAboutAction, saveHeroAction } from "@/app/(dashboard)/dashboard/home-actions";
 import {
     createOfferAction,
     deleteOfferAction,
@@ -122,6 +123,11 @@ export const apiReviewsRepository: Pick<DashboardRepository, ReviewsMethods> = {
     setReviewVisible: (id, isVisible) => signedIn(() => setReviewVisibleAction(id, isVisible)),
     moveReview: (id, direction) => signedIn(() => moveReviewAction(id, direction)),
     deleteReview: (id) => signedIn(() => deleteReviewAction(id)),
+};
+
+export const apiHomeRepository: Pick<DashboardRepository, "saveHero" | "saveAbout"> = {
+    saveHero: (input) => signedIn(() => saveHeroAction(input)),
+    saveAbout: (input) => signedIn(() => saveAboutAction(input)),
 };
 
 /** A prepared photo → the API's uploads (any live area). */

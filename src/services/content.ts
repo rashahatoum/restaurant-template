@@ -1,7 +1,7 @@
 // Editable page content. Same contract as services/menu.ts: each area reads
 // the Laravel API once it's switched (D7) and API_BASE_URL is set, else the
-// mock data, behind the same signatures. Offers (D7d) and reviews (D7f) are on
-// the API; hero, about and site info are still mock.
+// mock data, behind the same signatures. Offers (D7d), reviews (D7f), hero and
+// about (D7g) are on the API; site info is still mock.
 
 import { about } from "@/data/mock/about";
 import { hero } from "@/data/mock/hero";
@@ -20,8 +20,22 @@ import type {
 } from "@/types/content";
 import { cache } from "react";
 
+/** Fallback refresh of the API reads, for changes made on the server without the dashboard (API-CONTRACT §3). */
+const CONTENT_REVALIDATE_SECONDS = 60 * 60;
+
+/** Cache tag of the hero and «من نحن» reads: a dashboard save of either calls updateTag(HOME_TAG). */
+export const HOME_TAG = "home";
+
+/** A public singleton read (`GET /hero`, `GET /about`), cached with its tag; throws when the API fails. */
+async function readOne<T extends object>(path: string, tag: string): Promise<T> {
+    const result = await apiFetch<T>(path, { next: { tags: [tag], revalidate: CONTENT_REVALIDATE_SECONDS } });
+    if (!result.ok) throw new Error(`GET ${path} failed (${result.error.kind}${result.error.status ? ` ${result.error.status}` : ""})`);
+    if (typeof result.data !== "object" || result.data === null) throw new Error(`GET ${path} didn't return an object`);
+    return result.data;
+}
+
 export async function getHeroContent(): Promise<HeroContent> {
-    return hero;
+    return isApiEnabled() ? readOne<HeroContent>("/hero", HOME_TAG) : hero;
 }
 
 export async function getSiteInfo(): Promise<SiteInfo> {
@@ -44,14 +58,12 @@ export async function getNavContact(): Promise<{
 }
 
 export async function getAboutContent(): Promise<AboutContent> {
-    return about;
+    return isApiEnabled() ? readOne<AboutContent>("/about", HOME_TAG) : about;
 }
 
 /** Cache tag of the public offers read: a dashboard offers save calls updateTag(OFFERS_TAG). */
 export const OFFERS_TAG = "offers";
 
-/** Fallback refresh, for changes made on the server without the dashboard (API-CONTRACT §3). */
-const CONTENT_REVALIDATE_SECONDS = 60 * 60;
 
 /** Active offers only; null when the section is off or has nothing to show. */
 const activeOffersOnly = (content: OffersContent | null): OffersContent | null => {
