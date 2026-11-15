@@ -2,6 +2,11 @@
 
 Significant changes only. Small styling tweaks are not recorded.
 
+## 2026-11-15 — Dashboard D7d: offers on the Laravel API (`feat/dashboard-d7-offers`, not tried on staging yet)
+- The site reads offers from `GET /offers`; the dashboard reads and saves them through the API (section, offers, order, on/off, photos).
+- `liveAreas` replaces the menu-only flag, so each next area switches with one entry; shared Server Action helpers and uploads.
+- Tested end to end with a local fake API (staging was down).
+
 ## 2026-11-15 — Rotation lab removed, test checklist (`feat/dashboard-d7d`)
 - `/lab/rotation` deleted (values already in the config); no client chunk carries `restaurantConfig` anymore.
 - `.local-docs/TEST_PLAN.md`: manual checklist for the site + dashboard on the API.

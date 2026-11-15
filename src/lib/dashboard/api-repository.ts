@@ -1,7 +1,7 @@
-// The dashboard's menu methods with the Laravel API (D7c): each one calls a
-// Server Action (menu-actions), which calls the API with the user's token.
-// Screens see the same Result as with the browser draft. Only the menu area:
-// the other methods stay on localRepository until the API has them.
+// The dashboard's methods with the Laravel API, for the areas that are live:
+// the menu (D7c) and offers (D7d). Each calls a Server Action, which calls the
+// API with the user's token. Screens see the same Result as with the browser
+// draft. Other areas stay on localRepository until the API has them.
 
 import {
     createCategoryAction,
@@ -14,8 +14,16 @@ import {
     saveProductAction,
     setCategoryImageAction,
     updateProductAction,
-    uploadMenuImageAction,
 } from "@/app/(dashboard)/dashboard/menu-actions";
+import {
+    createOfferAction,
+    deleteOfferAction,
+    moveOfferAction,
+    saveOfferAction,
+    setOfferActiveAction,
+    updateOffersSettingsAction,
+} from "@/app/(dashboard)/dashboard/offers-actions";
+import { uploadImageAction } from "@/app/(dashboard)/dashboard/upload-actions";
 import { appError, fail, type Result } from "@/lib/api/errors";
 import { sessionExpiredHref } from "@/lib/auth/paths";
 import type { PreparedImage } from "@/lib/dashboard/image-processing";
@@ -44,7 +52,7 @@ async function signedIn<T>(call: () => Promise<Result<T>>): Promise<Result<T>> {
 /** File name for the upload: the type the browser could encode (WebP, or PNG/JPG on Safari). */
 const fileName = (blob: Blob) => `photo.${blob.type.split("/")[1] ?? "webp"}`;
 
-type MenuMethods =
+export type MenuMethods =
     | "updateProduct"
     | "createProduct"
     | "saveProduct"
@@ -56,9 +64,9 @@ type MenuMethods =
     | "deleteCategory"
     | "setCategoryImage";
 
-export const apiMenuRepository: Pick<DashboardRepository, MenuMethods> & {
-    uploadMenuImage(image: PreparedImage): Promise<Result<{ src: string }>>;
-} = {
+export type OffersMethods = "updateOffersSettings" | "createOffer" | "saveOffer" | "setOfferActive" | "moveOffer" | "deleteOffer";
+
+export const apiMenuRepository: Pick<DashboardRepository, MenuMethods> = {
     updateProduct: (id, changes) => signedIn(() => updateProductAction(id, changes)),
     createProduct: (input) => signedIn(() => createProductAction(input)),
     saveProduct: (id, input) => signedIn(() => saveProductAction(id, input)),
@@ -69,9 +77,20 @@ export const apiMenuRepository: Pick<DashboardRepository, MenuMethods> & {
     moveCategory: (id, direction) => signedIn(() => moveCategoryAction(id, direction)),
     deleteCategory: (id) => signedIn(() => deleteCategoryAction(id)),
     setCategoryImage: (id, image) => signedIn(() => setCategoryImageAction(id, image)),
-    uploadMenuImage: (image) => {
-        const formData = new FormData();
-        formData.append("image", image.blob, fileName(image.blob));
-        return signedIn(() => uploadMenuImageAction(formData));
-    },
 };
+
+export const apiOffersRepository: Pick<DashboardRepository, OffersMethods> = {
+    updateOffersSettings: (changes) => signedIn(() => updateOffersSettingsAction(changes)),
+    createOffer: (input) => signedIn(() => createOfferAction(input)),
+    saveOffer: (id, input) => signedIn(() => saveOfferAction(id, input)),
+    setOfferActive: (id, isActive) => signedIn(() => setOfferActiveAction(id, isActive)),
+    moveOffer: (id, direction) => signedIn(() => moveOfferAction(id, direction)),
+    deleteOffer: (id) => signedIn(() => deleteOfferAction(id)),
+};
+
+/** A prepared photo → the API's uploads (any live area). */
+export function uploadImageToApi(image: PreparedImage): Promise<Result<{ src: string }>> {
+    const formData = new FormData();
+    formData.append("image", image.blob, fileName(image.blob));
+    return signedIn(() => uploadImageAction(formData));
+}

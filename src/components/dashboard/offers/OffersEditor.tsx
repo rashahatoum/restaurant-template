@@ -131,6 +131,7 @@ const OffersEditor = ({ seed, notice }: OffersEditorProps) => {
 
                 <ImagePicker
                     id="offers-card-image"
+                    area="offers"
                     label="صورة كرت «العروض» بالمنيو"
                     hint="صورة كاملة، بتنقص مربعة. بدونها بتطلع صورة أول عرض."
                     value={section.menuCardImage}

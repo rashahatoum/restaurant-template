@@ -5,6 +5,7 @@ import FieldError from "@/components/dashboard/feedback/FieldError";
 import { fieldError, type AppError } from "@/lib/api/errors";
 import { prepareImage } from "@/lib/dashboard/image-processing";
 import { repository } from "@/lib/dashboard/repository";
+import type { LiveArea } from "@/types/dashboard";
 import type { ImageStyle } from "@/types/menu";
 import { useState, type ChangeEvent } from "react";
 import { FiImage, FiLoader, FiTrash2 } from "react-icons/fi";
@@ -27,8 +28,8 @@ interface ImagePickerProps {
     compact?: boolean;
     /** Category cards: always a full photo cropped square, whatever was detected. */
     fullPhoto?: boolean;
-    /** Products and category cards: uploaded to the API when the menu is live (D7c). */
-    area?: "menu";
+    /** The photo's area: uploaded to the API when that area is live ("menu" D7c, "offers" D7d). */
+    area?: LiveArea;
 }
 
 const buttonClasses =

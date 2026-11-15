@@ -2,19 +2,19 @@
 // and returns a Result, never throws for expected failures, so screens handle
 // "saved" and "failed" the same way whatever is behind it.
 //
-// localRepository: the browser draft. apiMenuRepository: Server Actions →
-// the Laravel API, for the menu area only (D7c), used when the server says the
-// menu is live (API_BASE_URL set). Every other area stays on the draft until
-// the API has it. Screens don't change.
+// localRepository: the browser draft. apiMenuRepository / apiOffersRepository:
+// Server Actions → the Laravel API, used for an area when the server says it's
+// live (API_BASE_URL set): the menu (D7c), offers (D7d). Every other area
+// stays on the draft until the API has it. Screens don't change.
 
 import type { Result } from "@/lib/api/errors";
-import { apiMenuRepository } from "@/lib/dashboard/api-repository";
-import { isMenuLive } from "@/lib/dashboard/draft-store";
+import { apiMenuRepository, apiOffersRepository, uploadImageToApi } from "@/lib/dashboard/api-repository";
+import { isLive } from "@/lib/dashboard/draft-store";
 import type { PreparedImage } from "@/lib/dashboard/image-processing";
 import { localRepository } from "@/lib/dashboard/local-repository";
 import type { ProductQuickChanges } from "@/lib/dashboard/validation";
 import type { AboutContent, HeroContent, MenuBanner, Offer, Review, SiteInfo } from "@/types/content";
-import type { BannerInput, OfferInput, OffersSettings, ProductInput, ReviewInput, ReviewsSettings } from "@/types/dashboard";
+import type { BannerInput, LiveArea, OfferInput, OffersSettings, ProductInput, ReviewInput, ReviewsSettings } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 import type { OrderingSettings } from "@/types/order";
 
@@ -85,20 +85,28 @@ export interface DashboardRepository {
     saveAbout(input: AboutContent): Promise<Result<AboutContent>>;
     /**
      * Stores a prepared photo; returns the src to save on the record.
-     * `area: "menu"` (products, category cards) → the API's uploads when the
-     * menu is live. Other areas keep their photos in this browser: the API
+     * `area` (the photo's area: "menu" for products and category cards,
+     * "offers" for offers and the offers card) → the API's uploads when that
+     * area is live. Other areas keep their photos in this browser: the API
      * deletes an upload that no API record uses after 24 h.
      */
-    uploadImage(image: PreparedImage, area?: "menu"): Promise<Result<{ src: string }>>;
+    uploadImage(image: PreparedImage, area?: LiveArea): Promise<Result<{ src: string }>>;
     /** Drops every local edit (browser draft only; the menu on the server isn't touched). */
     resetToOriginal(): Promise<Result<null>>;
 }
 
-/** The API when the menu is live, else the browser draft (checked on every call). */
-const menu = () => (isMenuLive() ? apiMenuRepository : localRepository);
+/** The API when the area is live, else the browser draft (checked on every call). */
+const menu = () => (isLive("menu") ? apiMenuRepository : localRepository);
+const offers = () => (isLive("offers") ? apiOffersRepository : localRepository);
 
 export const repository: DashboardRepository = {
     ...localRepository,
+    updateOffersSettings: (changes) => offers().updateOffersSettings(changes),
+    createOffer: (input) => offers().createOffer(input),
+    saveOffer: (id, input) => offers().saveOffer(id, input),
+    setOfferActive: (id, isActive) => offers().setOfferActive(id, isActive),
+    moveOffer: (id, direction) => offers().moveOffer(id, direction),
+    deleteOffer: (id) => offers().deleteOffer(id),
     updateProduct: (id, changes) => menu().updateProduct(id, changes),
     createProduct: (input) => menu().createProduct(input),
     saveProduct: (id, input) => menu().saveProduct(id, input),
@@ -109,6 +117,5 @@ export const repository: DashboardRepository = {
     moveCategory: (id, direction) => menu().moveCategory(id, direction),
     deleteCategory: (id) => menu().deleteCategory(id),
     setCategoryImage: (id, image) => menu().setCategoryImage(id, image),
-    uploadImage: (image, area) =>
-        area === "menu" && isMenuLive() ? apiMenuRepository.uploadMenuImage(image) : localRepository.uploadImage(image),
+    uploadImage: (image, area) => (area && isLive(area) ? uploadImageToApi(image) : localRepository.uploadImage(image)),
 };

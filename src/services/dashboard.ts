@@ -1,9 +1,9 @@
 import "server-only";
 
 // The dashboard's starting data: every record as stored, nothing filtered.
-// With API_BASE_URL set, categories and products come from the Laravel admin
-// GETs (API-CONTRACT §4) and are saved there (D7c); everything else is still
-// the mock data + the browser draft until the API has it.
+// With API_BASE_URL set, the live areas come from the Laravel admin GETs
+// (API-CONTRACT §4) and are saved there: categories and products (D7c), offers
+// (D7d). Everything else is still the mock data + the browser draft.
 
 import { about } from "@/data/mock/about";
 import { hero } from "@/data/mock/hero";
@@ -17,7 +17,9 @@ import { apiFetch } from "@/lib/api/client";
 import { isApiEnabled } from "@/lib/api/config";
 import type { Result } from "@/lib/api/errors";
 import { DASHBOARD_HOME, sessionExpiredHref } from "@/lib/auth/paths";
+import { toOffersContent } from "@/lib/dashboard/offers-api";
 import { numberBestSellers } from "@/lib/menu";
+import type { OffersContent } from "@/types/content";
 import type { DashboardData } from "@/types/dashboard";
 import type { Category, Product } from "@/types/menu";
 import { redirect } from "next/navigation";
@@ -31,31 +33,45 @@ function dataOrLeave<T>(result: Result<T>, what: string): T {
 }
 
 /** Categories (in order) and products as the API stores them; never cached (the dashboard edits them). */
-async function menuFromApi(): Promise<Pick<DashboardData, "menuSource" | "categories" | "products">> {
+async function menuFromApi(): Promise<Pick<DashboardData, "categories" | "products">> {
     const [categoryResult, productResult] = await Promise.all([
         apiFetch<Category[]>("/admin/categories", { auth: true }),
         apiFetch<Product[]>("/admin/products", { auth: true }),
     ]);
     return {
-        menuSource: "api",
         categories: [...dataOrLeave(categoryResult, "categories")].sort((a, b) => a.order - b.order),
         // The API keeps best sellers numbered 1…n already
         products: dataOrLeave(productResult, "products"),
     };
 }
 
-export async function getDashboardSeed(): Promise<DashboardData> {
-    const menu = isApiEnabled()
-        ? await menuFromApi()
-        : {
-              categories: [...categories].sort((a, b) => a.order - b.order),
-              // Numbered, so moves and undo in the dashboard always have a place to work with
-              products: numberBestSellers(products),
-          };
+/** The offers section with every offer (inactive included), in order; never cached. */
+async function offersFromApi(): Promise<OffersContent> {
+    return toOffersContent(dataOrLeave(await apiFetch<unknown>("/admin/offers", { auth: true }), "offers"));
+}
 
+export async function getDashboardSeed(): Promise<DashboardData> {
+    if (!isApiEnabled()) {
+        return {
+            categories: [...categories].sort((a, b) => a.order - b.order),
+            // Numbered, so moves and undo in the dashboard always have a place to work with
+            products: numberBestSellers(products),
+            offers,
+            banners: menuBanners,
+            reviews,
+            hero,
+            about,
+            siteInfo,
+            ordering,
+        };
+    }
+
+    const [menu, liveOffers] = await Promise.all([menuFromApi(), offersFromApi()]);
     return {
+        liveAreas: ["menu", "offers"],
         ...menu,
-        offers,
+        offers: liveOffers,
+        // Still the mock data + the browser draft until the API has them
         banners: menuBanners,
         reviews,
         hero,

@@ -9,9 +9,12 @@
 |---|---|---|
 | Login / logout | API ✅ | — |
 | Categories, products, best sellers, their photos | API ✅ | API ✅ |
-| Offers, banner, reviews, hero, «من نحن», restaurant info, ordering | this browser only (draft) | mock data |
+| Offers (section, list, photos) | API (D7d, once merged) | API (D7d, once merged) |
+| Banner, reviews, hero, «من نحن», restaurant info, ordering | this browser only (draft) | mock data |
 
-So for now, only the menu area can be tested end to end. The others: test the dashboard screens, but their changes won't reach customers yet.
+So for now, the menu area (and offers once D7d is merged) can be tested end to end. The others: test the dashboard screens, but their changes won't reach customers yet.
+
+**D7d offers, first run on staging:** in the dashboard, switch an offer off and on, move one, edit one (title, badge removed), add one with a photo, remove the «العروض» card photo, switch the section off and on, delete one; after each, check the home and the menu on another device.
 
 ## Devices
 
