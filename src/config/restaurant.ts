@@ -94,7 +94,7 @@ export const restaurantConfig = {
                 width: 1024,
                 height: 1536,
             },
-            // Tuned with the owner in /lab/rotation.
+            // Tuned with the owner (in a rotation lab, removed 2026-11-15; see git history).
             motion: { speed: 30, easeIn: 1, hold: 4, easeOut: 2.5 },
         },
     },

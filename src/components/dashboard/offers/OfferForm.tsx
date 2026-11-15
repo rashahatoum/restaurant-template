@@ -199,6 +199,7 @@ const OfferEditor = ({ offer, onLeave }: OfferEditorProps) => {
                     <div className="flex flex-col gap-6">
                         <ImagePicker
                             id="offer-image"
+                            area="offers"
                             label="صورة العرض"
                             hint="عريضة شوي (4:3). الأحسن صحن مقصوص على خلفية شفافة (PNG أو WebP)، أو صورة كاملة بتطلع بزوايا مدوّرة. بنصغّرها لحالنا."
                             value={values.image}

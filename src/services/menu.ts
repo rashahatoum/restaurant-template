@@ -1,6 +1,7 @@
 // Menu data access. One loader, two sources: with API_BASE_URL set, the
 // Laravel `GET /menu` (API-CONTRACT §3); unset, the mock data. Everything
-// below is built from it, so callers don't change. Offers stay on mock data.
+// below is built from it, so callers don't change. Offers come from
+// services/content (their own read and tag). Banners stay on mock data.
 
 import { categories, products } from "@/data/mock/menu";
 import { menuBanners } from "@/data/mock/menu-banners";

@@ -17,7 +17,7 @@ Last verified against the code: 2026-10-28 (branch `feat/reviews-section`).
 | Styling | Tailwind CSS v4 via `@tailwindcss/postcss` | 4.3.x | Tokens defined in `src/app/globals.css` |
 | Icons | `react-icons` | ^5.7 | |
 | Fonts | `next/font/google`: Tajawal (body), Playpen Sans Arabic (display) | | Weights 400/500/700/800. Exposed as `--font-tajawal` / `--font-playpen` |
-| 3D | `three` (+ `@types/three`) | 0.186 | Used **only** in the dev-only rotation lab, loaded via dynamic `import("three")` |
+| 3D | `three` (+ `@types/three`) | 0.186 | Used **only** by the hero spit (`components/motion/HeroSpit`), loaded via dynamic `import("three")`. The rotation lab was removed (2026-11-15) |
 | Images (build time) | `sharp` | 0.35 | Per-item share images (`menu/[itemId]/opengraph-image.tsx`); same copy Next uses for `next/image` |
 | QR | `qrcode` | 1.5 | `lib/qr` on the server only (`/dashboard/qr/print` makes SVG codes); never shipped to the browser. Types: local `types/qrcode.d.ts` |
 | Lint | ESLint 9 + `eslint-config-next` (core-web-vitals, typescript) | | |

@@ -23,13 +23,19 @@ export type ReviewsSettings = Pick<ReviewsContent, "isEnabled" | "eyebrow" | "ti
 /** The offers section's own settings (the offers list is edited one by one). */
 export type OffersSettings = Pick<OffersContent, "isEnabled" | "eyebrow" | "title" | "menuCardImage">;
 
+/**
+ * Dashboard areas that can live on the Laravel API (D7), switched one by one.
+ * "menu" = categories + products (D7c); "offers" = the offers section + list.
+ */
+export type LiveArea = "menu" | "offers";
+
 export interface DashboardData {
     /**
-     * Set by the server when categories and products come from the Laravel
-     * API (D7c): the dashboard then saves them there and never takes them
-     * from the browser draft. Absent = everything in the draft, as before.
+     * Set by the server for the areas that come from the Laravel API: the
+     * dashboard saves those there and never takes them from the browser draft.
+     * Absent or empty = everything in the draft, as before.
      */
-    menuSource?: "api";
+    liveAreas?: readonly LiveArea[];
     categories: readonly Category[];
     products: readonly Product[];
     offers: OffersContent;

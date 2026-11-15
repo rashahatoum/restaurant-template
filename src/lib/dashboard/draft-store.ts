@@ -3,7 +3,7 @@
 // local repository and the hooks. Disappears once the Laravel API is connected.
 
 import { DRAFT_VERSION, parseDraft, type StoredDraft } from "@/lib/dashboard/draft";
-import type { DashboardData } from "@/types/dashboard";
+import type { DashboardData, LiveArea } from "@/types/dashboard";
 
 const STORAGE_KEY = "dashboard:v1";
 
@@ -58,24 +58,32 @@ export function registerSeed(data: DashboardData) {
     seed = data;
 }
 
-/** True when categories and products live on the server (API on): saves go there. */
-export function isMenuLive(): boolean {
-    return seed?.menuSource === "api";
+/** True when this area lives on the server (API on for it): saves go there. */
+export function isLive(area: LiveArea): boolean {
+    return seed?.liveAreas?.includes(area) ?? false;
 }
+
+/** The fields of DashboardData each live area owns. */
+const AREA_FIELDS = {
+    menu: ["categories", "products"],
+    offers: ["offers"],
+} as const satisfies Record<LiveArea, readonly (keyof DashboardData)[]>;
 
 /**
- * The draft with the server's menu: with the API on, categories and products
- * always come from `server` (the latest render), never from an older draft.
+ * The draft with the server's live areas: their data always comes from
+ * `server` (the latest render), never from an older draft.
  */
-export function withServerMenu(data: DashboardData, server: DashboardData): DashboardData {
-    if (server.menuSource !== "api" || data === server) return data;
-    return { ...data, menuSource: "api", categories: server.categories, products: server.products };
+export function withServerData(data: DashboardData, server: DashboardData): DashboardData {
+    const areas = server.liveAreas ?? [];
+    if (areas.length === 0 || data === server) return data;
+    const fromServer = Object.fromEntries(areas.flatMap((area) => AREA_FIELDS[area].map((field) => [field, server[field]])));
+    return { ...data, ...fromServer, liveAreas: areas };
 }
 
-/** What the dashboard shows: the draft if any, else the original data (the menu from the server when live). */
+/** What the dashboard shows: the draft if any, else the original data (live areas from the server). */
 export function currentData(): DashboardData {
     if (!seed) throw new Error("Dashboard data read before useDashboardData registered the seed.");
-    return withServerMenu(getDraft() ?? seed, seed);
+    return withServerData(getDraft() ?? seed, seed);
 }
 
 /** Saves the whole data as the draft. Returns false when the browser refused (storage full or blocked). */

@@ -24,7 +24,7 @@ npm run dev        # http://localhost:3000 (dashboard: /dashboard)
 
 Table QR codes are printed from the dashboard (`/dashboard/qr`). Print only once the final domain is set: the URL is inside the codes.
 
-Development-only pages (404 in production): `/lab/rotation` (hero spit rotation in 3D, three.js) and `/lab/errors` (every dashboard error message).
+Development-only page (404 in production): `/lab/errors` (every dashboard error message).
 
 ### Environment
 
