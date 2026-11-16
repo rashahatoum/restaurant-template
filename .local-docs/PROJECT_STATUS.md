@@ -2,7 +2,7 @@
 
 > Snapshot of what actually exists, measured against [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md). Keep this file short and current. It replaces the former `CURRENT-STATE.md` (archived).
 
-**Last updated:** 2026-11-15 · **Branch:** `main` up to PR #48 (every dashboard area on the API, D7d–D7i). **Vercel production is still PR #46** (D7c): the builds of #47 / #48 fail until the staging API has the new public endpoints (message sent to the backend developer). `feat/d7-front-finish` (not committed yet): public error pages, card skeletons, «رابط الصفحة», size-price check on quick edits. Postponed until the backend answers: `API_AREAS`, removing `/lab/errors`
+**Last updated:** 2026-11-17 · **Branch:** `main` up to PR #50 (every dashboard area built for the API, D7d–D7i; the backend's contract answers). **Vercel production is still PR #46** (D7c): later builds fail at `GET /offers` because staging has only the menu, login and uploads. `feat/api-areas` (review pending): the `API_AREAS` switch turns on only the areas staging has; Production needs `API_AREAS=menu` before it merges, then a redeploy. Next: offers (the backend's Phase 6 is on the demo server). Postponed: removing `/lab/errors`. **Known:** Next.js 16.4.3 has a moderate advisory (GHSA-mfr8-8qww-v76h, `'use cache'` through `unstable_cache`, not used here); the Next CLI sometimes stops `next build` for it; fixed in 16.4.5+, upgrade pending the owner's approval
 
 ## Validation snapshot (2026-11-03, `main` at PR #24)
 

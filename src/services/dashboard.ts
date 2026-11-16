@@ -1,11 +1,11 @@
 import "server-only";
 
 // The dashboard's starting data: every record as stored, nothing filtered.
-// With API_BASE_URL set, the live areas come from the Laravel admin GETs
-// (API-CONTRACT §4) and are saved there (D7): categories and products,
-// offers, banners, reviews, hero + about, site info, ordering: every area. Without
-// the API, everything is the mock data + the browser draft.
-// Switching a new area = one entry in LIVE_LOADERS.
+// The live areas (API_BASE_URL set, listed in API_AREAS; the menu always)
+// come from the Laravel admin GETs (API-CONTRACT §4) and are saved there (D7);
+// the other areas are the mock data + the browser draft until the backend has
+// them. Without the API, everything is mock + draft.
+// Supporting a new area = one entry in LIVE_LOADERS; turning it on = API_AREAS.
 
 import { about } from "@/data/mock/about";
 import { hero } from "@/data/mock/hero";
@@ -16,7 +16,7 @@ import { ordering } from "@/data/mock/ordering";
 import { reviews } from "@/data/mock/reviews";
 import { siteInfo } from "@/data/mock/site-info";
 import { apiFetch } from "@/lib/api/client";
-import { isApiEnabled } from "@/lib/api/config";
+import { liveAreas as configuredLiveAreas } from "@/lib/api/config";
 import type { Result } from "@/lib/api/errors";
 import { DASHBOARD_HOME, sessionExpiredHref } from "@/lib/auth/paths";
 import { toOffersContent, toReviewsContent } from "@/lib/dashboard/section-api";
@@ -76,9 +76,9 @@ const LIVE_LOADERS: Record<LiveArea, () => Promise<Partial<DashboardData>>> = {
 
 export async function getDashboardSeed(): Promise<DashboardData> {
     const data = mockData();
-    if (!isApiEnabled()) return data;
+    const liveAreas = configuredLiveAreas();
+    if (liveAreas.length === 0) return data;
 
-    const liveAreas = Object.keys(LIVE_LOADERS) as LiveArea[];
     const parts = await Promise.all(liveAreas.map((area) => LIVE_LOADERS[area]()));
     return Object.assign(data, ...parts, { liveAreas });
 }

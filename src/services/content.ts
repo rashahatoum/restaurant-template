@@ -9,7 +9,7 @@ import { offers } from "@/data/mock/offers";
 import { reviews } from "@/data/mock/reviews";
 import { siteInfo } from "@/data/mock/site-info";
 import { apiFetch } from "@/lib/api/client";
-import { isApiEnabled } from "@/lib/api/config";
+import { isAreaLive } from "@/lib/api/config";
 import { publicPhones } from "@/lib/site-info";
 import type {
     AboutContent,
@@ -35,7 +35,7 @@ async function readOne<T extends object>(path: string, tag: string): Promise<T> 
 }
 
 export async function getHeroContent(): Promise<HeroContent> {
-    return isApiEnabled() ? readOne<HeroContent>("/hero", HOME_TAG) : hero;
+    return isAreaLive("home") ? readOne<HeroContent>("/hero", HOME_TAG) : hero;
 }
 
 /** Cache tag of the public site-info read: a dashboard site-info save calls updateTag(SITE_INFO_TAG). */
@@ -47,7 +47,7 @@ export const SITE_INFO_TAG = "site-info";
  * (they're private). Once per render (several components read it).
  */
 export const getSiteInfo = cache(async (): Promise<SiteInfo> => {
-    return isApiEnabled() ? readOne<SiteInfo>("/site-info", SITE_INFO_TAG) : siteInfo;
+    return isAreaLive("info") ? readOne<SiteInfo>("/site-info", SITE_INFO_TAG) : siteInfo;
 });
 
 /** The mobile menu's quick contact: first WhatsApp number, first phone, opening hours. */
@@ -66,7 +66,7 @@ export async function getNavContact(): Promise<{
 }
 
 export async function getAboutContent(): Promise<AboutContent> {
-    return isApiEnabled() ? readOne<AboutContent>("/about", HOME_TAG) : about;
+    return isAreaLive("home") ? readOne<AboutContent>("/about", HOME_TAG) : about;
 }
 
 /** Cache tag of the public offers read: a dashboard offers save calls updateTag(OFFERS_TAG). */
@@ -87,7 +87,7 @@ const activeOffersOnly = (content: OffersContent | null): OffersContent | null =
  * refresh keeps the last good page; never falls back to mock prices.
  */
 const loadOffers = cache(async (): Promise<OffersContent | null> => {
-    if (!isApiEnabled()) return activeOffersOnly(offers);
+    if (!isAreaLive("offers")) return activeOffersOnly(offers);
 
     const result = await apiFetch<OffersContent | null>("/offers", {
         next: { tags: [OFFERS_TAG], revalidate: CONTENT_REVALIDATE_SECONDS },
@@ -114,7 +114,7 @@ const visibleReviewsOnly = (content: ReviewsContent | null): ReviewsContent | nu
 
 /** With the API: `GET /reviews` (section + visible reviews, or null when off), cached with its tag; throws on failure. */
 export async function getReviewsContent(): Promise<ReviewsContent | null> {
-    if (!isApiEnabled()) return visibleReviewsOnly(reviews);
+    if (!isAreaLive("reviews")) return visibleReviewsOnly(reviews);
 
     const result = await apiFetch<ReviewsContent | null>("/reviews", {
         next: { tags: [REVIEWS_TAG], revalidate: CONTENT_REVALIDATE_SECONDS },

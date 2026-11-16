@@ -1,7 +1,8 @@
 import { logout } from "@/app/(dashboard)/dashboard/actions";
 import { platformConfig } from "@/config/platform";
-import { isApiEnabled } from "@/lib/api/config";
+import { liveAreas } from "@/lib/api/config";
 import { getSession } from "@/lib/auth/session";
+import { splitAreas } from "@/lib/dashboard/areas";
 import { LOGIN_PATH } from "@/lib/auth/paths";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,6 +15,13 @@ import { FiInfo, FiLogOut } from "react-icons/fi";
 const ProtectedLayout = async ({ children }: { children: ReactNode }) => {
     const session = await getSession();
     if (!session) redirect(LOGIN_PATH);
+
+    // Names exactly the areas on the server now (API_AREAS)
+    const areas = splitAreas(liveAreas());
+    const notice =
+        areas.live.length === 0
+            ? "نسخة تجريبية: التعديلات بتنحفظ على هالجهاز بس، وما بتوصل للزباين."
+            : `${areas.live.join("، ")} بتنحفظ عالسيرفر وبتوصل للزباين.${areas.local.length > 0 ? " باقي الأقسام لسا تجريبية: بتنحفظ على هالجهاز بس." : ""}`;
 
     return (
         <div className="flex min-h-dvh flex-col">
@@ -50,9 +58,7 @@ const ProtectedLayout = async ({ children }: { children: ReactNode }) => {
             {/* Honest about where edits go until the Laravel API is connected */}
             <p className="flex items-center justify-center gap-6 border-b border-border bg-warning/10 px-16 py-8 text-center text-xs font-bold text-warning print:hidden">
                 <FiInfo aria-hidden="true" className="shrink-0" />
-                {isApiEnabled()
-                    ? "الأقسام والأصناف بتنحفظ عالسيرفر وبتوصل للزباين. باقي الأقسام لسا تجريبية: بتنحفظ على هالجهاز بس."
-                    : "نسخة تجريبية: التعديلات بتنحفظ على هالجهاز بس، وما بتوصل للزباين."}
+                {notice}
             </p>
 
             <main className="mx-auto w-full max-w-960 flex-1 px-16 py-24 md:py-32 print:max-w-none print:p-0">{children}</main>
