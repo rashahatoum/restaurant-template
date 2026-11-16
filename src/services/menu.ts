@@ -7,7 +7,7 @@
 import { categories, products } from "@/data/mock/menu";
 import { menuBanners } from "@/data/mock/menu-banners";
 import { apiFetch } from "@/lib/api/client";
-import { isApiEnabled } from "@/lib/api/config";
+import { isApiEnabled, isAreaLive } from "@/lib/api/config";
 import { bannerHref } from "@/lib/banner";
 import { offerKey } from "@/lib/cart";
 import { sortBestSellers, toMenuItemDetails } from "@/lib/menu";
@@ -113,7 +113,7 @@ type ApiBanner = Omit<MenuBanner, "action"> & { action?: { label: string; href?:
 
 /** The active slides as stored (target ids), or as the API sends them; once per render. */
 const loadBanners = cache(async (): Promise<readonly ApiBanner[]> => {
-    if (!isApiEnabled()) return menuBanners;
+    if (!isAreaLive("banners")) return menuBanners;
 
     const result = await apiFetch<ApiBanner[]>("/banners", { next: { tags: [BANNERS_TAG], revalidate: MENU_REVALIDATE_SECONDS } });
     if (!result.ok) throw new Error(`GET /banners failed (${result.error.kind}${result.error.status ? ` ${result.error.status}` : ""})`);

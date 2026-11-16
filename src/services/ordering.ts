@@ -10,7 +10,7 @@ import { restaurantConfig } from "@/config/restaurant";
 import { ordering } from "@/data/mock/ordering";
 import { siteInfo } from "@/data/mock/site-info";
 import { apiFetch } from "@/lib/api/client";
-import { isApiEnabled } from "@/lib/api/config";
+import { isAreaLive } from "@/lib/api/config";
 import { branchWhatsApp } from "@/lib/site-info";
 import type { OrderingOptions } from "@/types/order";
 import { cache } from "react";
@@ -78,7 +78,7 @@ function toResolvedOrdering(raw: unknown): ResolvedOrdering {
 /** Once per render (the menu and the cart read it); with the API, cached with its tag; throws when it fails. */
 export const getOrderingOptions = cache(async (): Promise<OrderingOptions> => {
     let resolved: ResolvedOrdering;
-    if (!isApiEnabled()) {
+    if (!isAreaLive("ordering")) {
         resolved = mockOrdering();
     } else {
         const result = await apiFetch<unknown>("/ordering", { next: { tags: [ORDERING_TAG], revalidate: ORDERING_REVALIDATE_SECONDS } });
