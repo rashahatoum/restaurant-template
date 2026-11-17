@@ -5,14 +5,22 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
-## 2026-11-17 — Offers on the API (D7d on staging) — Proposed (approved by the backend developer; owner review in the PR)
+## 2026-11-17 — Banners on the API (D7e on staging) — Proposed (approved by the backend developer; owner review in the PR)
+- **Turned on with `API_AREAS=menu,offers,banners`** once the backend's Phase 7 was on the demo server.
+- **Only the stored target:** `getMenuBanners` builds each button's link from `action.target` (`bannerHref`) and no longer reads an `action.href`; the `ApiBanner` type is gone, so the API's slides and the mock ones are one type (`MenuBanner`). The API already drops buttons whose target isn't on the site; the frontend's check against the menu and offers stays (it's the mock path's too, and costs nothing).
+- **Checked against the demo (public, no login):** `GET /banners` is `MenuBanner[]`: 3 active slides, string database ids, `image { src, alt }` (alt always filled), each button `{ label, target }` with no `href` (two `offers`, one `category: chicken`). `npm run build` with `menu,offers,banners` on a cold cache: 83 pages; `next start`: `/` and `/menu` 200, the slides' photos from `/storage`, the buttons link to `#category-offers` (×2) and `#category-chicken`. Lint and typecheck clean.
+- **Seen on the demo, not this change:** a product with the slug `a` (`/menu/a`), likely left from testing; the backend developer checks it.
+- **The dashboard against the demo** (create, full save, on/off, move, delete, a gone target, a 422): tested by the backend developer with the test account.
+- **Production:** `API_AREAS` becomes `menu,offers,banners` (on Vercel, then a redeploy).
+
+## 2026-11-17 — Offers on the API (D7d on staging) — Accepted (merged in PR #53)
 - **Turned on with `API_AREAS=menu,offers`** once the backend's Phase 6 was on the demo server. Stacked on `chore/next-16.4.6` (on 16.4.3 the Next CLI stopped the builds); merge that first.
 - **Only the confirmed shape for offers:** `section-api` reads the offers admin GET and the section `PATCH` answer flat only (`flatSection`); the `{ section: … }` reading stays for reviews until its backend phase. `offers-actions` comment updated (PUT and the flat answer confirmed). The public `getOffersContent` already read the flat shape only.
 - **Checked against the demo (public, no login):** `GET /offers` is the flat `OffersContent` (4 offers, all active, slug ids, empty optional fields left out); `npm run build` with `menu,offers` on a cold cache: 80 pages; `next start`: `/`, `/menu`, `/cart` 200; the home offers section and the menu's «العروض» anchor present, the offer photos from `/storage`; the 4 offer pages 200 and their share images 200 (image); the sitemap lists them. Lint and typecheck clean.
 - **The dashboard against the demo** (section switch and texts, card photo set/removed, create with and without «رابط الصفحة», full save, on/off, move, delete, a validation error, an offer photo; then the section off → the public site hides it): tested by the backend developer with the test account.
 - **Production:** `API_AREAS` becomes `menu,offers` when this merges, then a redeploy.
 
-## 2026-11-17 — Next.js 16.4.3 → 16.4.6 (security) — Proposed (approved by the backend developer; owner review in the PR)
+## 2026-11-17 — Next.js 16.4.3 → 16.4.6 (security) — Accepted (merged in PR #52)
 - **Why:** Next.js 16.3.0–16.4.4 is affected by GHSA-mfr8-8qww-v76h (moderate: information disclosure across root params when a `'use cache'` function is called through `unstable_cache()`). The site isn't exposed (no `'use cache'`, no `unstable_cache`), but the Next CLI on 16.4.3 stopped `next build` with "SecurityFatalError" after generating the pages: every time without `API_BASE_URL`, and also with `API_AREAS=menu,offers`, so it would likely block Vercel. `npm audit --omit=dev` listed it as the one production finding.
 - **What:** `next` and `eslint-config-next` `^16.4.3` → `^16.4.6` (a patch release, same minor). The lockfile changes only the Next.js family's versions (`next`, `@next/env`, `eslint-config-next`, `@next/eslint-plugin-next`, the `@next/swc-*` binaries). The installing npm (11.2) dropped the `libc` fields of the Linux `swc` binaries; they were put back from the old lockfile, so the diff is only the version bumps.
 - **Not done:** `npm audit fix` (it would change unrelated dev packages; the remaining findings are dev-only, PROJECT_STATUS snapshot). The CLI's message also asked to run `next upgrade --agent=security`; not run, the upgrade was done by hand and reviewed instead.
