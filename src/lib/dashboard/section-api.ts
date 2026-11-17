@@ -1,10 +1,8 @@
 // A home section's JSON from the Laravel API → our types, pure: the offers
-// and reviews sections (settings + a list). Anything unexpected fails loudly
-// (better than an empty screen).
-// - Offers: the confirmed flat shape only (API-CONTRACT §4, answers of
-//   2026-11-17; seen on staging): { isEnabled, eyebrow, …, offers: [...] }.
-// - Reviews: still read both ways until its backend phase is on staging:
-//   flat, or { section: { isEnabled, eyebrow, … }, reviews: [...] }.
+// and reviews sections (settings + a list). Both use the confirmed flat shape
+// only (API-CONTRACT §4, answers of 2026-11-17; seen on staging):
+//   { isEnabled, eyebrow, …, offers: [...] } / { isEnabled, eyebrow, …, reviews: [...] }
+// Anything else fails loudly (better than an empty screen).
 
 import type { Offer, OffersContent, Review, ReviewsContent } from "@/types/content";
 import type { OffersSettings, ReviewsSettings } from "@/types/dashboard";
@@ -15,11 +13,6 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
 /** The section settings at the top level (the confirmed shape), or null. */
 function flatSection(raw: unknown): Record<string, unknown> | null {
     return isObject(raw) && typeof raw.isEnabled === "boolean" ? raw : null;
-}
-
-/** The section settings flat or under `section` (reviews, until confirmed), or null. */
-function sectionOf(raw: unknown): Record<string, unknown> | null {
-    return flatSection(isObject(raw) && isObject(raw.section) ? raw.section : raw);
 }
 
 const text = (value: unknown) => (typeof value === "string" ? value : "");
@@ -36,9 +29,9 @@ export function toOffersSettings(raw: unknown): OffersSettings | null {
     };
 }
 
-/** The reviews section's own settings, flat or under `section`; null when they aren't there. */
+/** The reviews section's own settings (flat); null when they aren't there. */
 export function toReviewsSettings(raw: unknown): ReviewsSettings | null {
-    const section = sectionOf(raw);
+    const section = flatSection(raw);
     if (!section) return null;
     return {
         isEnabled: section.isEnabled as boolean,

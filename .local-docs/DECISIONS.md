@@ -5,7 +5,14 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
-## 2026-11-17 — Banners on the API (D7e on staging) — Proposed (approved by the backend developer; owner review in the PR)
+## 2026-11-17 — Reviews on the API (D7f on staging) — Proposed (approved by the backend developer; owner review in the PR)
+- **Turned on with `API_AREAS=menu,offers,banners,reviews`** once the backend's Phase 8 was on the demo server.
+- **Only the confirmed flat shape:** `section-api` reads the reviews admin GET and the section `PATCH` answer flat (`flatSection`), like offers; the `{ section: … }` reading (`sectionOf`) is gone, since nothing needs it any more. `reviews-actions` comment updated (PUT and the flat answer confirmed). The public `getReviewsContent` already read the flat shape only.
+- **Checked against the demo (public, no login):** `GET /reviews` is the flat `ReviewsContent` (4 visible reviews, string database ids, an empty `question` left out); `npm run build` with `menu,offers,banners,reviews` on a cold cache: 83 pages (a failed or unexpected `GET /reviews` would have thrown); `next start`: `/` 200 with the reviews section and each review's time. Lint and typecheck clean.
+- **The dashboard against the demo** (section switch, texts and default question; create, full save with the question and time cleared, shown/hidden, move, delete; a 422): tested by the backend developer with the test account.
+- **Production:** `API_AREAS` becomes `menu,offers,banners,reviews` (on Vercel, then a redeploy).
+
+## 2026-11-17 — Banners on the API (D7e on staging) — Accepted (merged in PR #54)
 - **Turned on with `API_AREAS=menu,offers,banners`** once the backend's Phase 7 was on the demo server.
 - **Only the stored target:** `getMenuBanners` builds each button's link from `action.target` (`bannerHref`) and no longer reads an `action.href`; the `ApiBanner` type is gone, so the API's slides and the mock ones are one type (`MenuBanner`). The API already drops buttons whose target isn't on the site; the frontend's check against the menu and offers stays (it's the mock path's too, and costs nothing).
 - **Checked against the demo (public, no login):** `GET /banners` is `MenuBanner[]`: 3 active slides, string database ids, `image { src, alt }` (alt always filled), each button `{ label, target }` with no `href` (two `offers`, one `category: chicken`). `npm run build` with `menu,offers,banners` on a cold cache: 83 pages; `next start`: `/` and `/menu` 200, the slides' photos from `/storage`, the buttons link to `#category-offers` (×2) and `#category-chicken`. Lint and typecheck clean.

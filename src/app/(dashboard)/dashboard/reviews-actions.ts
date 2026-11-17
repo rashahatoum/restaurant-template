@@ -4,7 +4,9 @@
 // (switch, texts, default question) and the reviews list. Called by
 // lib/dashboard/api-repository only; same rules as offers-actions. Endpoints
 // (API-CONTRACT §2, §4): section → PATCH /admin/reviews-section; a whole review
-// from the form → PUT (assumed, per §2); shown/hidden → PATCH; move → POST …/move.
+// from the form → PUT; shown/hidden → PATCH; move → POST …/move. Confirmed with
+// the backend (2026-11-17): PUT for the full save, the section PATCH answers the
+// settings flat (lib/dashboard/section-api).
 
 import { appError, fail, ok, type Result } from "@/lib/api/errors";
 import { adminWrite, badRequest, isDirection, isObject, segment, type Direction } from "@/lib/dashboard/action-helpers";
