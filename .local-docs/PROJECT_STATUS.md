@@ -2,7 +2,7 @@
 
 > Snapshot of what actually exists, measured against [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md). Keep this file short and current. It replaces the former `CURRENT-STATE.md` (archived).
 
-**Last updated:** 2026-11-17 · **Branch:** `main` up to PR #51 (the `API_AREAS` switch: only the areas staging has are on the API; Production runs `API_AREAS=menu`). `chore/next-16.4.6` (review pending): Next.js 16.4.3 → 16.4.6 for the advisory GHSA-mfr8-8qww-v76h (moderate; `'use cache'` through `unstable_cache`, not used here), because the Next CLI stopped `next build` on 16.4.3 ("SecurityFatalError"). `feat/offers-live` (review pending, after `chore/next-16.4.6`): offers on the API (`API_AREAS=menu,offers`; the backend's Phase 6 is on the demo server). Postponed: removing `/lab/errors`
+**Last updated:** 2026-11-17 · **Branch:** `main` up to PR #53: the `API_AREAS` switch (#51), Next.js 16.4.6 for the advisory GHSA-mfr8-8qww-v76h (#52; the CLI stopped builds on 16.4.3), offers on the API (#53). **Vercel Production runs `API_AREAS=menu,offers`.** `feat/banners-live` (review pending): banners on the API (`API_AREAS=menu,offers,banners`; the backend's Phase 7 is on the demo server). Next areas, as the backend ships them: reviews, `home`, then `info,ordering` together. Postponed: removing `/lab/errors`
 
 ## Validation snapshot (2026-11-03, `main` at PR #24)
 
