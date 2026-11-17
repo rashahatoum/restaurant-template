@@ -54,17 +54,16 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
 
 /**
- * `GET /ordering` → our shape. The contract names the parts ("delivery, dine-in
- * branches (enabled only), message texts, thank-you text") but not the keys,
- * so the branches are read as `dineInBranches`, `dineIn` (a list) or
- * `dineIn.branches`. To confirm on staging, then keep only the real one.
+ * `GET /ordering` → our shape: `{ delivery: { fee, whatsApp } | null,
+ * dineInBranches, message, thankYou }` (API-CONTRACT §3, confirmed and seen on
+ * staging). Anything else fails loudly.
  */
 function toResolvedOrdering(raw: unknown): ResolvedOrdering {
     if (!isObject(raw) || !isObject(raw.message) || typeof raw.thankYou !== "string") {
-        throw new Error("GET /ordering: expected delivery, dine-in branches, message and thankYou (API-CONTRACT §3)");
+        throw new Error("GET /ordering: expected delivery, dineInBranches, message and thankYou (API-CONTRACT §3)");
     }
-    const dineIn = raw.dineInBranches ?? (Array.isArray(raw.dineIn) ? raw.dineIn : isObject(raw.dineIn) ? raw.dineIn.branches : undefined);
-    if (!Array.isArray(dineIn)) throw new Error("GET /ordering: no dine-in branches list (API-CONTRACT §3)");
+    const dineIn = raw.dineInBranches;
+    if (!Array.isArray(dineIn)) throw new Error("GET /ordering: no dineInBranches list (API-CONTRACT §3)");
     const delivery = isObject(raw.delivery) && typeof raw.delivery.fee === "number" && typeof raw.delivery.whatsApp === "string" ? raw.delivery : null;
 
     return {
