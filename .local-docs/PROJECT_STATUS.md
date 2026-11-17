@@ -2,7 +2,7 @@
 
 > Snapshot of what actually exists, measured against [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md). Keep this file short and current. It replaces the former `CURRENT-STATE.md` (archived).
 
-**Last updated:** 2026-11-17 · **Branch:** `main` up to PR #50 (every dashboard area built for the API, D7d–D7i; the backend's contract answers). **Vercel production is still PR #46** (D7c): later builds fail at `GET /offers` because staging has only the menu, login and uploads. `feat/api-areas` (review pending): the `API_AREAS` switch turns on only the areas staging has; Production needs `API_AREAS=menu` before it merges, then a redeploy. Next: offers (the backend's Phase 6 is on the demo server). Postponed: removing `/lab/errors`. **Known:** Next.js 16.4.3 has a moderate advisory (GHSA-mfr8-8qww-v76h, `'use cache'` through `unstable_cache`, not used here); the Next CLI sometimes stops `next build` for it; fixed in 16.4.5+, upgrade pending the owner's approval
+**Last updated:** 2026-11-17 · **Branch:** `main` up to PR #51 (the `API_AREAS` switch: only the areas staging has are on the API; Production runs `API_AREAS=menu`). `chore/next-16.4.6` (review pending): Next.js 16.4.3 → 16.4.6 for the advisory GHSA-mfr8-8qww-v76h (moderate; `'use cache'` through `unstable_cache`, not used here), because the Next CLI stopped `next build` on 16.4.3 ("SecurityFatalError"). Next: offers (`API_AREAS=menu,offers`; the backend's Phase 6 is on the demo server). Postponed: removing `/lab/errors`
 
 ## Validation snapshot (2026-11-03, `main` at PR #24)
 
