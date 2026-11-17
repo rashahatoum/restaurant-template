@@ -5,7 +5,13 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
-## 2026-11-17 — Reviews on the API (D7f on staging) — Proposed (approved by the backend developer; owner review in the PR)
+## 2026-11-17 — Hero + About on the API (D7g on staging) — Proposed (approved by the backend developer; owner review in the PR)
+- **Turned on with `API_AREAS=menu,offers,banners,reviews,home`** once the backend's Phase 9 was on the demo server. **Docs only:** the hero and About readers never had a fallback shape (they read `HeroContent` / `AboutContent` as they are), so there's nothing to drop.
+- **Checked against the demo (public, no login):** `GET /hero` is `HeroContent` (badge, headline, two button labels, 3 features whose icons are known `FeatureIconKey`s); `GET /about` is `AboutContent` (eyebrow, title with a `**marked**` part, 3 paragraphs with marks, closing, `image { src, alt }` with the photo a `/storage` URL on the API's host and the alt filled, badge). `npm run build` with `…,home` on a cold cache: 83 pages; `next start`: `/` 200, the hero headline and both button labels, the About photo's `/storage` path, its closing and every paragraph (marks removed) on the page. Lint and typecheck unchanged (no code change).
+- **The dashboard against the demo** (hero texts and features with their icons; About texts with `**`, paragraphs added/removed, the photo, the badge cleared; a 422 each): tested by the backend developer with the test account.
+- **Production:** `API_AREAS` becomes `menu,offers,banners,reviews,home` (on Vercel, then a redeploy).
+
+## 2026-11-17 — Reviews on the API (D7f on staging) — Accepted (merged in PR #55)
 - **Turned on with `API_AREAS=menu,offers,banners,reviews`** once the backend's Phase 8 was on the demo server.
 - **Only the confirmed flat shape:** `section-api` reads the reviews admin GET and the section `PATCH` answer flat (`flatSection`), like offers; the `{ section: … }` reading (`sectionOf`) is gone, since nothing needs it any more. `reviews-actions` comment updated (PUT and the flat answer confirmed). The public `getReviewsContent` already read the flat shape only.
 - **Checked against the demo (public, no login):** `GET /reviews` is the flat `ReviewsContent` (4 visible reviews, string database ids, an empty `question` left out); `npm run build` with `menu,offers,banners,reviews` on a cold cache: 83 pages (a failed or unexpected `GET /reviews` would have thrown); `next start`: `/` 200 with the reviews section and each review's time. Lint and typecheck clean.
