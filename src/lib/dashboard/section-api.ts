@@ -1,11 +1,10 @@
 // A home section's JSON from the Laravel API → our types, pure: the offers
-// and reviews sections (settings + a list). The contract lists their admin
-// GETs and section PATCHes without the exact response shape (API-CONTRACT §4),
-// so both likely shapes are read:
-//   { isEnabled, eyebrow, …, offers: [...] }
-//   { section: { isEnabled, eyebrow, … }, offers: [...] }
-// Anything else fails loudly (better than an empty screen). To confirm on
-// staging, then keep only the real one.
+// and reviews sections (settings + a list). Anything unexpected fails loudly
+// (better than an empty screen).
+// - Offers: the confirmed flat shape only (API-CONTRACT §4, answers of
+//   2026-11-17; seen on staging): { isEnabled, eyebrow, …, offers: [...] }.
+// - Reviews: still read both ways until its backend phase is on staging:
+//   flat, or { section: { isEnabled, eyebrow, … }, reviews: [...] }.
 
 import type { Offer, OffersContent, Review, ReviewsContent } from "@/types/content";
 import type { OffersSettings, ReviewsSettings } from "@/types/dashboard";
@@ -13,17 +12,21 @@ import type { OffersSettings, ReviewsSettings } from "@/types/dashboard";
 const isObject = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
 
-/** The section object from either shape, or null. */
+/** The section settings at the top level (the confirmed shape), or null. */
+function flatSection(raw: unknown): Record<string, unknown> | null {
+    return isObject(raw) && typeof raw.isEnabled === "boolean" ? raw : null;
+}
+
+/** The section settings flat or under `section` (reviews, until confirmed), or null. */
 function sectionOf(raw: unknown): Record<string, unknown> | null {
-    const section = isObject(raw) && isObject(raw.section) ? raw.section : raw;
-    return isObject(section) && typeof section.isEnabled === "boolean" ? section : null;
+    return flatSection(isObject(raw) && isObject(raw.section) ? raw.section : raw);
 }
 
 const text = (value: unknown) => (typeof value === "string" ? value : "");
 
-/** The offers section's own settings from either shape; null when they aren't there. */
+/** The offers section's own settings (flat); null when they aren't there. */
 export function toOffersSettings(raw: unknown): OffersSettings | null {
-    const section = sectionOf(raw);
+    const section = flatSection(raw);
     if (!section) return null;
     return {
         isEnabled: section.isEnabled as boolean,
@@ -33,7 +36,7 @@ export function toOffersSettings(raw: unknown): OffersSettings | null {
     };
 }
 
-/** The reviews section's own settings from either shape; null when they aren't there. */
+/** The reviews section's own settings, flat or under `section`; null when they aren't there. */
 export function toReviewsSettings(raw: unknown): ReviewsSettings | null {
     const section = sectionOf(raw);
     if (!section) return null;

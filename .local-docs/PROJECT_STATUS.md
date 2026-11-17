@@ -2,7 +2,7 @@
 
 > Snapshot of what actually exists, measured against [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md). Keep this file short and current. It replaces the former `CURRENT-STATE.md` (archived).
 
-**Last updated:** 2026-11-17 · **Branch:** `main` up to PR #51 (the `API_AREAS` switch: only the areas staging has are on the API; Production runs `API_AREAS=menu`). `chore/next-16.4.6` (review pending): Next.js 16.4.3 → 16.4.6 for the advisory GHSA-mfr8-8qww-v76h (moderate; `'use cache'` through `unstable_cache`, not used here), because the Next CLI stopped `next build` on 16.4.3 ("SecurityFatalError"). Next: offers (`API_AREAS=menu,offers`; the backend's Phase 6 is on the demo server). Postponed: removing `/lab/errors`
+**Last updated:** 2026-11-17 · **Branch:** `main` up to PR #51 (the `API_AREAS` switch: only the areas staging has are on the API; Production runs `API_AREAS=menu`). `chore/next-16.4.6` (review pending): Next.js 16.4.3 → 16.4.6 for the advisory GHSA-mfr8-8qww-v76h (moderate; `'use cache'` through `unstable_cache`, not used here), because the Next CLI stopped `next build` on 16.4.3 ("SecurityFatalError"). `feat/offers-live` (review pending, after `chore/next-16.4.6`): offers on the API (`API_AREAS=menu,offers`; the backend's Phase 6 is on the demo server). Postponed: removing `/lab/errors`
 
 ## Validation snapshot (2026-11-03, `main` at PR #24)
 

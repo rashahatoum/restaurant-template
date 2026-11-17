@@ -7,8 +7,9 @@
 //
 // Endpoints (API-CONTRACT §2, §4): section → PATCH /admin/offers-section;
 // a whole offer from the form → PUT (a missing optional field is cleared);
-// on/off from the list → PATCH; move → POST …/move. To confirm on staging:
-// the full save's method and the section's response shape (lib/dashboard/section-api).
+// on/off from the list → PATCH; move → POST …/move. Confirmed with the
+// backend (2026-11-17): the full save is PUT, and the section PATCH answers
+// the settings flat (lib/dashboard/section-api).
 
 import { appError, fail, ok, type Result } from "@/lib/api/errors";
 import { adminWrite, badRequest, isDirection, isObject, segment, type Direction } from "@/lib/dashboard/action-helpers";
