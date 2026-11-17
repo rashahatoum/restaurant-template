@@ -2,7 +2,7 @@
 
 > Snapshot of what actually exists, measured against [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.md). Keep this file short and current. It replaces the former `CURRENT-STATE.md` (archived).
 
-**Last updated:** 2026-11-17 · **Branch:** `main` up to PR #54: the `API_AREAS` switch (#51), Next.js 16.4.6 for the advisory GHSA-mfr8-8qww-v76h (#52; the CLI stopped builds on 16.4.3), offers (#53) and banners (#54) on the API. **Vercel Production runs `API_AREAS=menu,offers,banners`.** `feat/reviews-live` (review pending): reviews on the API (`API_AREAS=menu,offers,banners,reviews`; the backend's Phase 8 is on the demo server). Next areas, as the backend ships them: `home`, then `info,ordering` together. Postponed: removing `/lab/errors`
+**Last updated:** 2026-11-17 · **Branch:** `main` up to PR #55: the `API_AREAS` switch (#51), Next.js 16.4.6 for the advisory GHSA-mfr8-8qww-v76h (#52; the CLI stopped builds on 16.4.3), offers (#53), banners (#54) and reviews (#55) on the API. **Vercel Production runs `API_AREAS=menu,offers,banners,reviews`.** `feat/home-live` (review pending, docs only): hero + About on the API (`API_AREAS=menu,offers,banners,reviews,home`; the backend's Phase 9 is on the demo server). Last area, when the backend ships it: `info,ordering` together. Postponed: removing `/lab/errors`
 
 ## Validation snapshot (2026-11-03, `main` at PR #24)
 
