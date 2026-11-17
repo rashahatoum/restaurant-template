@@ -5,6 +5,13 @@ Requirements themselves live in [PROJECT_REQUIREMENTS.md](PROJECT_REQUIREMENTS.m
 
 ---
 
+## 2026-11-17 — Offers on the API (D7d on staging) — Proposed (approved by the backend developer; owner review in the PR)
+- **Turned on with `API_AREAS=menu,offers`** once the backend's Phase 6 was on the demo server. Stacked on `chore/next-16.4.6` (on 16.4.3 the Next CLI stopped the builds); merge that first.
+- **Only the confirmed shape for offers:** `section-api` reads the offers admin GET and the section `PATCH` answer flat only (`flatSection`); the `{ section: … }` reading stays for reviews until its backend phase. `offers-actions` comment updated (PUT and the flat answer confirmed). The public `getOffersContent` already read the flat shape only.
+- **Checked against the demo (public, no login):** `GET /offers` is the flat `OffersContent` (4 offers, all active, slug ids, empty optional fields left out); `npm run build` with `menu,offers` on a cold cache: 80 pages; `next start`: `/`, `/menu`, `/cart` 200; the home offers section and the menu's «العروض» anchor present, the offer photos from `/storage`; the 4 offer pages 200 and their share images 200 (image); the sitemap lists them. Lint and typecheck clean.
+- **The dashboard against the demo** (section switch and texts, card photo set/removed, create with and without «رابط الصفحة», full save, on/off, move, delete, a validation error, an offer photo; then the section off → the public site hides it): tested by the backend developer with the test account.
+- **Production:** `API_AREAS` becomes `menu,offers` when this merges, then a redeploy.
+
 ## 2026-11-17 — Next.js 16.4.3 → 16.4.6 (security) — Proposed (approved by the backend developer; owner review in the PR)
 - **Why:** Next.js 16.3.0–16.4.4 is affected by GHSA-mfr8-8qww-v76h (moderate: information disclosure across root params when a `'use cache'` function is called through `unstable_cache()`). The site isn't exposed (no `'use cache'`, no `unstable_cache`), but the Next CLI on 16.4.3 stopped `next build` with "SecurityFatalError" after generating the pages: every time without `API_BASE_URL`, and also with `API_AREAS=menu,offers`, so it would likely block Vercel. `npm audit --omit=dev` listed it as the one production finding.
 - **What:** `next` and `eslint-config-next` `^16.4.3` → `^16.4.6` (a patch release, same minor). The lockfile changes only the Next.js family's versions (`next`, `@next/env`, `eslint-config-next`, `@next/eslint-plugin-next`, the `@next/swc-*` binaries). The installing npm (11.2) dropped the `libc` fields of the Linux `swc` binaries; they were put back from the old lockfile, so the diff is only the version bumps.
